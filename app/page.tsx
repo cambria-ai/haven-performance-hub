@@ -133,6 +133,7 @@ export default function LoginPage() {
                 value={agentId}
                 onChange={setAgentId}
                 type="text"
+                autoComplete="username"
               />
               <Field
                 label="Password"
@@ -140,6 +141,7 @@ export default function LoginPage() {
                 value={password}
                 onChange={setPassword}
                 type="password"
+                autoComplete="current-password"
               />
 
               {error && (
@@ -174,12 +176,14 @@ function Field({
   value,
   onChange,
   type,
+  autoComplete,
 }: {
   label: string;
   placeholder: string;
   value: string;
   onChange: (value: string) => void;
   type: string;
+  autoComplete?: string;
 }) {
   return (
     <label className="block space-y-2">
@@ -190,6 +194,7 @@ function Field({
         onChange={(e) => onChange(e.target.value)}
         className="w-full rounded-2xl border border-white/10 bg-slate-950/40 px-4 py-3 text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-300/60 focus:ring-2 focus:ring-cyan-300/20"
         placeholder={placeholder}
+        autoComplete={autoComplete}
         required
       />
     </label>
