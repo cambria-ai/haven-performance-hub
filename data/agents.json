@@ -1,10 +1,10 @@
 {
   "agents": [
     {
-      "id": "team-leader",
-      "name": "Team Leader",
+      "id": "cambria",
+      "name": "Cambria",
       "role": "admin",
-      "passwordHash": "$2a$10$X.vKJZ9xRqL8YqN5jKZ9xeX.vKJZ9xRqL8YqN5jKZ9xeX.vKJZ9x"
+      "passwordHash": "$2a$10$UxlKioyiHkynunzPyqI5DejQnzAPlH9qHFnz5SBCgnoBlB049Owde"
     }
   ],
   "note": "Add agent passwords using the /api/auth/add-agent endpoint or edit this file. Passwords are hashed with bcrypt."
