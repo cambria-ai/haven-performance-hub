@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import {
   BarChart3,
@@ -96,12 +96,13 @@ export default function AgentDashboard() {
   const leads = data?.leadTracking?.[agent.id] || [];
   const conversionRate = agentData?.conversionRate || 0;
   const conversionProgress = Math.min((conversionRate / 4) * 100, 100);
-  const motivationMessage = useMemo(() => {
-    if (!agentData) return 'Your dashboard is ready and waiting for the next report upload.';
-    if (conversionRate >= 4) return 'You are at or above the Zillow benchmark. Nice work.';
-    if (conversionRate >= 2.5) return 'You are building momentum. A little more follow up can push you over benchmark.';
-    return 'You have room to grow here, and this dashboard will help you spot exactly where to focus next.';
-  }, [agentData, conversionRate]);
+  const motivationMessage = !agentData
+    ? 'Your dashboard is ready and waiting for the next report upload.'
+    : conversionRate >= 4
+      ? 'You are at or above the Zillow benchmark. Nice work.'
+      : conversionRate >= 2.5
+        ? 'You are building momentum. A little more follow up can push you over benchmark.'
+        : 'You have room to grow here, and this dashboard will help you spot exactly where to focus next.';
 
   return (
     <div className="min-h-screen bg-[linear-gradient(180deg,_#f8fafc_0%,_#eef6ff_35%,_#f8fafc_100%)] text-slate-900">
