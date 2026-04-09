@@ -22,11 +22,11 @@ export async function POST(request: NextRequest) {
     
     workbook.SheetNames.forEach((sheetName, index) => {
       const sheet = workbook.Sheets[sheetName];
-      const data = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+      const data = XLSX.utils.sheet_to_json<(string | number | boolean | null)[]>(sheet, { header: 1 });
       
       if (data.length > 0) {
-        const headers = data[0] as string[];
-        const rows = data.slice(1).map((row: any[]) => {
+        const headers = (data[0] ?? []).map((cell) => String(cell ?? ''));
+        const rows = data.slice(1).map((row) => {
           const obj: any = {};
           headers.forEach((header, i) => {
             if (header && row[i] !== undefined) {
