@@ -129,7 +129,7 @@ export default function TeamLeaderDashboard() {
               <div className="rounded-2xl border border-emerald-100 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
                 <div className="font-semibold">{latestUpload ? 'Data connected' : 'Ready for first upload'}</div>
                 <div className="mt-1 text-emerald-700/80">
-                  {latestUpload ? `Last report: ${latestUpload.filename}` : 'Upload an Excel report to populate the dashboards.'}
+                  {latestUpload ? `Last report: ${latestUpload.filename}` : 'Upload an Excel or CSV report to populate the dashboards.'}
                 </div>
               </div>
               <button
@@ -153,9 +153,9 @@ export default function TeamLeaderDashboard() {
                   Upload center
                 </div>
                 <div>
-                  <h2 className="text-3xl font-semibold sm:text-4xl">Drop in the next Excel report and let the dashboard do the heavy lifting.</h2>
+                  <h2 className="text-3xl font-semibold sm:text-4xl">Drop in the next report file and let the dashboard do the heavy lifting.</h2>
                   <p className="mt-3 max-w-2xl text-base leading-7 text-slate-300">
-                    Multi sheet uploads are supported for opportunities, activities, GCI, Zillow stats, and financial breakdowns.
+                    Excel and CSV uploads are supported for opportunities, activities, GCI, Zillow stats, and financial breakdowns.
                   </p>
                 </div>
               </div>
@@ -167,10 +167,10 @@ export default function TeamLeaderDashboard() {
                 </div>
                 <label className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-2xl bg-white px-5 py-3.5 text-sm font-semibold text-slate-950 transition hover:bg-cyan-50">
                   <Upload className="h-5 w-5" />
-                  <span>{uploading ? 'Uploading...' : 'Upload Excel file'}</span>
+                  <span>{uploading ? 'Uploading...' : 'Upload report file'}</span>
                   <input
                     type="file"
-                    accept=".xlsx,.xls"
+                    accept=".xlsx,.xls,.csv,.tsv"
                     onChange={handleUpload}
                     className="hidden"
                     disabled={uploading}
