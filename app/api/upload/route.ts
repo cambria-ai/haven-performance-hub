@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as XLSX from 'xlsx';
+import { mergePerformanceData } from '@/lib/report-data';
 
 export async function POST(request: NextRequest) {
   try {
@@ -45,27 +46,38 @@ export async function POST(request: NextRequest) {
     });
 
     const dataPath = path.join(process.cwd(), 'data', 'performance-data.json');
-    const existingData = JSON.parse(fs.readFileSync(dataPath, 'utf-8'));
-    
     const uploadRecord = {
       filename: file.name,
       uploadedBy,
       uploadedAt: new Date().toISOString(),
       sheetCount: workbook.SheetNames.length,
-      sheets: workbook.SheetNames
+      sheets: workbook.SheetNames,
     };
-    
-    existingData.uploads = existingData.uploads || [];
-    existingData.uploads.push(uploadRecord);
-    existingData.latestUpload = parsedData;
-    
-    fs.writeFileSync(dataPath, JSON.stringify(existingData, null, 2));
+
+    let existingData: any = { agents: {}, uploads: [], leadTracking: {} };
+    try {
+      existingData = JSON.parse(fs.readFileSync(dataPath, 'utf-8'));
+    } catch {
+      existingData = { agents: {}, uploads: [], leadTracking: {} };
+    }
+
+    const mergedData = mergePerformanceData(existingData, parsedData, uploadRecord);
+
+    let persisted = true;
+    try {
+      fs.writeFileSync(dataPath, JSON.stringify(mergedData, null, 2));
+    } catch (persistError) {
+      persisted = false;
+      console.warn('Upload parsed but could not be persisted to filesystem:', persistError);
+    }
 
     return NextResponse.json({
       success: true,
       message: `Parsed ${workbook.SheetNames.length} sheets`,
       sheets: workbook.SheetNames,
-      upload: uploadRecord
+      upload: uploadRecord,
+      data: mergedData,
+      persisted,
     });
   } catch (error) {
     console.error('Upload error:', error);

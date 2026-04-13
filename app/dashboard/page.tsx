@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
+import { readBrowserPerformanceData, writeBrowserPerformanceData } from '@/lib/report-data';
 import { useRouter } from 'next/navigation';
 import {
   ArrowUpRight,
@@ -40,6 +41,12 @@ export default function TeamLeaderDashboard() {
   }, [router]);
 
   async function loadData() {
+    const browserData = readBrowserPerformanceData();
+    if (browserData) {
+      setData(browserData);
+      return;
+    }
+
     try {
       const res = await fetch('/api/data');
       if (res.ok) {
@@ -68,8 +75,15 @@ export default function TeamLeaderDashboard() {
 
       const result = await res.json();
       if (res.ok) {
-        alert(`✅ Upload successful! Parsed ${result.sheets?.length || 0} sheets.`);
-        loadData();
+        if (result.data) {
+          writeBrowserPerformanceData(result.data);
+          setData(result.data);
+        } else {
+          loadData();
+        }
+
+        const storageNote = result.persisted === false ? ' Saved in this browser.' : '';
+        alert(`✅ Upload successful! Parsed ${result.sheets?.length || 0} sheets.${storageNote}`);
       } else {
         alert(`❌ Error: ${result.error}`);
       }

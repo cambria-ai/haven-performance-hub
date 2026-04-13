@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { readBrowserPerformanceData } from '@/lib/report-data';
 import { useParams, useRouter } from 'next/navigation';
 import {
   BarChart3,
@@ -39,6 +40,12 @@ export default function AgentDashboard() {
   }, [router, params.id]);
 
   async function loadData() {
+    const browserData = readBrowserPerformanceData();
+    if (browserData) {
+      setData(browserData);
+      return;
+    }
+
     try {
       const res = await fetch('/api/data');
       if (res.ok) {
