@@ -5,7 +5,49 @@
       "name": "Cambria",
       "role": "admin",
       "passwordHash": "$2a$10$UxlKioyiHkynunzPyqI5DejQnzAPlH9qHFnz5SBCgnoBlB049Owde"
+    },
+    {
+      "id": "maegen",
+      "name": "Maegen",
+      "role": "agent",
+      "passwordHash": "$2a$10$g7Oaj5/gBVfUfdTfKMMDs.K2H8PN/c.f9LPy32N7BtSkkchbXu0EO"
+    },
+    {
+      "id": "sarah",
+      "name": "Sarah",
+      "role": "agent",
+      "passwordHash": "$2a$10$g7Oaj5/gBVfUfdTfKMMDs.K2H8PN/c.f9LPy32N7BtSkkchbXu0EO"
+    },
+    {
+      "id": "jessica",
+      "name": "Jessica",
+      "role": "agent",
+      "passwordHash": "$2a$10$g7Oaj5/gBVfUfdTfKMMDs.K2H8PN/c.f9LPy32N7BtSkkchbXu0EO"
+    },
+    {
+      "id": "michael",
+      "name": "Michael",
+      "role": "agent",
+      "passwordHash": "$2a$10$g7Oaj5/gBVfUfdTfKMMDs.K2H8PN/c.f9LPy32N7BtSkkchbXu0EO"
+    },
+    {
+      "id": "ashley",
+      "name": "Ashley",
+      "role": "agent",
+      "passwordHash": "$2a$10$g7Oaj5/gBVfUfdTfKMMDs.K2H8PN/c.f9LPy32N7BtSkkchbXu0EO"
+    },
+    {
+      "id": "david",
+      "name": "David",
+      "role": "agent",
+      "passwordHash": "$2a$10$g7Oaj5/gBVfUfdTfKMMDs.K2H8PN/c.f9LPy32N7BtSkkchbXu0EO"
+    },
+    {
+      "id": "emily",
+      "name": "Emily",
+      "role": "agent",
+      "passwordHash": "$2a$10$g7Oaj5/gBVfUfdTfKMMDs.K2H8PN/c.f9LPy32N7BtSkkchbXu0EO"
     }
   ],
-  "note": "Add agent passwords using the /api/auth/add-agent endpoint or edit this file. Passwords are hashed with bcrypt."
+  "note": "Demo credentials for preview. All agent passwords are 'demo123' (hashed). Cambria has admin role. Production: use unique secure passwords per agent."
 }

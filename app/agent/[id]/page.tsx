@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { readBrowserPerformanceData } from '@/lib/report-data';
 import { useParams, useRouter } from 'next/navigation';
 import {
   BarChart3,
@@ -14,19 +13,33 @@ import {
   Sparkles,
   Target,
   TrendingUp,
+  Trophy,
+  ArrowUpRight,
+  ArrowDownRight,
+  Minus,
 } from 'lucide-react';
+
+interface AgentData {
+  agent: any;
+  leaderboard: any[];
+  teamStats: any;
+  isAdmin: boolean;
+  snapshotDate: string;
+}
 
 export default function AgentDashboard() {
   const router = useRouter();
   const params = useParams();
   const [agent, setAgent] = useState<any>(null);
-  const [data, setData] = useState<any>(null);
+  const [token, setToken] = useState<string>('');
+  const [data, setData] = useState<AgentData | null>(null);
   const [showLeadForm, setShowLeadForm] = useState(false);
   const [newLead, setNewLead] = useState({ type: 'sphere', name: '', source: '', notes: '' });
 
   useEffect(() => {
     const stored = localStorage.getItem('haven_agent');
-    if (!stored) {
+    const storedToken = localStorage.getItem('haven_token');
+    if (!stored || !storedToken) {
       router.push('/');
       return;
     }
@@ -36,21 +49,23 @@ export default function AgentDashboard() {
       return;
     }
     setAgent(agentData);
-    loadData();
+    setToken(storedToken);
+    loadData(storedToken);
   }, [router, params.id]);
 
-  async function loadData() {
-    const browserData = readBrowserPerformanceData();
-    if (browserData) {
-      setData(browserData);
-      return;
-    }
-
+  async function loadData(authToken: string) {
     try {
-      const res = await fetch('/api/data');
+      const res = await fetch('/api/agent-data', {
+        headers: {
+          'Authorization': `Bearer ${authToken}`,
+        },
+      });
+      
       if (res.ok) {
         const result = await res.json();
         setData(result);
+      } else if (res.status === 401 || res.status === 403) {
+        router.push('/');
       }
     } catch (err) {
       console.error('Failed to load data:', err);
@@ -59,14 +74,16 @@ export default function AgentDashboard() {
 
   async function handleAddLead(e: React.FormEvent) {
     e.preventDefault();
-    if (!agent) return;
+    if (!token) return;
 
     try {
       const res = await fetch('/api/leads', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
         body: JSON.stringify({
-          agentId: agent.id,
           ...newLead,
           createdAt: new Date().toISOString(),
         }),
@@ -76,7 +93,6 @@ export default function AgentDashboard() {
         alert('✅ Lead added!');
         setShowLeadForm(false);
         setNewLead({ type: 'sphere', name: '', source: '', notes: '' });
-        loadData();
       } else {
         alert('Failed to add lead');
       }
@@ -99,10 +115,14 @@ export default function AgentDashboard() {
     );
   }
 
-  const agentData = data?.agents?.[agent.id];
-  const leads = data?.leadTracking?.[agent.id] || [];
-  const conversionRate = agentData?.conversionRate || 0;
+  const agentData = data?.agent;
+  const leaderboard = data?.leaderboard || [];
+  const teamStats = data?.teamStats;
+  const myRank = leaderboard.find(l => l.isOwn);
+  const conversionRate = agentData?.zillowConversion || 0;
   const conversionProgress = Math.min((conversionRate / 4) * 100, 100);
+  const [leads, setLeads] = useState<any[]>([]);
+  
   const motivationMessage = !agentData
     ? 'Your dashboard is ready and waiting for the next report upload.'
     : conversionRate >= 4
@@ -148,84 +168,101 @@ export default function AgentDashboard() {
 
         {agentData ? (
           <>
-            <section className="mb-8 grid grid-cols-1 gap-5 md:grid-cols-3">
+            <section className="mb-8 grid grid-cols-1 gap-5 md:grid-cols-4">
+              <RankCard
+                rank={myRank?.rank || '--'}
+                totalAgents={leaderboard.length}
+                movement={myRank?.movement || 'same'}
+                distanceToNext={myRank?.distanceToNext || 0}
+              />
               <StatCard
                 icon={<Target className="h-5 w-5" />}
-                label="Opportunities"
-                value={agentData.opportunities || 0}
-                helper="Your active pipeline snapshot"
+                label="Closed transactions"
+                value={agentData.closedTransactions || 0}
+                helper="Year to date closings"
                 accent="indigo"
               />
               <StatCard
                 icon={<DollarSign className="h-5 w-5" />}
-                label="GCI"
-                value={formatCurrency(agentData.gci || 0)}
-                helper="Gross commission income"
+                label="Closed volume"
+                value={formatCurrency(agentData.closedVolume || 0)}
+                helper="Total sales volume"
                 accent="emerald"
               />
               <StatCard
                 icon={<TrendingUp className="h-5 w-5" />}
                 label="Conversion rate"
-                value={`${conversionRate.toFixed(1)}%`}
-                helper={conversionRate >= 4 ? 'You are on target' : 'Goal is 4% or better'}
+                value={`${(agentData.zillowConversion || 0).toFixed(1)}%`}
+                helper={agentData.zillowConversion >= 4 ? 'On target' : 'Goal is 4%'}
                 accent="amber"
               />
             </section>
 
-            <section className="mb-8 grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
+            <section className="mb-8 grid gap-6 xl:grid-cols-[1fr_380px]">
               <div className="rounded-[2rem] border border-white/70 bg-white/85 p-6 shadow-[0_30px_80px_-35px_rgba(15,23,42,0.24)] backdrop-blur">
-                <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                  <div>
-                    <p className="text-sm font-semibold uppercase tracking-[0.24em] text-slate-500">Activity overview</p>
-                    <h2 className="mt-2 text-2xl font-semibold text-slate-950">Daily effort that drives production</h2>
-                  </div>
-                  <div className="rounded-full bg-slate-100 px-3 py-1 text-sm font-medium text-slate-600">
-                    Goal aware view
-                  </div>
+                <div className="mb-6">
+                  <p className="text-sm font-semibold uppercase tracking-[0.24em] text-slate-500">Team race</p>
+                  <h2 className="mt-2 text-2xl font-semibold text-slate-950">Leaderboard - Closed Transactions</h2>
+                  <p className="mt-2 text-sm text-slate-600">You see your position highlighted. Other positions are anonymous to protect privacy.</p>
                 </div>
 
-                <div className="grid gap-4 md:grid-cols-3">
-                  <ActivityCard icon={<Phone className="h-5 w-5" />} label="Calls" value={agentData.calls || 0} accent="indigo" />
-                  <ActivityCard icon={<Home className="h-5 w-5" />} label="Showings" value={agentData.showings || 0} accent="emerald" />
-                  <ActivityCard icon={<Mail className="h-5 w-5" />} label="Emails" value={agentData.emails || 0} accent="amber" />
-                </div>
-
-                <div className="mt-6 rounded-3xl bg-slate-50 p-5">
-                  <div className="flex items-center justify-between gap-4">
-                    <div>
-                      <p className="text-sm font-medium text-slate-500">Benchmark progress</p>
-                      <p className="mt-1 text-xl font-semibold text-slate-900">Zillow conversion goal</p>
-                    </div>
-                    <span className={`rounded-full px-3 py-1 text-sm font-semibold ${conversionRate >= 4 ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>
-                      {conversionRate >= 4 ? 'On target' : 'In progress'}
-                    </span>
-                  </div>
-                  <div className="mt-4 h-3 rounded-full bg-slate-200">
-                    <div
-                      className="h-3 rounded-full bg-gradient-to-r from-indigo-600 via-violet-600 to-cyan-500 transition-all"
-                      style={{ width: `${Math.max(conversionProgress, 6)}%` }}
+                <div className="space-y-3">
+                  {leaderboard.map((entry) => (
+                    <LeaderboardRow
+                      key={entry.rank}
+                      entry={entry}
+                      isOwn={entry.isOwn}
                     />
-                  </div>
-                  <div className="mt-3 flex items-center justify-between text-sm text-slate-500">
-                    <span>Current: {conversionRate.toFixed(1)}%</span>
-                    <span>Goal: 4.0%</span>
-                  </div>
+                  ))}
                 </div>
               </div>
 
-              <div className="rounded-[2rem] border border-white/70 bg-white/85 p-6 shadow-[0_30px_80px_-35px_rgba(15,23,42,0.24)] backdrop-blur">
-                <p className="text-sm font-semibold uppercase tracking-[0.24em] text-slate-500">Zillow performance</p>
-                <h2 className="mt-2 text-2xl font-semibold text-slate-950">Lead quality and spend</h2>
+              <div className="space-y-6">
+                <div className="rounded-[2rem] border border-white/70 bg-white/85 p-6 shadow-[0_30px_80px_-35px_rgba(15,23,42,0.24)] backdrop-blur">
+                  <p className="text-sm font-semibold uppercase tracking-[0.24em] text-slate-500">Your activity</p>
+                  <h2 className="mt-2 text-2xl font-semibold text-slate-950">Daily effort metrics</h2>
 
-                <div className="mt-6 space-y-3">
-                  <MetricRow label="Lead volume" value={agentData.zillowLeads || 0} />
-                  <MetricRow label="Conversion rate" value={`${(agentData.zillowConversion || 0).toFixed(1)}%`} />
-                  <MetricRow label="Cost per lead" value={formatCurrency(agentData.zillowCPL || 0)} />
-                  <MetricRow label="Total Zillow cost" value={formatCurrency(agentData.zillowCost || 0)} />
+                  <div className="mt-6 space-y-3">
+                    <ActivityRow icon={<Phone className="h-4 w-4" />} label="Calls" value={agentData.calls || 0} />
+                    <ActivityRow icon={<Home className="h-4 w-4" />} label="Showings" value={agentData.showings || 0} />
+                    <ActivityRow icon={<Mail className="h-4 w-4" />} label="Emails" value={agentData.emails || 0} />
+                    <ActivityRow icon={<Target className="h-4 w-4" />} label="CMAs completed" value={agentData.cmasCompleted || 0} />
+                    <ActivityRow icon={<Trophy className="h-4 w-4" />} label="Active listings" value={agentData.activeListings || 0} />
+                  </div>
                 </div>
 
-                <div className="mt-6 rounded-3xl border border-cyan-100 bg-cyan-50 p-5 text-sm leading-6 text-cyan-900">
-                  This section is meant to make your return on paid leads obvious fast, without making you dig through raw spreadsheet rows.
+                <div className="rounded-[2rem] border border-white/70 bg-white/85 p-6 shadow-[0_30px_80px_-35px_rgba(15,23,42,0.24)] backdrop-blur">
+                  <p className="text-sm font-semibold uppercase tracking-[0.24em] text-slate-500">Zillow health</p>
+                  <h2 className="mt-2 text-2xl font-semibold text-slate-950">Paid lead performance</h2>
+
+                  <div className="mt-6 space-y-3">
+                    <MetricRow label="Lead volume" value={agentData.zillowLeads || 0} />
+                    <MetricRow label="Conversion rate" value={`${(agentData.zillowConversion || 0).toFixed(1)}%`} />
+                    <MetricRow label="Cost per lead" value={formatCurrency((agentData.zillowCost || 0) / (agentData.zillowLeads || 1))} />
+                    <MetricRow label="Total Zillow cost" value={formatCurrency(agentData.zillowCost || 0)} />
+                  </div>
+
+                  <div className="mt-6 rounded-3xl bg-slate-50 p-5">
+                    <div className="flex items-center justify-between gap-4">
+                      <div>
+                        <p className="text-sm font-medium text-slate-500">Benchmark progress</p>
+                        <p className="mt-1 text-xl font-semibold text-slate-900">Zillow conversion goal</p>
+                      </div>
+                      <span className={`rounded-full px-3 py-1 text-sm font-semibold ${conversionRate >= 4 ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>
+                        {conversionRate >= 4 ? 'On target' : 'In progress'}
+                      </span>
+                    </div>
+                    <div className="mt-4 h-3 rounded-full bg-slate-200">
+                      <div
+                        className="h-3 rounded-full bg-gradient-to-r from-indigo-600 via-violet-600 to-cyan-500 transition-all"
+                        style={{ width: `${Math.max(conversionProgress, 6)}%` }}
+                      />
+                    </div>
+                    <div className="mt-3 flex items-center justify-between text-sm text-slate-500">
+                      <span>Current: {conversionRate.toFixed(1)}%</span>
+                      <span>Goal: 4.0%</span>
+                    </div>
+                  </div>
                 </div>
               </div>
             </section>
@@ -240,7 +277,7 @@ export default function AgentDashboard() {
               </div>
 
               <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-6">
-                <FinancialItem label="Cap" value={formatCurrency(agentData.cap || 0)} />
+                <FinancialItem label="Cap progress" value={`${((agentData.capProgress || 0) / (agentData.capTarget || 1) * 100).toFixed(0)}%`} />
                 <FinancialItem label="Haven fees" value={formatCurrency(agentData.havenFees || 0)} />
                 <FinancialItem label="B&O tax" value={formatCurrency(agentData.boTax || 0)} />
                 <FinancialItem label="L&I" value={formatCurrency(agentData.lni || 0)} />
@@ -436,4 +473,85 @@ function formatDate(value: string): string {
     day: 'numeric',
     year: 'numeric',
   });
+}
+
+function RankCard({ rank, totalAgents, movement, distanceToNext }: {
+  rank: number | string;
+  totalAgents: number;
+  movement: 'up' | 'down' | 'same' | 'new';
+  distanceToNext: number;
+}) {
+  const movementIcon = movement === 'up' ? (
+    <ArrowUpRight className="h-5 w-5 text-emerald-500" />
+  ) : movement === 'down' ? (
+    <ArrowDownRight className="h-5 w-5 text-rose-500" />
+  ) : (
+    <Minus className="h-5 w-5 text-slate-400" />
+  );
+
+  return (
+    <div className="rounded-[1.75rem] border border-white/70 bg-gradient-to-br from-indigo-500/15 via-violet-500/10 to-cyan-500/10 p-6 backdrop-blur">
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-sm font-medium text-slate-500">Your rank</p>
+          <p className="mt-2 text-5xl font-bold text-slate-950">{rank}</p>
+          <p className="mt-1 text-sm text-slate-500">of {totalAgents} agents</p>
+        </div>
+        <div className="flex flex-col items-end gap-2">
+          {movementIcon}
+          {distanceToNext > 0 && (
+            <div className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600">
+              {distanceToNext} to next
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function LeaderboardRow({ entry, isOwn }: { entry: any; isOwn: boolean }) {
+  return (
+    <div className={`flex items-center justify-between rounded-2xl border px-4 py-3 ${
+      isOwn 
+        ? 'border-indigo-200 bg-indigo-50/80' 
+        : 'border-slate-100 bg-slate-50/50'
+    }`}>
+      <div className="flex items-center gap-4">
+        <div className={`flex h-10 w-10 items-center justify-center rounded-full text-sm font-bold ${
+          entry.rank === 1 ? 'bg-amber-100 text-amber-700' :
+          entry.rank === 2 ? 'bg-slate-200 text-slate-700' :
+          entry.rank === 3 ? 'bg-orange-100 text-orange-700' :
+          'bg-slate-100 text-slate-600'
+        }`}>
+          {entry.rank}
+        </div>
+        <div>
+          <p className={`font-semibold ${isOwn ? 'text-indigo-900' : 'text-slate-700'}`}>
+            {entry.agentName}
+            {isOwn && <span className="ml-2 text-xs font-normal text-indigo-600">(You)</span>}
+          </p>
+          <p className="text-xs text-slate-500">
+            {entry.closedVolume ? formatCurrency(entry.closedVolume) : ''}
+          </p>
+        </div>
+      </div>
+      <div className="text-right">
+        <p className="text-lg font-bold text-slate-900">{entry.closedTransactions}</p>
+        <p className="text-xs text-slate-500">closed</p>
+      </div>
+    </div>
+  );
+}
+
+function ActivityRow({ icon, label, value }: { icon: React.ReactNode; label: string; value: number }) {
+  return (
+    <div className="flex items-center justify-between rounded-2xl border border-slate-100 bg-slate-50/80 px-4 py-3">
+      <div className="flex items-center gap-3">
+        <div className="text-slate-500">{icon}</div>
+        <span className="text-sm font-medium text-slate-600">{label}</span>
+      </div>
+      <span className="text-base font-semibold text-slate-950">{value}</span>
+    </div>
+  );
 }

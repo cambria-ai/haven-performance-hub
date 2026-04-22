@@ -1,15 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server';
-import * as fs from 'fs';
-import * as path from 'path';
-import * as XLSX from 'xlsx';
-import { mergePerformanceData } from '@/lib/report-data';
+import { getAuthFromRequest } from '@/lib/auth-helpers';
+import { saveCurrentSnapshot, archiveCurrentSnapshot } from '@/lib/snapshot';
+import { normalizeToSnapshot } from '@/lib/normalizer';
 
 export async function POST(request: NextRequest) {
   try {
+    // Verify admin access
+    const auth = getAuthFromRequest(request);
+    
+    if (!auth || auth.role !== 'admin') {
+      return NextResponse.json(
+        { error: 'Admin access required for uploads' },
+        { status: 403 }
+      );
+    }
+    
     const formData = await request.formData();
     const file = formData.get('file') as File;
-    const uploadedBy = formData.get('uploadedBy') as string;
-
+    
     if (!file) {
       return NextResponse.json({ error: 'No file uploaded' }, { status: 400 });
     }
@@ -17,11 +25,13 @@ export async function POST(request: NextRequest) {
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
     
+    // Parse Excel file
+    const XLSX = await import('xlsx');
     const workbook = XLSX.read(buffer, { type: 'buffer' });
     
-    const parsedData: any = {};
+    const parsedData: Record<string, any> = {};
     
-    workbook.SheetNames.forEach((sheetName, index) => {
+    workbook.SheetNames.forEach((sheetName) => {
       const sheet = workbook.Sheets[sheetName];
       const data = XLSX.utils.sheet_to_json<(string | number | boolean | null)[]>(sheet, { header: 1 });
       
@@ -45,42 +55,31 @@ export async function POST(request: NextRequest) {
       }
     });
 
-    const dataPath = path.join(process.cwd(), 'data', 'performance-data.json');
-    const uploadRecord = {
-      filename: file.name,
-      uploadedBy,
-      uploadedAt: new Date().toISOString(),
-      sheetCount: workbook.SheetNames.length,
-      sheets: workbook.SheetNames,
-    };
-
-    let existingData: any = { agents: {}, uploads: [], leadTracking: {} };
-    try {
-      existingData = JSON.parse(fs.readFileSync(dataPath, 'utf-8'));
-    } catch {
-      existingData = { agents: {}, uploads: [], leadTracking: {} };
-    }
-
-    const mergedData = mergePerformanceData(existingData, parsedData, uploadRecord);
-
-    let persisted = true;
-    try {
-      fs.writeFileSync(dataPath, JSON.stringify(mergedData, null, 2));
-    } catch (persistError) {
-      persisted = false;
-      console.warn('Upload parsed but could not be persisted to filesystem:', persistError);
-    }
-
+    // Archive current snapshot before creating new one
+    archiveCurrentSnapshot();
+    
+    // Normalize to snapshot format
+    const sourceFiles = [file.name, ...workbook.SheetNames];
+    const result = normalizeToSnapshot(parsedData, auth.agentId, sourceFiles);
+    
+    // Save new snapshot
+    saveCurrentSnapshot(result.snapshot);
+    
     return NextResponse.json({
       success: true,
-      message: `Parsed ${workbook.SheetNames.length} sheets`,
+      message: `Processed ${workbook.SheetNames.length} sheets`,
       sheets: workbook.SheetNames,
-      upload: uploadRecord,
-      data: mergedData,
-      persisted,
+      snapshotId: result.snapshot.metadata.id,
+      agentCount: result.snapshot.metadata.agentCount,
+      transactionCount: result.snapshot.metadata.transactionCount,
+      warnings: result.warnings,
+      errors: result.errors,
     });
   } catch (error) {
     console.error('Upload error:', error);
-    return NextResponse.json({ error: 'Failed to process report file' }, { status: 500 });
+    return NextResponse.json({ 
+      error: 'Failed to process report file',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    }, { status: 500 });
   }
 }

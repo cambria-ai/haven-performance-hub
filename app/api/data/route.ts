@@ -1,14 +1,43 @@
-import { NextResponse } from 'next/server';
-import * as fs from 'fs';
-import * as path from 'path';
+import { NextRequest, NextResponse } from 'next/server';
+import { loadCurrentSnapshot, getSnapshotHistory } from '@/lib/snapshot';
+import { getAuthFromRequest, getScopedSnapshotData } from '@/lib/auth-helpers';
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    const dataPath = path.join(process.cwd(), 'data', 'performance-data.json');
-    const data = JSON.parse(fs.readFileSync(dataPath, 'utf-8'));
-    return NextResponse.json(data);
+    // Get auth context
+    const auth = getAuthFromRequest(request);
+    
+    if (!auth) {
+      return NextResponse.json(
+        { error: 'Authentication required' },
+        { status: 401 }
+      );
+    }
+    
+    // Load current snapshot
+    const snapshot = loadCurrentSnapshot();
+    
+    // Get role-scoped data
+    const scopedData = getScopedSnapshotData(snapshot, auth);
+    
+    // Get snapshot history for admin
+    const history = auth.role === 'admin' ? getSnapshotHistory() : [];
+    
+    return NextResponse.json({
+      snapshot: scopedData.snapshot,
+      leaderboard: scopedData.leaderboard,
+      teamStats: scopedData.teamStats,
+      isAdmin: scopedData.isAdmin,
+      history,
+      warnings: scopedData.error ? [scopedData.error] : [],
+    });
   } catch (error) {
     console.error('Data load error:', error);
-    return NextResponse.json({ agents: {}, uploads: [], leadTracking: {} });
+    return NextResponse.json({ 
+      error: 'Failed to load data',
+      snapshot: null,
+      leaderboard: [],
+      teamStats: null,
+    });
   }
 }

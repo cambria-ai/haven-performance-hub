@@ -1,7 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
-import { readBrowserPerformanceData, writeBrowserPerformanceData } from '@/lib/report-data';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   ArrowUpRight,
@@ -17,17 +16,35 @@ import {
   TrendingUp,
   Upload,
   Users,
+  AlertTriangle,
 } from 'lucide-react';
+
+interface AdminData {
+  snapshot: any;
+  history: any[];
+  importHealth: {
+    lastImport: string | null;
+    agentCount: number;
+    transactionCount: number;
+    sourceFiles: string[];
+    warnings: string[];
+  };
+  teamStats: any;
+  leaderboard: any[];
+}
 
 export default function TeamLeaderDashboard() {
   const router = useRouter();
   const [agent, setAgent] = useState<any>(null);
+  const [token, setToken] = useState<string>('');
   const [uploading, setUploading] = useState(false);
-  const [data, setData] = useState<any>(null);
+  const [data, setData] = useState<AdminData | null>(null);
+  const [uploadWarnings, setUploadWarnings] = useState<string[]>([]);
 
   useEffect(() => {
     const stored = localStorage.getItem('haven_agent');
-    if (!stored) {
+    const storedToken = localStorage.getItem('haven_token');
+    if (!stored || !storedToken) {
       router.push('/');
       return;
     }
@@ -37,21 +54,23 @@ export default function TeamLeaderDashboard() {
       return;
     }
     setAgent(agentData);
-    loadData();
+    setToken(storedToken);
+    loadData(storedToken);
   }, [router]);
 
-  async function loadData() {
-    const browserData = readBrowserPerformanceData();
-    if (browserData) {
-      setData(browserData);
-      return;
-    }
-
+  async function loadData(authToken: string) {
     try {
-      const res = await fetch('/api/data');
+      const res = await fetch('/api/admin-data', {
+        headers: {
+          'Authorization': `Bearer ${authToken}`,
+        },
+      });
+      
       if (res.ok) {
         const result = await res.json();
         setData(result);
+      } else if (res.status === 403) {
+        router.push('/');
       }
     } catch (err) {
       console.error('Failed to load data:', err);
@@ -60,30 +79,27 @@ export default function TeamLeaderDashboard() {
 
   async function handleUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
-    if (!file || !agent) return;
+    if (!file || !token) return;
 
     setUploading(true);
+    setUploadWarnings([]);
     try {
       const formData = new FormData();
       formData.append('file', file);
-      formData.append('uploadedBy', agent.id);
 
       const res = await fetch('/api/upload', {
         method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
         body: formData,
       });
 
       const result = await res.json();
       if (res.ok) {
-        if (result.data) {
-          writeBrowserPerformanceData(result.data);
-          setData(result.data);
-        } else {
-          loadData();
-        }
-
-        const storageNote = result.persisted === false ? ' Saved in this browser.' : '';
-        alert(`✅ Upload successful! Parsed ${result.sheets?.length || 0} sheets.${storageNote}`);
+        setUploadWarnings(result.warnings?.map((w: any) => w.message) || []);
+        loadData(token);
+        alert(`✅ Upload successful! Processed ${result.sheets?.length || 0} sheets. ${result.agentCount} agents, ${result.transactionCount} transactions.`);
       } else {
         alert(`❌ Error: ${result.error}`);
       }
@@ -101,9 +117,10 @@ export default function TeamLeaderDashboard() {
     router.push('/');
   }
 
-  const uploads = data?.uploads || [];
-  const totalAgents = useMemo(() => Object.keys(data?.agents || {}).length, [data]);
-  const latestUpload = uploads.length ? uploads[uploads.length - 1] : null;
+  const uploads = data?.history || [];
+  const totalAgents = data?.snapshot?.metadata?.agentCount || 0;
+  const totalTransactions = data?.snapshot?.metadata?.transactionCount || 0;
+  const importHealth = data?.importHealth;
 
   if (!agent) {
     return (
@@ -141,9 +158,11 @@ export default function TeamLeaderDashboard() {
 
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
               <div className="rounded-2xl border border-emerald-100 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
-                <div className="font-semibold">{latestUpload ? 'Data connected' : 'Ready for first upload'}</div>
+                <div className="font-semibold">{importHealth?.lastImport ? 'Data connected' : 'Ready for first upload'}</div>
                 <div className="mt-1 text-emerald-700/80">
-                  {latestUpload ? `Last report: ${latestUpload.filename}` : 'Upload an Excel or CSV report to populate the dashboards.'}
+                  {importHealth?.lastImport
+                    ? `Last import: ${formatDate(importHealth.lastImport)}`
+                    : 'Upload an Excel or CSV report to populate the dashboards.'}
                 </div>
               </div>
               <button
@@ -197,8 +216,8 @@ export default function TeamLeaderDashboard() {
           <div className="grid gap-4">
             <InsightPanel
               title="Recent activity"
-              value={uploads.length ? `${uploads.length} upload${uploads.length === 1 ? '' : 's'}` : 'No uploads yet'}
-              note={latestUpload ? `Latest upload was ${formatDate(latestUpload.uploadedAt)}` : 'Your first upload will kick off the dashboard data feed.'}
+              value={uploads.length ? `${uploads.length} snapshot${uploads.length === 1 ? '' : 's'}` : 'No snapshots yet'}
+              note={importHealth?.lastImport ? `Latest snapshot: ${formatDate(importHealth.lastImport)}` : 'Your first upload will kick off the dashboard data feed.'}
               icon={<Clock3 className="h-5 w-5" />}
               tone="slate"
             />
@@ -224,29 +243,29 @@ export default function TeamLeaderDashboard() {
             icon={<Users className="h-5 w-5" />}
             label="Total agents"
             value={totalAgents}
-            helper="Populated from uploaded reports"
+            helper={totalAgents ? 'Active in current snapshot' : 'Waiting for first import'}
             accent="indigo"
           />
           <StatCard
             icon={<DollarSign className="h-5 w-5" />}
-            label="Total GCI"
-            value={formatCurrency(0)}
-            helper="Will calculate from report data"
+            label="Total transactions"
+            value={totalTransactions}
+            helper={totalTransactions ? 'Year to date closings' : 'Waiting for first import'}
             accent="emerald"
           />
           <StatCard
             icon={<Target className="h-5 w-5" />}
-            label="Transactions"
-            value={0}
-            helper="Pending first live report"
-            accent="amber"
+            label="Import status"
+            value={importHealth?.lastImport ? 'Connected' : 'Not started'}
+            helper={importHealth?.lastImport ? `Last: ${formatDate(importHealth.lastImport)}` : 'Upload your first weekly snapshot'}
+            accent={importHealth?.lastImport ? 'cyan' : 'amber'}
           />
           <StatCard
             icon={<TrendingUp className="h-5 w-5" />}
-            label="Average conversion"
-            value="2.5%"
-            helper="Benchmark target is 4% or higher"
-            accent="cyan"
+            label="Team health"
+            value={importHealth?.warnings?.length ? 'Needs attention' : 'Healthy'}
+            helper={importHealth?.warnings?.[0] || 'All systems operational'}
+            accent={importHealth?.warnings?.length ? 'amber' : 'emerald'}
           />
         </section>
 
@@ -254,31 +273,50 @@ export default function TeamLeaderDashboard() {
           <div className="rounded-[2rem] border border-white/70 bg-white/85 p-6 shadow-[0_30px_80px_-35px_rgba(15,23,42,0.24)] backdrop-blur">
             <div className="mb-5 flex items-center justify-between gap-4">
               <div>
-                <p className="text-sm font-semibold uppercase tracking-[0.24em] text-slate-500">Recent uploads</p>
-                <h3 className="mt-2 text-2xl font-semibold text-slate-950">Report timeline</h3>
+                <p className="text-sm font-semibold uppercase tracking-[0.24em] text-slate-500">Import history</p>
+                <h3 className="mt-2 text-2xl font-semibold text-slate-950">Snapshot timeline</h3>
               </div>
               <div className="rounded-full bg-slate-100 px-3 py-1 text-sm font-medium text-slate-600">
-                {uploads.length} total
+                {uploads.length} snapshot{uploads.length !== 1 ? 's' : ''}
               </div>
             </div>
+
+            {importHealth?.warnings?.length ? (
+              <div className="mb-4 rounded-2xl border border-amber-200 bg-amber-50 p-4">
+                <div className="flex items-start gap-3">
+                  <AlertTriangle className="h-5 w-5 text-amber-600 mt-0.5" />
+                  <div>
+                    <p className="text-sm font-semibold text-amber-800">Import warnings</p>
+                    <ul className="mt-1 space-y-1 text-sm text-amber-700">
+                      {importHealth.warnings.map((warning: string, i: number) => (
+                        <li key={i}>• {warning}</li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            ) : null}
 
             {uploads.length > 0 ? (
               <div className="space-y-4">
                 {uploads
                   .slice(-5)
                   .reverse()
-                  .map((upload: any, i: number) => (
+                  .map((snapshot: any, i: number) => (
                     <div key={i} className="flex gap-4 rounded-2xl border border-slate-100 bg-slate-50/80 p-4">
                       <div className="mt-1 flex h-10 w-10 items-center justify-center rounded-2xl bg-indigo-100 text-indigo-700">
                         <CheckCircle2 className="h-5 w-5" />
                       </div>
                       <div className="min-w-0 flex-1">
                         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                          <p className="truncate text-base font-semibold text-slate-900">{upload.filename}</p>
-                          <span className="text-sm text-slate-500">{formatDate(upload.uploadedAt)}</span>
+                          <p className="truncate text-base font-semibold text-slate-900">
+                            {snapshot.id || `Snapshot ${i + 1}`}
+                          </p>
+                          <span className="text-sm text-slate-500">{formatDate(snapshot.createdAt)}</span>
                         </div>
                         <p className="mt-2 text-sm text-slate-600">
-                          Uploaded by {upload.uploadedBy}. Parsed {upload.sheetCount} sheet{upload.sheetCount !== 1 ? 's' : ''}.
+                          {snapshot.agentCount} agents, {snapshot.transactionCount} transactions
+                          {snapshot.sourceFiles?.length ? ` • ${snapshot.sourceFiles.length} sources` : ''}
                         </p>
                       </div>
                     </div>
@@ -286,8 +324,8 @@ export default function TeamLeaderDashboard() {
               </div>
             ) : (
               <EmptyCard
-                title="Nothing uploaded yet"
-                description="Once you upload a report, this timeline will show the latest files and parsing activity."
+                title="No snapshots yet"
+                description="Your first weekly import will create the initial snapshot and populate all dashboards."
               />
             )}
           </div>
