@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { loadCurrentSnapshot } from '@/lib/snapshot';
 import { getAuthFromRequest, getScopedSnapshotData } from '@/lib/auth-helpers';
+import * as fs from 'fs';
+import * as path from 'path';
 
 /**
  * Get agent-specific dashboard data with proper scoping.
@@ -35,12 +37,25 @@ export async function GET(request: NextRequest) {
     // Extract agent data
     const agentData = scopedData.snapshot?.agents[auth.agentId] || null;
     
+    // Load time-window stats for this agent
+    let agentTimeWindowStats: any = null;
+    try {
+      const statsPath = path.join(process.cwd(), 'data', 'snapshots', 'time-window-stats.json');
+      if (fs.existsSync(statsPath)) {
+        const allStats = JSON.parse(fs.readFileSync(statsPath, 'utf-8'));
+        agentTimeWindowStats = allStats[auth.agentId] || null;
+      }
+    } catch {
+      // Time-window stats not available
+    }
+    
     return NextResponse.json({
       agent: agentData,
       leaderboard: scopedData.leaderboard,
       teamStats: scopedData.teamStats,
       isAdmin: scopedData.isAdmin,
       snapshotDate: scopedData.snapshot?.metadata.createdAt || null,
+      timeWindowStats: agentTimeWindowStats,
     });
   } catch (error) {
     console.error('Agent data error:', error);

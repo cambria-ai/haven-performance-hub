@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { loadCurrentSnapshot, getSnapshotHistory } from '@/lib/snapshot';
 import { getAuthFromRequest } from '@/lib/auth-helpers';
+import * as fs from 'fs';
+import * as path from 'path';
 
 /**
  * Admin dashboard data endpoint.
@@ -46,12 +48,24 @@ export async function GET(request: NextRequest) {
       importHealth.warnings.push('No snapshot data available. Run your first import to populate dashboards.');
     }
     
+    // Load time-window stats if available
+    let timeWindowStats: Record<string, any> | null = null;
+    try {
+      const statsPath = path.join(process.cwd(), 'data', 'snapshots', 'time-window-stats.json');
+      if (fs.existsSync(statsPath)) {
+        timeWindowStats = JSON.parse(fs.readFileSync(statsPath, 'utf-8'));
+      }
+    } catch {
+      // Time-window stats not available yet
+    }
+    
     return NextResponse.json({
       snapshot,
       history,
       importHealth,
       teamStats: snapshot?.teamStats || null,
       leaderboard: snapshot?.leaderboard || [],
+      timeWindowStats,
     });
   } catch (error) {
     console.error('Admin data error:', error);

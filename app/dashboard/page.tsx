@@ -117,6 +117,10 @@ export default function TeamLeaderDashboard() {
     router.push('/');
   }
 
+  function handleViewAgent(agentId: string) {
+    router.push(`/agent/${agentId}`);
+  }
+
   const uploads = data?.history || [];
   const totalAgents = data?.snapshot?.metadata?.agentCount || 0;
   const totalTransactions = data?.snapshot?.metadata?.transactionCount || 0;
@@ -285,7 +289,7 @@ export default function TeamLeaderDashboard() {
             {data?.leaderboard?.length ? (
               <div className="space-y-3">
                 {data.leaderboard.map((entry: any) => (
-                  <AdminLeaderboardRow key={entry.agentId} entry={entry} />
+                  <AdminLeaderboardRow key={entry.agentId} entry={entry} onViewAgent={handleViewAgent} />
                 ))}
               </div>
             ) : (
@@ -531,9 +535,12 @@ function FocusCard({ title, description }: { title: string; description: string 
   );
 }
 
-function AdminLeaderboardRow({ entry }: { entry: any }) {
+function AdminLeaderboardRow({ entry, onViewAgent }: { entry: any; onViewAgent: (agentId: string) => void }) {
   return (
-    <div className="flex items-center justify-between rounded-2xl border border-slate-100 bg-slate-50/70 px-4 py-3">
+    <div 
+      className="flex cursor-pointer items-center justify-between rounded-2xl border border-slate-100 bg-slate-50/70 px-4 py-3 transition hover:bg-indigo-50/80 hover:border-indigo-200"
+      onClick={() => onViewAgent(entry.agentId)}
+    >
       <div className="flex items-center gap-4">
         <div className={`flex h-10 w-10 items-center justify-center rounded-full text-sm font-bold ${
           entry.rank === 1 ? 'bg-amber-100 text-amber-700' :
@@ -548,9 +555,12 @@ function AdminLeaderboardRow({ entry }: { entry: any }) {
           <p className="text-xs text-slate-500">{formatCurrency(entry.closedVolume || 0)} • {entry.pendingTransactions || 0} pending</p>
         </div>
       </div>
-      <div className="text-right">
-        <p className="text-lg font-bold text-slate-950">{entry.closedTransactions}</p>
-        <p className="text-xs text-slate-500">closed</p>
+      <div className="flex items-center gap-3 text-right">
+        <div>
+          <p className="text-lg font-bold text-slate-950">{entry.closedTransactions}</p>
+          <p className="text-xs text-slate-500">closed</p>
+        </div>
+        <ArrowUpRight className="h-4 w-4 text-slate-400" />
       </div>
     </div>
   );

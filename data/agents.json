@@ -1,53 +1,196 @@
 {
   "agents": [
     {
-      "id": "cambria",
-      "name": "Cambria",
+      "id": "amy-sparrow",
+      "name": "Amy Sparrow",
+      "role": "agent",
+      "passwordHash": "$2a$10$g7Oaj5/gBVfUfdTfKMMDs.K2H8PN/c.f9LPy32N7BtSkkchbXu0EO"
+    },
+    {
+      "id": "didi-emtman",
+      "name": "Didi Emtman",
+      "role": "agent",
+      "passwordHash": "$2a$10$g7Oaj5/gBVfUfdTfKMMDs.K2H8PN/c.f9LPy32N7BtSkkchbXu0EO"
+    },
+    {
+      "id": "kiaya-henry",
+      "name": "Kiaya Henry",
+      "role": "agent",
+      "passwordHash": "$2a$10$g7Oaj5/gBVfUfdTfKMMDs.K2H8PN/c.f9LPy32N7BtSkkchbXu0EO"
+    },
+    {
+      "id": "trevor-hayden",
+      "name": "Trevor Hayden",
+      "role": "agent",
+      "passwordHash": "$2a$10$g7Oaj5/gBVfUfdTfKMMDs.K2H8PN/c.f9LPy32N7BtSkkchbXu0EO"
+    },
+    {
+      "id": "kurt-burgan",
+      "name": "Kurt Burgan",
+      "role": "agent",
+      "passwordHash": "$2a$10$g7Oaj5/gBVfUfdTfKMMDs.K2H8PN/c.f9LPy32N7BtSkkchbXu0EO"
+    },
+    {
+      "id": "matt-procter",
+      "name": "Matt Procter",
+      "role": "agent",
+      "passwordHash": "$2a$10$g7Oaj5/gBVfUfdTfKMMDs.K2H8PN/c.f9LPy32N7BtSkkchbXu0EO"
+    },
+    {
+      "id": "justin-smith",
+      "name": "Justin Smith",
+      "role": "agent",
+      "passwordHash": "$2a$10$g7Oaj5/gBVfUfdTfKMMDs.K2H8PN/c.f9LPy32N7BtSkkchbXu0EO"
+    },
+    {
+      "id": "emily-polanco",
+      "name": "Emily Polanco",
+      "role": "agent",
+      "passwordHash": "$2a$10$g7Oaj5/gBVfUfdTfKMMDs.K2H8PN/c.f9LPy32N7BtSkkchbXu0EO"
+    },
+    {
+      "id": "denise-thrasher",
+      "name": "Denise Thrasher",
+      "role": "agent",
+      "passwordHash": "$2a$10$g7Oaj5/gBVfUfdTfKMMDs.K2H8PN/c.f9LPy32N7BtSkkchbXu0EO"
+    },
+    {
+      "id": "andrey-morgunov",
+      "name": "Andrey Morgunov",
+      "role": "agent",
+      "passwordHash": "$2a$10$g7Oaj5/gBVfUfdTfKMMDs.K2H8PN/c.f9LPy32N7BtSkkchbXu0EO"
+    },
+    {
+      "id": "craig-reasoner",
+      "name": "Craig Reasoner",
+      "role": "agent",
+      "passwordHash": "$2a$10$g7Oaj5/gBVfUfdTfKMMDs.K2H8PN/c.f9LPy32N7BtSkkchbXu0EO"
+    },
+    {
+      "id": "kyle-flory",
+      "name": "Kyle Flory",
+      "role": "agent",
+      "passwordHash": "$2a$10$g7Oaj5/gBVfUfdTfKMMDs.K2H8PN/c.f9LPy32N7BtSkkchbXu0EO"
+    },
+    {
+      "id": "marcus-mathews",
+      "name": "Marcus Mathews",
+      "role": "agent",
+      "passwordHash": "$2a$10$g7Oaj5/gBVfUfdTfKMMDs.K2H8PN/c.f9LPy32N7BtSkkchbXu0EO"
+    },
+    {
+      "id": "monty-yeager",
+      "name": "Monty Yeager",
+      "role": "agent",
+      "passwordHash": "$2a$10$g7Oaj5/gBVfUfdTfKMMDs.K2H8PN/c.f9LPy32N7BtSkkchbXu0EO"
+    },
+    {
+      "id": "sarah-heywood",
+      "name": "Sarah Heywood",
+      "role": "agent",
+      "passwordHash": "$2a$10$g7Oaj5/gBVfUfdTfKMMDs.K2H8PN/c.f9LPy32N7BtSkkchbXu0EO"
+    },
+    {
+      "id": "jazmond-ohmann",
+      "name": "Jazmond Ohmann",
+      "role": "agent",
+      "passwordHash": "$2a$10$g7Oaj5/gBVfUfdTfKMMDs.K2H8PN/c.f9LPy32N7BtSkkchbXu0EO"
+    },
+    {
+      "id": "cambria-henry",
+      "name": "Cambria Henry",
       "role": "admin",
       "passwordHash": "$2a$10$g7Oaj5/gBVfUfdTfKMMDs.K2H8PN/c.f9LPy32N7BtSkkchbXu0EO"
     },
     {
-      "id": "maegen",
-      "name": "Maegen",
+      "id": "kellen-flanigan",
+      "name": "Kellen Flanigan",
       "role": "agent",
       "passwordHash": "$2a$10$g7Oaj5/gBVfUfdTfKMMDs.K2H8PN/c.f9LPy32N7BtSkkchbXu0EO"
     },
     {
-      "id": "sarah",
-      "name": "Sarah",
+      "id": "paula-kamp",
+      "name": "Paula Kamp",
       "role": "agent",
       "passwordHash": "$2a$10$g7Oaj5/gBVfUfdTfKMMDs.K2H8PN/c.f9LPy32N7BtSkkchbXu0EO"
     },
     {
-      "id": "jessica",
-      "name": "Jessica",
+      "id": "shelby-tidd",
+      "name": "Shelby Tidd",
       "role": "agent",
       "passwordHash": "$2a$10$g7Oaj5/gBVfUfdTfKMMDs.K2H8PN/c.f9LPy32N7BtSkkchbXu0EO"
     },
     {
-      "id": "michael",
-      "name": "Michael",
+      "id": "jesse-miller",
+      "name": "Jesse Miller",
       "role": "agent",
       "passwordHash": "$2a$10$g7Oaj5/gBVfUfdTfKMMDs.K2H8PN/c.f9LPy32N7BtSkkchbXu0EO"
     },
     {
-      "id": "ashley",
-      "name": "Ashley",
+      "id": "patrick-fry",
+      "name": "Patrick Fry",
       "role": "agent",
       "passwordHash": "$2a$10$g7Oaj5/gBVfUfdTfKMMDs.K2H8PN/c.f9LPy32N7BtSkkchbXu0EO"
     },
     {
-      "id": "david",
-      "name": "David",
+      "id": "lori-ruby",
+      "name": "Lori Ruby",
       "role": "agent",
       "passwordHash": "$2a$10$g7Oaj5/gBVfUfdTfKMMDs.K2H8PN/c.f9LPy32N7BtSkkchbXu0EO"
     },
     {
-      "id": "emily",
-      "name": "Emily",
+      "id": "jose-alexander",
+      "name": "Jose Alexander",
+      "role": "agent",
+      "passwordHash": "$2a$10$g7Oaj5/gBVfUfdTfKMMDs.K2H8PN/c.f9LPy32N7BtSkkchbXu0EO"
+    },
+    {
+      "id": "jennifer-riddel",
+      "name": "Jennifer Riddel",
+      "role": "agent",
+      "passwordHash": "$2a$10$g7Oaj5/gBVfUfdTfKMMDs.K2H8PN/c.f9LPy32N7BtSkkchbXu0EO"
+    },
+    {
+      "id": "jessica-fry",
+      "name": "Jessica Fry",
+      "role": "agent",
+      "passwordHash": "$2a$10$g7Oaj5/gBVfUfdTfKMMDs.K2H8PN/c.f9LPy32N7BtSkkchbXu0EO"
+    },
+    {
+      "id": "lui-carrasco",
+      "name": "Lui Carrasco",
+      "role": "agent",
+      "passwordHash": "$2a$10$g7Oaj5/gBVfUfdTfKMMDs.K2H8PN/c.f9LPy32N7BtSkkchbXu0EO"
+    },
+    {
+      "id": "stephanie-komar",
+      "name": "Stephanie Komar",
+      "role": "agent",
+      "passwordHash": "$2a$10$g7Oaj5/gBVfUfdTfKMMDs.K2H8PN/c.f9LPy32N7BtSkkchbXu0EO"
+    },
+    {
+      "id": "noah-ullah",
+      "name": "Noah Ullah",
+      "role": "agent",
+      "passwordHash": "$2a$10$g7Oaj5/gBVfUfdTfKMMDs.K2H8PN/c.f9LPy32N7BtSkkchbXu0EO"
+    },
+    {
+      "id": "christopher-locke",
+      "name": "Christopher Locke",
+      "role": "agent",
+      "passwordHash": "$2a$10$g7Oaj5/gBVfUfdTfKMMDs.K2H8PN/c.f9LPy32N7BtSkkchbXu0EO"
+    },
+    {
+      "id": "noah-ullah-cambria",
+      "name": "Noah Ullah/Cambria",
+      "role": "agent",
+      "passwordHash": "$2a$10$g7Oaj5/gBVfUfdTfKMMDs.K2H8PN/c.f9LPy32N7BtSkkchbXu0EO"
+    },
+    {
+      "id": "tamarah-kokinda",
+      "name": "Tamarah Kokinda",
       "role": "agent",
       "passwordHash": "$2a$10$g7Oaj5/gBVfUfdTfKMMDs.K2H8PN/c.f9LPy32N7BtSkkchbXu0EO"
     }
-  ],
-  "note": "Demo credentials for preview. All agent passwords are 'demo123' (hashed). Cambria has admin role. Production: use unique secure passwords per agent."
+  ]
 }

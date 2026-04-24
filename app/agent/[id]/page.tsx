@@ -17,6 +17,8 @@ import {
   ArrowUpRight,
   ArrowDownRight,
   Minus,
+  X,
+  CheckCircle2,
 } from 'lucide-react';
 
 interface AgentData {
@@ -25,6 +27,7 @@ interface AgentData {
   teamStats: any;
   isAdmin: boolean;
   snapshotDate: string;
+  timeWindowStats?: any;
 }
 
 export default function AgentDashboard() {
@@ -45,7 +48,8 @@ export default function AgentDashboard() {
       return;
     }
     const agentData = JSON.parse(stored);
-    if (params.id !== agentData.id) {
+    // Allow admin to view any agent page; agents can only view their own
+    if (agentData.role !== 'admin' && params.id !== agentData.id) {
       router.push('/');
       return;
     }
@@ -139,6 +143,9 @@ export default function AgentDashboard() {
   const myRank = leaderboard.find(l => l.isOwn);
   const conversionRate = agentData?.zillowConversion || 0;
   const conversionProgress = Math.min((conversionRate / 4) * 100, 100);
+  const timeWindowStats = data?.timeWindowStats;
+  const isAdminViewing = agent?.role === 'admin';
+  const [showCapDrilldown, setShowCapDrilldown] = useState(false);
   
   const motivationMessage = !agentData
     ? 'Your dashboard is ready and waiting for the next report upload.'
@@ -293,7 +300,23 @@ export default function AgentDashboard() {
               </div>
 
               <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-5">
-                <FinancialItem label="Cap progress" value={`${((agentData.capProgress || 0) / (agentData.capTarget || 1) * 100).toFixed(0)}%`} />
+                <div 
+                  className="cursor-pointer rounded-3xl border border-slate-100 bg-slate-50/80 p-5 transition hover:border-indigo-200 hover:bg-indigo-50/80"
+                  onClick={() => setShowCapDrilldown(true)}
+                >
+                  <p className="text-sm font-medium text-slate-500">Cap progress</p>
+                  <p className="mt-2 text-2xl font-semibold text-slate-900">
+                    {`${((agentData.capProgress || 0) / (agentData.capTarget || 1) * 100).toFixed(0)}%`}
+                  </p>
+                  <p className="mt-1 text-xs text-slate-500">
+                    {formatCurrency(agentData.capProgress || 0)} of {formatCurrency(agentData.capTarget || 20000)}
+                  </p>
+                  {agentData.capContributingTransactions && agentData.capContributingTransactions.length > 0 && (
+                    <p className="mt-2 text-xs text-indigo-600 font-medium">
+                      {agentData.capContributingTransactions.length} deal{agentData.capContributingTransactions.length !== 1 ? 's' : ''} contributing
+                    </p>
+                  )}
+                </div>
                 <FinancialItem label="Haven fees" value={formatCurrency(agentData.havenFees || 0)} />
                 <FinancialItem label="B&O tax" value={formatCurrency(agentData.boTax || 0)} />
                 <FinancialItem label="L&I" value={formatCurrency(agentData.lni || 0)} />
@@ -312,6 +335,15 @@ export default function AgentDashboard() {
             </p>
           </section>
         )}
+
+        {showCapDrilldown && agentData?.capContributingTransactions ? (
+          <CapDrilldownModal
+            transactions={agentData.capContributingTransactions}
+            capProgress={agentData.capProgress}
+            capTarget={agentData.capTarget || 20000}
+            onClose={() => setShowCapDrilldown(false)}
+          />
+        ) : null}
 
         <section className="rounded-[2rem] border border-white/70 bg-white/85 p-6 shadow-[0_30px_80px_-35px_rgba(15,23,42,0.24)] backdrop-blur">
           <div className="mb-5 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -567,6 +599,101 @@ function ActivityRow({ icon, label, value }: { icon: React.ReactNode; label: str
         <span className="text-sm font-medium text-slate-600">{label}</span>
       </div>
       <span className="text-base font-semibold text-slate-950">{value}</span>
+    </div>
+  );
+}
+
+function CapDrilldownModal({
+  transactions,
+  capProgress,
+  capTarget,
+  onClose,
+}: {
+  transactions: any[];
+  capProgress: number;
+  capTarget: number;
+  onClose: () => void;
+}) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
+      <div className="w-full max-w-2xl rounded-[2rem] border border-white/70 bg-white p-6 shadow-2xl">
+        <div className="mb-6 flex items-start justify-between">
+          <div>
+            <p className="text-sm font-semibold uppercase tracking-[0.24em] text-slate-500">Cap breakdown</p>
+            <h2 className="mt-2 text-2xl font-semibold text-slate-950">Contracts contributing to your cap</h2>
+            <p className="mt-2 text-sm text-slate-600">
+              Only sphere/personal deals count toward your ${formatCurrency(capTarget)} cap maximum.
+            </p>
+          </div>
+          <button
+            onClick={onClose}
+            className="rounded-full p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-600"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+
+        <div className="mb-6 rounded-2xl bg-indigo-50 p-5">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-indigo-900">Total cap progress</p>
+              <p className="mt-1 text-3xl font-bold text-indigo-700">
+                {formatCurrency(capProgress)} <span className="text-lg text-indigo-600">/ {formatCurrency(capTarget)}</span>
+              </p>
+            </div>
+            <div className="rounded-full bg-indigo-100 px-4 py-2 text-sm font-semibold text-indigo-700">
+              {((capProgress / capTarget) * 100).toFixed(0)}% complete
+            </div>
+          </div>
+          <div className="mt-4 h-3 rounded-full bg-indigo-200">
+            <div
+              className="h-3 rounded-full bg-gradient-to-r from-indigo-600 via-violet-600 to-cyan-500 transition-all"
+              style={{ width: `${Math.min((capProgress / capTarget) * 100, 100)}%` }}
+            />
+          </div>
+        </div>
+
+        <div className="max-h-96 overflow-y-auto space-y-3">
+          {transactions.length > 0 ? (
+            transactions.map((txn, i) => (
+              <div key={i} className="rounded-2xl border border-slate-100 bg-slate-50/80 p-4">
+                <div className="flex items-start justify-between gap-4">
+                  <div className="min-w-0 flex-1">
+                    <p className="font-semibold text-slate-900 truncate">{txn.address}</p>
+                    <p className="mt-1 text-sm text-slate-500">
+                      {txn.closedDate ? formatDate(txn.closedDate) : txn.contractDate ? formatDate(txn.contractDate) : 'Date TBD'}
+                      {txn.notes && <span> • {txn.notes}</span>}
+                    </p>
+                    <p className="mt-1 text-sm text-slate-600">
+                      Purchase price: {formatCurrency(txn.purchasePrice)}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <div className="flex items-center gap-2 text-emerald-600">
+                      <CheckCircle2 className="h-4 w-4" />
+                      <p className="text-lg font-bold">+{formatCurrency(txn.capContribution)}</p>
+                    </div>
+                    <p className="text-xs text-slate-500">to cap</p>
+                  </div>
+                </div>
+              </div>
+            ))
+          ) : (
+            <div className="rounded-2xl bg-slate-50 p-8 text-center">
+              <p className="text-slate-600">No contracts have contributed to your cap yet.</p>
+              <p className="mt-1 text-sm text-slate-500">Sphere deals will appear here once they close.</p>
+            </div>
+          )}
+        </div>
+
+        <div className="mt-6 flex justify-end">
+          <button
+            onClick={onClose}
+            className="rounded-2xl bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800">
+            Close
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

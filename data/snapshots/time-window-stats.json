@@ -1,0 +1,1408 @@
+{
+  "amy-sparrow": {
+    "weekly": {
+      "period": "week",
+      "startDate": "2026-04-20T07:00:00.000Z",
+      "endDate": "2026-04-25T06:59:59.999Z",
+      "showings": 0,
+      "cmasCompleted": 0,
+      "listings": 0,
+      "pendings": 0,
+      "solds": 0,
+      "closedVolume": 0,
+      "pendingVolume": 0
+    },
+    "monthly": {
+      "period": "month",
+      "startDate": "2026-04-01T07:00:00.000Z",
+      "endDate": "2026-04-25T06:59:59.999Z",
+      "showings": 0,
+      "cmasCompleted": 0,
+      "listings": 0,
+      "pendings": 0,
+      "solds": 0,
+      "closedVolume": 0,
+      "pendingVolume": 0
+    },
+    "yearly": {
+      "period": "year",
+      "startDate": "2026-01-01T08:00:00.000Z",
+      "endDate": "2027-01-01T07:59:59.999Z",
+      "showings": 0,
+      "cmasCompleted": 0,
+      "listings": 0,
+      "pendings": 0,
+      "solds": 1,
+      "closedVolume": 650000,
+      "pendingVolume": 0
+    }
+  },
+  "anniversary-date": {
+    "weekly": {
+      "period": "week",
+      "startDate": "2026-04-20T07:00:00.000Z",
+      "endDate": "2026-04-25T06:59:59.999Z",
+      "showings": 0,
+      "cmasCompleted": 0,
+      "listings": 0,
+      "pendings": 0,
+      "solds": 0,
+      "closedVolume": 0,
+      "pendingVolume": 0
+    },
+    "monthly": {
+      "period": "month",
+      "startDate": "2026-04-01T07:00:00.000Z",
+      "endDate": "2026-04-25T06:59:59.999Z",
+      "showings": 0,
+      "cmasCompleted": 0,
+      "listings": 0,
+      "pendings": 0,
+      "solds": 0,
+      "closedVolume": 0,
+      "pendingVolume": 0
+    },
+    "yearly": {
+      "period": "year",
+      "startDate": "2026-01-01T08:00:00.000Z",
+      "endDate": "2027-01-01T07:59:59.999Z",
+      "showings": 0,
+      "cmasCompleted": 0,
+      "listings": 0,
+      "pendings": 0,
+      "solds": 0,
+      "closedVolume": 0,
+      "pendingVolume": 0
+    }
+  },
+  "05-15-24": {
+    "weekly": {
+      "period": "week",
+      "startDate": "2026-04-20T07:00:00.000Z",
+      "endDate": "2026-04-25T06:59:59.999Z",
+      "showings": 0,
+      "cmasCompleted": 0,
+      "listings": 0,
+      "pendings": 0,
+      "solds": 0,
+      "closedVolume": 0,
+      "pendingVolume": 0
+    },
+    "monthly": {
+      "period": "month",
+      "startDate": "2026-04-01T07:00:00.000Z",
+      "endDate": "2026-04-25T06:59:59.999Z",
+      "showings": 0,
+      "cmasCompleted": 0,
+      "listings": 0,
+      "pendings": 0,
+      "solds": 0,
+      "closedVolume": 0,
+      "pendingVolume": 0
+    },
+    "yearly": {
+      "period": "year",
+      "startDate": "2026-01-01T08:00:00.000Z",
+      "endDate": "2027-01-01T07:59:59.999Z",
+      "showings": 0,
+      "cmasCompleted": 0,
+      "listings": 0,
+      "pendings": 0,
+      "solds": 0,
+      "closedVolume": 0,
+      "pendingVolume": 0
+    }
+  },
+  "pending": {
+    "weekly": {
+      "period": "week",
+      "startDate": "2026-04-20T07:00:00.000Z",
+      "endDate": "2026-04-25T06:59:59.999Z",
+      "showings": 0,
+      "cmasCompleted": 0,
+      "listings": 0,
+      "pendings": 0,
+      "solds": 0,
+      "closedVolume": 0,
+      "pendingVolume": 0
+    },
+    "monthly": {
+      "period": "month",
+      "startDate": "2026-04-01T07:00:00.000Z",
+      "endDate": "2026-04-25T06:59:59.999Z",
+      "showings": 0,
+      "cmasCompleted": 0,
+      "listings": 0,
+      "pendings": 0,
+      "solds": 0,
+      "closedVolume": 0,
+      "pendingVolume": 0
+    },
+    "yearly": {
+      "period": "year",
+      "startDate": "2026-01-01T08:00:00.000Z",
+      "endDate": "2027-01-01T07:59:59.999Z",
+      "showings": 0,
+      "cmasCompleted": 0,
+      "listings": 0,
+      "pendings": 0,
+      "solds": 0,
+      "closedVolume": 0,
+      "pendingVolume": 0
+    }
+  },
+  "closed": {
+    "weekly": {
+      "period": "week",
+      "startDate": "2026-04-20T07:00:00.000Z",
+      "endDate": "2026-04-25T06:59:59.999Z",
+      "showings": 0,
+      "cmasCompleted": 0,
+      "listings": 0,
+      "pendings": 0,
+      "solds": 0,
+      "closedVolume": 0,
+      "pendingVolume": 0
+    },
+    "monthly": {
+      "period": "month",
+      "startDate": "2026-04-01T07:00:00.000Z",
+      "endDate": "2026-04-25T06:59:59.999Z",
+      "showings": 0,
+      "cmasCompleted": 0,
+      "listings": 0,
+      "pendings": 0,
+      "solds": 0,
+      "closedVolume": 0,
+      "pendingVolume": 0
+    },
+    "yearly": {
+      "period": "year",
+      "startDate": "2026-01-01T08:00:00.000Z",
+      "endDate": "2027-01-01T07:59:59.999Z",
+      "showings": 0,
+      "cmasCompleted": 0,
+      "listings": 0,
+      "pendings": 0,
+      "solds": 0,
+      "closedVolume": 0,
+      "pendingVolume": 0
+    }
+  },
+  "didi-emtman": {
+    "weekly": {
+      "period": "week",
+      "startDate": "2026-04-20T07:00:00.000Z",
+      "endDate": "2026-04-25T06:59:59.999Z",
+      "showings": 0,
+      "cmasCompleted": 0,
+      "listings": 1,
+      "pendings": 0,
+      "solds": 2,
+      "closedVolume": 314000,
+      "pendingVolume": 0
+    },
+    "monthly": {
+      "period": "month",
+      "startDate": "2026-04-01T07:00:00.000Z",
+      "endDate": "2026-04-25T06:59:59.999Z",
+      "showings": 0,
+      "cmasCompleted": 0,
+      "listings": 1,
+      "pendings": 0,
+      "solds": 3,
+      "closedVolume": 314000,
+      "pendingVolume": 0
+    },
+    "yearly": {
+      "period": "year",
+      "startDate": "2026-01-01T08:00:00.000Z",
+      "endDate": "2027-01-01T07:59:59.999Z",
+      "showings": 0,
+      "cmasCompleted": 0,
+      "listings": 2,
+      "pendings": 0,
+      "solds": 11,
+      "closedVolume": 669000,
+      "pendingVolume": 0
+    }
+  },
+  "kiaya-henry": {
+    "weekly": {
+      "period": "week",
+      "startDate": "2026-04-20T07:00:00.000Z",
+      "endDate": "2026-04-25T06:59:59.999Z",
+      "showings": 0,
+      "cmasCompleted": 0,
+      "listings": 0,
+      "pendings": 0,
+      "solds": 2,
+      "closedVolume": 298858,
+      "pendingVolume": 0
+    },
+    "monthly": {
+      "period": "month",
+      "startDate": "2026-04-01T07:00:00.000Z",
+      "endDate": "2026-04-25T06:59:59.999Z",
+      "showings": 0,
+      "cmasCompleted": 0,
+      "listings": 0,
+      "pendings": 0,
+      "solds": 2,
+      "closedVolume": 298858,
+      "pendingVolume": 0
+    },
+    "yearly": {
+      "period": "year",
+      "startDate": "2026-01-01T08:00:00.000Z",
+      "endDate": "2027-01-01T07:59:59.999Z",
+      "showings": 0,
+      "cmasCompleted": 0,
+      "listings": 0,
+      "pendings": 0,
+      "solds": 5,
+      "closedVolume": 743858,
+      "pendingVolume": 0
+    }
+  },
+  "trevor-hayden": {
+    "weekly": {
+      "period": "week",
+      "startDate": "2026-04-20T07:00:00.000Z",
+      "endDate": "2026-04-25T06:59:59.999Z",
+      "showings": 0,
+      "cmasCompleted": 0,
+      "listings": 0,
+      "pendings": 0,
+      "solds": 3,
+      "closedVolume": 350000,
+      "pendingVolume": 0
+    },
+    "monthly": {
+      "period": "month",
+      "startDate": "2026-04-01T07:00:00.000Z",
+      "endDate": "2026-04-25T06:59:59.999Z",
+      "showings": 0,
+      "cmasCompleted": 0,
+      "listings": 0,
+      "pendings": 0,
+      "solds": 3,
+      "closedVolume": 350000,
+      "pendingVolume": 0
+    },
+    "yearly": {
+      "period": "year",
+      "startDate": "2026-01-01T08:00:00.000Z",
+      "endDate": "2027-01-01T07:59:59.999Z",
+      "showings": 0,
+      "cmasCompleted": 0,
+      "listings": 0,
+      "pendings": 0,
+      "solds": 8,
+      "closedVolume": 640000,
+      "pendingVolume": 0
+    }
+  },
+  "kurt-burgan": {
+    "weekly": {
+      "period": "week",
+      "startDate": "2026-04-20T07:00:00.000Z",
+      "endDate": "2026-04-25T06:59:59.999Z",
+      "showings": 0,
+      "cmasCompleted": 0,
+      "listings": 0,
+      "pendings": 0,
+      "solds": 0,
+      "closedVolume": 0,
+      "pendingVolume": 0
+    },
+    "monthly": {
+      "period": "month",
+      "startDate": "2026-04-01T07:00:00.000Z",
+      "endDate": "2026-04-25T06:59:59.999Z",
+      "showings": 0,
+      "cmasCompleted": 0,
+      "listings": 0,
+      "pendings": 0,
+      "solds": 0,
+      "closedVolume": 0,
+      "pendingVolume": 0
+    },
+    "yearly": {
+      "period": "year",
+      "startDate": "2026-01-01T08:00:00.000Z",
+      "endDate": "2027-01-01T07:59:59.999Z",
+      "showings": 0,
+      "cmasCompleted": 0,
+      "listings": 6,
+      "pendings": 0,
+      "solds": 12,
+      "closedVolume": 5537940,
+      "pendingVolume": 0
+    }
+  },
+  "matt-procter": {
+    "weekly": {
+      "period": "week",
+      "startDate": "2026-04-20T07:00:00.000Z",
+      "endDate": "2026-04-25T06:59:59.999Z",
+      "showings": 0,
+      "cmasCompleted": 0,
+      "listings": 0,
+      "pendings": 0,
+      "solds": 1,
+      "closedVolume": 0,
+      "pendingVolume": 0
+    },
+    "monthly": {
+      "period": "month",
+      "startDate": "2026-04-01T07:00:00.000Z",
+      "endDate": "2026-04-25T06:59:59.999Z",
+      "showings": 0,
+      "cmasCompleted": 0,
+      "listings": 0,
+      "pendings": 0,
+      "solds": 3,
+      "closedVolume": 0,
+      "pendingVolume": 0
+    },
+    "yearly": {
+      "period": "year",
+      "startDate": "2026-01-01T08:00:00.000Z",
+      "endDate": "2027-01-01T07:59:59.999Z",
+      "showings": 0,
+      "cmasCompleted": 0,
+      "listings": 1,
+      "pendings": 0,
+      "solds": 8,
+      "closedVolume": 818500,
+      "pendingVolume": 0
+    }
+  },
+  "justin-smith": {
+    "weekly": {
+      "period": "week",
+      "startDate": "2026-04-20T07:00:00.000Z",
+      "endDate": "2026-04-25T06:59:59.999Z",
+      "showings": 0,
+      "cmasCompleted": 0,
+      "listings": 0,
+      "pendings": 0,
+      "solds": 0,
+      "closedVolume": 0,
+      "pendingVolume": 0
+    },
+    "monthly": {
+      "period": "month",
+      "startDate": "2026-04-01T07:00:00.000Z",
+      "endDate": "2026-04-25T06:59:59.999Z",
+      "showings": 0,
+      "cmasCompleted": 0,
+      "listings": 0,
+      "pendings": 0,
+      "solds": 0,
+      "closedVolume": 0,
+      "pendingVolume": 0
+    },
+    "yearly": {
+      "period": "year",
+      "startDate": "2026-01-01T08:00:00.000Z",
+      "endDate": "2027-01-01T07:59:59.999Z",
+      "showings": 0,
+      "cmasCompleted": 0,
+      "listings": 2,
+      "pendings": 0,
+      "solds": 8,
+      "closedVolume": 1285650,
+      "pendingVolume": 0
+    }
+  },
+  "emily-polanco": {
+    "weekly": {
+      "period": "week",
+      "startDate": "2026-04-20T07:00:00.000Z",
+      "endDate": "2026-04-25T06:59:59.999Z",
+      "showings": 0,
+      "cmasCompleted": 0,
+      "listings": 0,
+      "pendings": 0,
+      "solds": 0,
+      "closedVolume": 0,
+      "pendingVolume": 0
+    },
+    "monthly": {
+      "period": "month",
+      "startDate": "2026-04-01T07:00:00.000Z",
+      "endDate": "2026-04-25T06:59:59.999Z",
+      "showings": 0,
+      "cmasCompleted": 0,
+      "listings": 0,
+      "pendings": 0,
+      "solds": 0,
+      "closedVolume": 0,
+      "pendingVolume": 0
+    },
+    "yearly": {
+      "period": "year",
+      "startDate": "2026-01-01T08:00:00.000Z",
+      "endDate": "2027-01-01T07:59:59.999Z",
+      "showings": 0,
+      "cmasCompleted": 0,
+      "listings": 3,
+      "pendings": 0,
+      "solds": 11,
+      "closedVolume": 3287000,
+      "pendingVolume": 0
+    }
+  },
+  "denise-thrasher": {
+    "weekly": {
+      "period": "week",
+      "startDate": "2026-04-20T07:00:00.000Z",
+      "endDate": "2026-04-25T06:59:59.999Z",
+      "showings": 0,
+      "cmasCompleted": 0,
+      "listings": 0,
+      "pendings": 0,
+      "solds": 0,
+      "closedVolume": 0,
+      "pendingVolume": 0
+    },
+    "monthly": {
+      "period": "month",
+      "startDate": "2026-04-01T07:00:00.000Z",
+      "endDate": "2026-04-25T06:59:59.999Z",
+      "showings": 0,
+      "cmasCompleted": 0,
+      "listings": 0,
+      "pendings": 0,
+      "solds": 1,
+      "closedVolume": 0,
+      "pendingVolume": 0
+    },
+    "yearly": {
+      "period": "year",
+      "startDate": "2026-01-01T08:00:00.000Z",
+      "endDate": "2027-01-01T07:59:59.999Z",
+      "showings": 0,
+      "cmasCompleted": 0,
+      "listings": 2,
+      "pendings": 0,
+      "solds": 4,
+      "closedVolume": 495000,
+      "pendingVolume": 0
+    }
+  },
+  "andrey-morgunov": {
+    "weekly": {
+      "period": "week",
+      "startDate": "2026-04-20T07:00:00.000Z",
+      "endDate": "2026-04-25T06:59:59.999Z",
+      "showings": 0,
+      "cmasCompleted": 0,
+      "listings": 0,
+      "pendings": 0,
+      "solds": 0,
+      "closedVolume": 0,
+      "pendingVolume": 0
+    },
+    "monthly": {
+      "period": "month",
+      "startDate": "2026-04-01T07:00:00.000Z",
+      "endDate": "2026-04-25T06:59:59.999Z",
+      "showings": 0,
+      "cmasCompleted": 0,
+      "listings": 1,
+      "pendings": 0,
+      "solds": 2,
+      "closedVolume": 0,
+      "pendingVolume": 0
+    },
+    "yearly": {
+      "period": "year",
+      "startDate": "2026-01-01T08:00:00.000Z",
+      "endDate": "2027-01-01T07:59:59.999Z",
+      "showings": 0,
+      "cmasCompleted": 0,
+      "listings": 1,
+      "pendings": 1,
+      "solds": 3,
+      "closedVolume": 1780000,
+      "pendingVolume": 340000
+    }
+  },
+  "craig-reasoner": {
+    "weekly": {
+      "period": "week",
+      "startDate": "2026-04-20T07:00:00.000Z",
+      "endDate": "2026-04-25T06:59:59.999Z",
+      "showings": 0,
+      "cmasCompleted": 0,
+      "listings": 0,
+      "pendings": 0,
+      "solds": 0,
+      "closedVolume": 0,
+      "pendingVolume": 0
+    },
+    "monthly": {
+      "period": "month",
+      "startDate": "2026-04-01T07:00:00.000Z",
+      "endDate": "2026-04-25T06:59:59.999Z",
+      "showings": 0,
+      "cmasCompleted": 0,
+      "listings": 0,
+      "pendings": 0,
+      "solds": 0,
+      "closedVolume": 0,
+      "pendingVolume": 0
+    },
+    "yearly": {
+      "period": "year",
+      "startDate": "2026-01-01T08:00:00.000Z",
+      "endDate": "2027-01-01T07:59:59.999Z",
+      "showings": 0,
+      "cmasCompleted": 0,
+      "listings": 0,
+      "pendings": 0,
+      "solds": 2,
+      "closedVolume": 164999,
+      "pendingVolume": 0
+    }
+  },
+  "kyle-flory": {
+    "weekly": {
+      "period": "week",
+      "startDate": "2026-04-20T07:00:00.000Z",
+      "endDate": "2026-04-25T06:59:59.999Z",
+      "showings": 0,
+      "cmasCompleted": 0,
+      "listings": 0,
+      "pendings": 0,
+      "solds": 0,
+      "closedVolume": 0,
+      "pendingVolume": 0
+    },
+    "monthly": {
+      "period": "month",
+      "startDate": "2026-04-01T07:00:00.000Z",
+      "endDate": "2026-04-25T06:59:59.999Z",
+      "showings": 0,
+      "cmasCompleted": 0,
+      "listings": 0,
+      "pendings": 0,
+      "solds": 0,
+      "closedVolume": 0,
+      "pendingVolume": 0
+    },
+    "yearly": {
+      "period": "year",
+      "startDate": "2026-01-01T08:00:00.000Z",
+      "endDate": "2027-01-01T07:59:59.999Z",
+      "showings": 0,
+      "cmasCompleted": 0,
+      "listings": 1,
+      "pendings": 0,
+      "solds": 1,
+      "closedVolume": 0,
+      "pendingVolume": 0
+    }
+  },
+  "marcus-mathews": {
+    "weekly": {
+      "period": "week",
+      "startDate": "2026-04-20T07:00:00.000Z",
+      "endDate": "2026-04-25T06:59:59.999Z",
+      "showings": 0,
+      "cmasCompleted": 0,
+      "listings": 1,
+      "pendings": 0,
+      "solds": 1,
+      "closedVolume": 0,
+      "pendingVolume": 0
+    },
+    "monthly": {
+      "period": "month",
+      "startDate": "2026-04-01T07:00:00.000Z",
+      "endDate": "2026-04-25T06:59:59.999Z",
+      "showings": 0,
+      "cmasCompleted": 0,
+      "listings": 1,
+      "pendings": 0,
+      "solds": 1,
+      "closedVolume": 0,
+      "pendingVolume": 0
+    },
+    "yearly": {
+      "period": "year",
+      "startDate": "2026-01-01T08:00:00.000Z",
+      "endDate": "2027-01-01T07:59:59.999Z",
+      "showings": 0,
+      "cmasCompleted": 0,
+      "listings": 4,
+      "pendings": 0,
+      "solds": 8,
+      "closedVolume": 2246660,
+      "pendingVolume": 0
+    }
+  },
+  "monty-yeager": {
+    "weekly": {
+      "period": "week",
+      "startDate": "2026-04-20T07:00:00.000Z",
+      "endDate": "2026-04-25T06:59:59.999Z",
+      "showings": 0,
+      "cmasCompleted": 0,
+      "listings": 0,
+      "pendings": 0,
+      "solds": 1,
+      "closedVolume": 0,
+      "pendingVolume": 0
+    },
+    "monthly": {
+      "period": "month",
+      "startDate": "2026-04-01T07:00:00.000Z",
+      "endDate": "2026-04-25T06:59:59.999Z",
+      "showings": 0,
+      "cmasCompleted": 0,
+      "listings": 0,
+      "pendings": 0,
+      "solds": 1,
+      "closedVolume": 0,
+      "pendingVolume": 0
+    },
+    "yearly": {
+      "period": "year",
+      "startDate": "2026-01-01T08:00:00.000Z",
+      "endDate": "2027-01-01T07:59:59.999Z",
+      "showings": 0,
+      "cmasCompleted": 0,
+      "listings": 0,
+      "pendings": 0,
+      "solds": 4,
+      "closedVolume": 654000,
+      "pendingVolume": 0
+    }
+  },
+  "sarah-heywood": {
+    "weekly": {
+      "period": "week",
+      "startDate": "2026-04-20T07:00:00.000Z",
+      "endDate": "2026-04-25T06:59:59.999Z",
+      "showings": 0,
+      "cmasCompleted": 0,
+      "listings": 0,
+      "pendings": 0,
+      "solds": 0,
+      "closedVolume": 0,
+      "pendingVolume": 0
+    },
+    "monthly": {
+      "period": "month",
+      "startDate": "2026-04-01T07:00:00.000Z",
+      "endDate": "2026-04-25T06:59:59.999Z",
+      "showings": 0,
+      "cmasCompleted": 0,
+      "listings": 0,
+      "pendings": 0,
+      "solds": 0,
+      "closedVolume": 0,
+      "pendingVolume": 0
+    },
+    "yearly": {
+      "period": "year",
+      "startDate": "2026-01-01T08:00:00.000Z",
+      "endDate": "2027-01-01T07:59:59.999Z",
+      "showings": 0,
+      "cmasCompleted": 0,
+      "listings": 2,
+      "pendings": 0,
+      "solds": 2,
+      "closedVolume": 700000,
+      "pendingVolume": 0
+    }
+  },
+  "jazmond-ohmann": {
+    "weekly": {
+      "period": "week",
+      "startDate": "2026-04-20T07:00:00.000Z",
+      "endDate": "2026-04-25T06:59:59.999Z",
+      "showings": 0,
+      "cmasCompleted": 0,
+      "listings": 0,
+      "pendings": 0,
+      "solds": 0,
+      "closedVolume": 0,
+      "pendingVolume": 0
+    },
+    "monthly": {
+      "period": "month",
+      "startDate": "2026-04-01T07:00:00.000Z",
+      "endDate": "2026-04-25T06:59:59.999Z",
+      "showings": 0,
+      "cmasCompleted": 0,
+      "listings": 0,
+      "pendings": 0,
+      "solds": 0,
+      "closedVolume": 0,
+      "pendingVolume": 0
+    },
+    "yearly": {
+      "period": "year",
+      "startDate": "2026-01-01T08:00:00.000Z",
+      "endDate": "2027-01-01T07:59:59.999Z",
+      "showings": 0,
+      "cmasCompleted": 0,
+      "listings": 0,
+      "pendings": 0,
+      "solds": 2,
+      "closedVolume": 459000,
+      "pendingVolume": 0
+    }
+  },
+  "cambria-henry": {
+    "weekly": {
+      "period": "week",
+      "startDate": "2026-04-20T07:00:00.000Z",
+      "endDate": "2026-04-25T06:59:59.999Z",
+      "showings": 0,
+      "cmasCompleted": 0,
+      "listings": 0,
+      "pendings": 0,
+      "solds": 0,
+      "closedVolume": 0,
+      "pendingVolume": 0
+    },
+    "monthly": {
+      "period": "month",
+      "startDate": "2026-04-01T07:00:00.000Z",
+      "endDate": "2026-04-25T06:59:59.999Z",
+      "showings": 0,
+      "cmasCompleted": 0,
+      "listings": 0,
+      "pendings": 0,
+      "solds": 0,
+      "closedVolume": 0,
+      "pendingVolume": 0
+    },
+    "yearly": {
+      "period": "year",
+      "startDate": "2026-01-01T08:00:00.000Z",
+      "endDate": "2027-01-01T07:59:59.999Z",
+      "showings": 0,
+      "cmasCompleted": 0,
+      "listings": 1,
+      "pendings": 0,
+      "solds": 2,
+      "closedVolume": 1305000,
+      "pendingVolume": 0
+    }
+  },
+  "kellen-flanigan": {
+    "weekly": {
+      "period": "week",
+      "startDate": "2026-04-20T07:00:00.000Z",
+      "endDate": "2026-04-25T06:59:59.999Z",
+      "showings": 0,
+      "cmasCompleted": 0,
+      "listings": 0,
+      "pendings": 0,
+      "solds": 0,
+      "closedVolume": 0,
+      "pendingVolume": 0
+    },
+    "monthly": {
+      "period": "month",
+      "startDate": "2026-04-01T07:00:00.000Z",
+      "endDate": "2026-04-25T06:59:59.999Z",
+      "showings": 0,
+      "cmasCompleted": 0,
+      "listings": 0,
+      "pendings": 0,
+      "solds": 0,
+      "closedVolume": 0,
+      "pendingVolume": 0
+    },
+    "yearly": {
+      "period": "year",
+      "startDate": "2026-01-01T08:00:00.000Z",
+      "endDate": "2027-01-01T07:59:59.999Z",
+      "showings": 0,
+      "cmasCompleted": 0,
+      "listings": 0,
+      "pendings": 0,
+      "solds": 3,
+      "closedVolume": 650000,
+      "pendingVolume": 0
+    }
+  },
+  "paula-kamp": {
+    "weekly": {
+      "period": "week",
+      "startDate": "2026-04-20T07:00:00.000Z",
+      "endDate": "2026-04-25T06:59:59.999Z",
+      "showings": 0,
+      "cmasCompleted": 0,
+      "listings": 0,
+      "pendings": 0,
+      "solds": 0,
+      "closedVolume": 0,
+      "pendingVolume": 0
+    },
+    "monthly": {
+      "period": "month",
+      "startDate": "2026-04-01T07:00:00.000Z",
+      "endDate": "2026-04-25T06:59:59.999Z",
+      "showings": 0,
+      "cmasCompleted": 0,
+      "listings": 1,
+      "pendings": 0,
+      "solds": 2,
+      "closedVolume": 0,
+      "pendingVolume": 0
+    },
+    "yearly": {
+      "period": "year",
+      "startDate": "2026-01-01T08:00:00.000Z",
+      "endDate": "2027-01-01T07:59:59.999Z",
+      "showings": 0,
+      "cmasCompleted": 0,
+      "listings": 1,
+      "pendings": 0,
+      "solds": 9,
+      "closedVolume": 1093000,
+      "pendingVolume": 0
+    }
+  },
+  "shelby-tidd": {
+    "weekly": {
+      "period": "week",
+      "startDate": "2026-04-20T07:00:00.000Z",
+      "endDate": "2026-04-25T06:59:59.999Z",
+      "showings": 0,
+      "cmasCompleted": 0,
+      "listings": 0,
+      "pendings": 0,
+      "solds": 0,
+      "closedVolume": 0,
+      "pendingVolume": 0
+    },
+    "monthly": {
+      "period": "month",
+      "startDate": "2026-04-01T07:00:00.000Z",
+      "endDate": "2026-04-25T06:59:59.999Z",
+      "showings": 0,
+      "cmasCompleted": 0,
+      "listings": 0,
+      "pendings": 0,
+      "solds": 0,
+      "closedVolume": 0,
+      "pendingVolume": 0
+    },
+    "yearly": {
+      "period": "year",
+      "startDate": "2026-01-01T08:00:00.000Z",
+      "endDate": "2027-01-01T07:59:59.999Z",
+      "showings": 0,
+      "cmasCompleted": 0,
+      "listings": 1,
+      "pendings": 1,
+      "solds": 2,
+      "closedVolume": 319950,
+      "pendingVolume": 199900
+    }
+  },
+  "jesse-miller": {
+    "weekly": {
+      "period": "week",
+      "startDate": "2026-04-20T07:00:00.000Z",
+      "endDate": "2026-04-25T06:59:59.999Z",
+      "showings": 0,
+      "cmasCompleted": 0,
+      "listings": 0,
+      "pendings": 0,
+      "solds": 0,
+      "closedVolume": 0,
+      "pendingVolume": 0
+    },
+    "monthly": {
+      "period": "month",
+      "startDate": "2026-04-01T07:00:00.000Z",
+      "endDate": "2026-04-25T06:59:59.999Z",
+      "showings": 0,
+      "cmasCompleted": 0,
+      "listings": 0,
+      "pendings": 0,
+      "solds": 0,
+      "closedVolume": 0,
+      "pendingVolume": 0
+    },
+    "yearly": {
+      "period": "year",
+      "startDate": "2026-01-01T08:00:00.000Z",
+      "endDate": "2027-01-01T07:59:59.999Z",
+      "showings": 0,
+      "cmasCompleted": 0,
+      "listings": 1,
+      "pendings": 0,
+      "solds": 8,
+      "closedVolume": 1960689,
+      "pendingVolume": 0
+    }
+  },
+  "patrick-fry": {
+    "weekly": {
+      "period": "week",
+      "startDate": "2026-04-20T07:00:00.000Z",
+      "endDate": "2026-04-25T06:59:59.999Z",
+      "showings": 0,
+      "cmasCompleted": 0,
+      "listings": 0,
+      "pendings": 0,
+      "solds": 0,
+      "closedVolume": 0,
+      "pendingVolume": 0
+    },
+    "monthly": {
+      "period": "month",
+      "startDate": "2026-04-01T07:00:00.000Z",
+      "endDate": "2026-04-25T06:59:59.999Z",
+      "showings": 0,
+      "cmasCompleted": 0,
+      "listings": 0,
+      "pendings": 0,
+      "solds": 0,
+      "closedVolume": 0,
+      "pendingVolume": 0
+    },
+    "yearly": {
+      "period": "year",
+      "startDate": "2026-01-01T08:00:00.000Z",
+      "endDate": "2027-01-01T07:59:59.999Z",
+      "showings": 0,
+      "cmasCompleted": 0,
+      "listings": 0,
+      "pendings": 0,
+      "solds": 1,
+      "closedVolume": 820000,
+      "pendingVolume": 0
+    }
+  },
+  "lori-ruby": {
+    "weekly": {
+      "period": "week",
+      "startDate": "2026-04-20T07:00:00.000Z",
+      "endDate": "2026-04-25T06:59:59.999Z",
+      "showings": 0,
+      "cmasCompleted": 0,
+      "listings": 0,
+      "pendings": 0,
+      "solds": 0,
+      "closedVolume": 0,
+      "pendingVolume": 0
+    },
+    "monthly": {
+      "period": "month",
+      "startDate": "2026-04-01T07:00:00.000Z",
+      "endDate": "2026-04-25T06:59:59.999Z",
+      "showings": 0,
+      "cmasCompleted": 0,
+      "listings": 0,
+      "pendings": 0,
+      "solds": 0,
+      "closedVolume": 0,
+      "pendingVolume": 0
+    },
+    "yearly": {
+      "period": "year",
+      "startDate": "2026-01-01T08:00:00.000Z",
+      "endDate": "2027-01-01T07:59:59.999Z",
+      "showings": 0,
+      "cmasCompleted": 0,
+      "listings": 0,
+      "pendings": 0,
+      "solds": 1,
+      "closedVolume": 625000,
+      "pendingVolume": 0
+    }
+  },
+  "jose-alexander": {
+    "weekly": {
+      "period": "week",
+      "startDate": "2026-04-20T07:00:00.000Z",
+      "endDate": "2026-04-25T06:59:59.999Z",
+      "showings": 0,
+      "cmasCompleted": 0,
+      "listings": 0,
+      "pendings": 0,
+      "solds": 0,
+      "closedVolume": 0,
+      "pendingVolume": 0
+    },
+    "monthly": {
+      "period": "month",
+      "startDate": "2026-04-01T07:00:00.000Z",
+      "endDate": "2026-04-25T06:59:59.999Z",
+      "showings": 0,
+      "cmasCompleted": 0,
+      "listings": 0,
+      "pendings": 0,
+      "solds": 1,
+      "closedVolume": 0,
+      "pendingVolume": 0
+    },
+    "yearly": {
+      "period": "year",
+      "startDate": "2026-01-01T08:00:00.000Z",
+      "endDate": "2027-01-01T07:59:59.999Z",
+      "showings": 0,
+      "cmasCompleted": 0,
+      "listings": 0,
+      "pendings": 0,
+      "solds": 7,
+      "closedVolume": 1259990,
+      "pendingVolume": 0
+    }
+  },
+  "jennifer-riddel": {
+    "weekly": {
+      "period": "week",
+      "startDate": "2026-04-20T07:00:00.000Z",
+      "endDate": "2026-04-25T06:59:59.999Z",
+      "showings": 0,
+      "cmasCompleted": 0,
+      "listings": 0,
+      "pendings": 0,
+      "solds": 1,
+      "closedVolume": 0,
+      "pendingVolume": 0
+    },
+    "monthly": {
+      "period": "month",
+      "startDate": "2026-04-01T07:00:00.000Z",
+      "endDate": "2026-04-25T06:59:59.999Z",
+      "showings": 0,
+      "cmasCompleted": 0,
+      "listings": 0,
+      "pendings": 0,
+      "solds": 1,
+      "closedVolume": 0,
+      "pendingVolume": 0
+    },
+    "yearly": {
+      "period": "year",
+      "startDate": "2026-01-01T08:00:00.000Z",
+      "endDate": "2027-01-01T07:59:59.999Z",
+      "showings": 0,
+      "cmasCompleted": 0,
+      "listings": 2,
+      "pendings": 0,
+      "solds": 4,
+      "closedVolume": 969000,
+      "pendingVolume": 0
+    }
+  },
+  "jessica-fry": {
+    "weekly": {
+      "period": "week",
+      "startDate": "2026-04-20T07:00:00.000Z",
+      "endDate": "2026-04-25T06:59:59.999Z",
+      "showings": 0,
+      "cmasCompleted": 0,
+      "listings": 0,
+      "pendings": 0,
+      "solds": 0,
+      "closedVolume": 0,
+      "pendingVolume": 0
+    },
+    "monthly": {
+      "period": "month",
+      "startDate": "2026-04-01T07:00:00.000Z",
+      "endDate": "2026-04-25T06:59:59.999Z",
+      "showings": 0,
+      "cmasCompleted": 0,
+      "listings": 0,
+      "pendings": 0,
+      "solds": 0,
+      "closedVolume": 0,
+      "pendingVolume": 0
+    },
+    "yearly": {
+      "period": "year",
+      "startDate": "2026-01-01T08:00:00.000Z",
+      "endDate": "2027-01-01T07:59:59.999Z",
+      "showings": 0,
+      "cmasCompleted": 0,
+      "listings": 0,
+      "pendings": 0,
+      "solds": 2,
+      "closedVolume": 452500,
+      "pendingVolume": 0
+    }
+  },
+  "lui-carrasco": {
+    "weekly": {
+      "period": "week",
+      "startDate": "2026-04-20T07:00:00.000Z",
+      "endDate": "2026-04-25T06:59:59.999Z",
+      "showings": 0,
+      "cmasCompleted": 0,
+      "listings": 0,
+      "pendings": 0,
+      "solds": 1,
+      "closedVolume": 0,
+      "pendingVolume": 0
+    },
+    "monthly": {
+      "period": "month",
+      "startDate": "2026-04-01T07:00:00.000Z",
+      "endDate": "2026-04-25T06:59:59.999Z",
+      "showings": 0,
+      "cmasCompleted": 0,
+      "listings": 0,
+      "pendings": 1,
+      "solds": 1,
+      "closedVolume": 0,
+      "pendingVolume": 485000
+    },
+    "yearly": {
+      "period": "year",
+      "startDate": "2026-01-01T08:00:00.000Z",
+      "endDate": "2027-01-01T07:59:59.999Z",
+      "showings": 0,
+      "cmasCompleted": 0,
+      "listings": 0,
+      "pendings": 1,
+      "solds": 7,
+      "closedVolume": 0,
+      "pendingVolume": 485000
+    }
+  },
+  "totals": {
+    "weekly": {
+      "period": "week",
+      "startDate": "2026-04-20T07:00:00.000Z",
+      "endDate": "2026-04-25T06:59:59.999Z",
+      "showings": 0,
+      "cmasCompleted": 0,
+      "listings": 0,
+      "pendings": 0,
+      "solds": 0,
+      "closedVolume": 0,
+      "pendingVolume": 0
+    },
+    "monthly": {
+      "period": "month",
+      "startDate": "2026-04-01T07:00:00.000Z",
+      "endDate": "2026-04-25T06:59:59.999Z",
+      "showings": 0,
+      "cmasCompleted": 0,
+      "listings": 0,
+      "pendings": 0,
+      "solds": 0,
+      "closedVolume": 0,
+      "pendingVolume": 0
+    },
+    "yearly": {
+      "period": "year",
+      "startDate": "2026-01-01T08:00:00.000Z",
+      "endDate": "2027-01-01T07:59:59.999Z",
+      "showings": 0,
+      "cmasCompleted": 0,
+      "listings": 0,
+      "pendings": 0,
+      "solds": 0,
+      "closedVolume": 0,
+      "pendingVolume": 0
+    }
+  },
+  "stephanie-komar": {
+    "weekly": {
+      "period": "week",
+      "startDate": "2026-04-20T07:00:00.000Z",
+      "endDate": "2026-04-25T06:59:59.999Z",
+      "showings": 0,
+      "cmasCompleted": 0,
+      "listings": 0,
+      "pendings": 0,
+      "solds": 0,
+      "closedVolume": 0,
+      "pendingVolume": 0
+    },
+    "monthly": {
+      "period": "month",
+      "startDate": "2026-04-01T07:00:00.000Z",
+      "endDate": "2026-04-25T06:59:59.999Z",
+      "showings": 0,
+      "cmasCompleted": 0,
+      "listings": 1,
+      "pendings": 0,
+      "solds": 1,
+      "closedVolume": 0,
+      "pendingVolume": 0
+    },
+    "yearly": {
+      "period": "year",
+      "startDate": "2026-01-01T08:00:00.000Z",
+      "endDate": "2027-01-01T07:59:59.999Z",
+      "showings": 0,
+      "cmasCompleted": 0,
+      "listings": 1,
+      "pendings": 0,
+      "solds": 3,
+      "closedVolume": 0,
+      "pendingVolume": 0
+    }
+  },
+  "noah-ullah": {
+    "weekly": {
+      "period": "week",
+      "startDate": "2026-04-20T07:00:00.000Z",
+      "endDate": "2026-04-25T06:59:59.999Z",
+      "showings": 0,
+      "cmasCompleted": 0,
+      "listings": 0,
+      "pendings": 0,
+      "solds": 0,
+      "closedVolume": 0,
+      "pendingVolume": 0
+    },
+    "monthly": {
+      "period": "month",
+      "startDate": "2026-04-01T07:00:00.000Z",
+      "endDate": "2026-04-25T06:59:59.999Z",
+      "showings": 0,
+      "cmasCompleted": 0,
+      "listings": 0,
+      "pendings": 0,
+      "solds": 0,
+      "closedVolume": 0,
+      "pendingVolume": 0
+    },
+    "yearly": {
+      "period": "year",
+      "startDate": "2026-01-01T08:00:00.000Z",
+      "endDate": "2027-01-01T07:59:59.999Z",
+      "showings": 0,
+      "cmasCompleted": 0,
+      "listings": 0,
+      "pendings": 0,
+      "solds": 1,
+      "closedVolume": 0,
+      "pendingVolume": 0
+    }
+  },
+  "christopher-locke": {
+    "weekly": {
+      "period": "week",
+      "startDate": "2026-04-20T07:00:00.000Z",
+      "endDate": "2026-04-25T06:59:59.999Z",
+      "showings": 0,
+      "cmasCompleted": 0,
+      "listings": 0,
+      "pendings": 0,
+      "solds": 0,
+      "closedVolume": 0,
+      "pendingVolume": 0
+    },
+    "monthly": {
+      "period": "month",
+      "startDate": "2026-04-01T07:00:00.000Z",
+      "endDate": "2026-04-25T06:59:59.999Z",
+      "showings": 0,
+      "cmasCompleted": 0,
+      "listings": 0,
+      "pendings": 0,
+      "solds": 0,
+      "closedVolume": 0,
+      "pendingVolume": 0
+    },
+    "yearly": {
+      "period": "year",
+      "startDate": "2026-01-01T08:00:00.000Z",
+      "endDate": "2027-01-01T07:59:59.999Z",
+      "showings": 0,
+      "cmasCompleted": 0,
+      "listings": 0,
+      "pendings": 0,
+      "solds": 2,
+      "closedVolume": 0,
+      "pendingVolume": 0
+    }
+  },
+  "noah-ullah-cambria": {
+    "weekly": {
+      "period": "week",
+      "startDate": "2026-04-20T07:00:00.000Z",
+      "endDate": "2026-04-25T06:59:59.999Z",
+      "showings": 0,
+      "cmasCompleted": 0,
+      "listings": 0,
+      "pendings": 0,
+      "solds": 0,
+      "closedVolume": 0,
+      "pendingVolume": 0
+    },
+    "monthly": {
+      "period": "month",
+      "startDate": "2026-04-01T07:00:00.000Z",
+      "endDate": "2026-04-25T06:59:59.999Z",
+      "showings": 0,
+      "cmasCompleted": 0,
+      "listings": 0,
+      "pendings": 0,
+      "solds": 0,
+      "closedVolume": 0,
+      "pendingVolume": 0
+    },
+    "yearly": {
+      "period": "year",
+      "startDate": "2026-01-01T08:00:00.000Z",
+      "endDate": "2027-01-01T07:59:59.999Z",
+      "showings": 0,
+      "cmasCompleted": 0,
+      "listings": 1,
+      "pendings": 0,
+      "solds": 1,
+      "closedVolume": 0,
+      "pendingVolume": 0
+    }
+  },
+  "tamarah-kokinda": {
+    "weekly": {
+      "period": "week",
+      "startDate": "2026-04-20T07:00:00.000Z",
+      "endDate": "2026-04-25T06:59:59.999Z",
+      "showings": 0,
+      "cmasCompleted": 0,
+      "listings": 0,
+      "pendings": 0,
+      "solds": 0,
+      "closedVolume": 0,
+      "pendingVolume": 0
+    },
+    "monthly": {
+      "period": "month",
+      "startDate": "2026-04-01T07:00:00.000Z",
+      "endDate": "2026-04-25T06:59:59.999Z",
+      "showings": 0,
+      "cmasCompleted": 0,
+      "listings": 0,
+      "pendings": 0,
+      "solds": 1,
+      "closedVolume": 0,
+      "pendingVolume": 0
+    },
+    "yearly": {
+      "period": "year",
+      "startDate": "2026-01-01T08:00:00.000Z",
+      "endDate": "2027-01-01T07:59:59.999Z",
+      "showings": 0,
+      "cmasCompleted": 0,
+      "listings": 0,
+      "pendings": 0,
+      "solds": 1,
+      "closedVolume": 0,
+      "pendingVolume": 0
+    }
+  }
+}

@@ -6,6 +6,8 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
+export const CAP_MAX = 20000; // Maximum cap contribution per agent
+
 export interface SnapshotMetadata {
   id: string;
   createdAt: string;
@@ -50,6 +52,18 @@ export interface AgentSnapshot {
   showings: number;
   emails: number;
   transactions?: TransactionRecord[];
+  capContributingTransactions?: CapContribution[];
+}
+
+export interface CapContribution {
+  transactionId: string;
+  address: string;
+  closedDate?: string;
+  contractDate?: string;
+  purchasePrice: number;
+  capContribution: number;
+  isSphere: boolean;
+  notes?: string;
 }
 
 export interface TransactionRecord {
@@ -63,6 +77,10 @@ export interface TransactionRecord {
   gci: number;
   leadSource: string;
   isZillow: boolean;
+  isSphere?: boolean;
+  capContribution?: number;
+  agentId?: string;
+  agentName?: string;
 }
 
 export interface LeaderboardEntry {
@@ -86,6 +104,8 @@ export interface TeamStats {
   totalCmasCompleted: number;
   avgZillowConversion: number;
   totalZillowLeads: number;
+  totalZillowCost: number;
+  totalCapContributions: number;
 }
 
 const SNAPSHOTS_DIR = path.join(process.cwd(), 'data', 'snapshots');

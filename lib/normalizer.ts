@@ -367,6 +367,8 @@ function calculateTeamStats(agents: Record<string, AgentSnapshot>): TeamStats {
       ? agentValues.reduce((sum, a) => sum + a.zillowConversion, 0) / agentValues.length 
       : 0,
     totalZillowLeads: agentValues.reduce((sum, a) => sum + a.zillowLeads, 0),
+    totalZillowCost: agentValues.reduce((sum, a) => sum + (a.zillowCost || 0), 0),
+    totalCapContributions: agentValues.reduce((sum, a) => sum + (a.capProgress || 0), 0),
   };
 }
 
