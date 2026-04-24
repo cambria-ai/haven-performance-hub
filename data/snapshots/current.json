@@ -244,10 +244,10 @@
     "totalClosedTransactions": 66,
     "totalClosedVolume": 35955000,
     "totalPendingTransactions": 31,
+    "totalPendingVolume": 16955000,
     "totalActiveListings": 49,
     "totalCmasCompleted": 143,
     "avgZillowConversion": 4.01,
-    "totalZillowLeads": 120,
-    "totalZillowCost": 7890
+    "totalZillowLeads": 120
   }
 }

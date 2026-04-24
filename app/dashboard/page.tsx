@@ -262,10 +262,10 @@ export default function TeamLeaderDashboard() {
           />
           <StatCard
             icon={<TrendingUp className="h-5 w-5" />}
-            label="Average Zillow conversion"
-            value={`${(data?.teamStats?.avgZillowConversion || 0).toFixed(1)}%`}
-            helper={importHealth?.warnings?.[0] || 'Live team benchmark'}
-            accent={(data?.teamStats?.avgZillowConversion || 0) >= 4 ? 'emerald' : 'amber'}
+            label="Pending deals"
+            value={data?.teamStats?.totalPendingTransactions || 0}
+            helper={data?.teamStats?.totalPendingTransactions ? 'In-flight across team' : 'Waiting for first import'}
+            accent="amber"
           />
         </section>
 
@@ -304,9 +304,9 @@ export default function TeamLeaderDashboard() {
 
             <div className="grid gap-4 md:grid-cols-2">
               <FocusCard title="Pending transactions" description={`${data?.teamStats?.totalPendingTransactions || 0} deals are currently in flight across the team.`} />
+              <FocusCard title="Pending volume" description={`${formatCurrency(data?.teamStats?.totalPendingVolume || 0)} in pending transaction volume.`} />
               <FocusCard title="Active listings" description={`${data?.teamStats?.totalActiveListings || 0} listings are currently represented in the live snapshot.`} />
-              <FocusCard title="CMAs completed" description={`${data?.teamStats?.totalCmasCompleted || 0} comparative market analyses completed to support listing momentum.`} />
-              <FocusCard title="Zillow lead volume" description={`${data?.teamStats?.totalZillowLeads || 0} Zillow leads are tracked in the current view with spend and conversion context.`} />
+              <FocusCard title="Zillow lead volume" description={`${data?.teamStats?.totalZillowLeads || 0} Zillow leads tracked with conversion health visible below.`} />
             </div>
           </div>
         </section>

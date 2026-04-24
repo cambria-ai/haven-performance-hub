@@ -10,6 +10,7 @@ import {
   Sparkles,
   Target,
   TrendingUp,
+  AlertTriangle,
 } from 'lucide-react';
 
 export default function LoginPage() {
@@ -53,31 +54,40 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="relative min-h-screen overflow-hidden bg-slate-950 text-white">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(129,140,248,0.28),_transparent_32%),radial-gradient(circle_at_bottom_right,_rgba(20,184,166,0.2),_transparent_28%),linear-gradient(160deg,_#020617_0%,_#0f172a_55%,_#111827_100%)]" />
-      <div className="absolute left-10 top-16 h-40 w-40 rounded-full bg-fuchsia-500/20 blur-3xl" />
-      <div className="absolute bottom-12 right-10 h-52 w-52 rounded-full bg-cyan-400/20 blur-3xl" />
+    <main className="relative min-h-screen bg-gradient-to-b from-slate-50 via-white to-slate-100">
+      {/* Subtle background pattern */}
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:24px_24px]" />
+      
+      {/* Decorative orbs */}
+      <div className="absolute -left-32 top-32 h-96 w-96 rounded-full bg-indigo-400/15 blur-3xl" />
+      <div className="absolute -right-32 bottom-32 h-96 w-96 rounded-full bg-cyan-400/15 blur-3xl" />
 
-      <div className="relative mx-auto grid min-h-screen max-w-7xl items-center gap-10 px-4 py-10 lg:grid-cols-[1.15fr_0.85fr] lg:px-8">
-        <section className="space-y-8">
-          <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 py-2 text-sm font-medium text-slate-200 backdrop-blur">
-            <Sparkles className="h-4 w-4 text-cyan-300" />
+      <div className="relative mx-auto grid min-h-screen max-w-7xl items-center gap-12 px-6 py-12 lg:grid-cols-[1.1fr_0.9fr] lg:px-8">
+        {/* Left side - Value proposition */}
+        <section className="space-y-10">
+          {/* Badge */}
+          <div className="inline-flex items-center gap-2 rounded-full bg-indigo-50 px-4 py-2 text-sm font-medium text-indigo-700 ring-1 ring-inset ring-indigo-200">
+            <Sparkles className="h-4 w-4" />
             Performance dashboards for Haven Real Estate Group
           </div>
 
-          <div className="max-w-2xl space-y-5">
-            <p className="text-sm font-semibold uppercase tracking-[0.3em] text-cyan-300/90">
+          {/* Headline section */}
+          <div className="space-y-6">
+            <p className="text-xs font-semibold uppercase tracking-[0.25em] text-indigo-600">
               Haven Performance Hub
             </p>
-            <h1 className="text-4xl font-semibold leading-tight text-white sm:text-5xl lg:text-6xl">
-              Clean numbers, clear wins, and a dashboard that actually feels motivating.
+            <h1 className="text-5xl font-semibold tracking-tight text-slate-900 sm:text-6xl lg:text-7xl">
+              Clean numbers,
+              <br />
+              <span className="bg-gradient-to-r from-indigo-600 via-violet-600 to-cyan-500 bg-clip-text text-transparent">clear wins.</span>
             </h1>
-            <p className="max-w-xl text-lg leading-8 text-slate-300">
+            <p className="max-w-xl text-lg leading-7 text-slate-600">
               Upload Excel reports, surface what matters fast, and give every agent a polished view of their
               progress, production, and opportunities.
             </p>
           </div>
 
+          {/* Feature badges */}
           <div className="grid gap-4 sm:grid-cols-3">
             <FeatureBadge
               icon={<BarChart3 className="h-5 w-5" />}
@@ -96,36 +106,39 @@ export default function LoginPage() {
             />
           </div>
 
-          <div className="rounded-3xl border border-white/10 bg-white/8 p-6 backdrop-blur-xl shadow-2xl shadow-slate-950/30">
-            <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
+          {/* Bottom CTA card */}
+          <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white p-6 shadow-xl shadow-slate-900/5">
+            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
               <div>
-                <p className="text-sm font-medium text-cyan-300">Built for busy agents and leadership</p>
-                <h2 className="mt-2 text-2xl font-semibold text-white">Less spreadsheet fatigue, more clarity.</h2>
+                <p className="text-sm font-medium text-indigo-600">Built for busy agents and leadership</p>
+                <h2 className="mt-1.5 text-xl font-semibold text-slate-900">Less spreadsheet fatigue, more clarity.</h2>
               </div>
-              <div className="flex items-center gap-3 text-sm text-slate-300">
-                <TrendingUp className="h-5 w-5 text-emerald-300" />
+              <div className="flex items-center gap-3 text-sm text-slate-600">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
+                  <TrendingUp className="h-5 w-5" />
+                </div>
                 Lead sources, Zillow performance, financials, and activity in one place.
               </div>
             </div>
           </div>
         </section>
 
+        {/* Right side - Login form */}
         <section className="relative">
-          <div className="absolute inset-0 rounded-[2rem] bg-gradient-to-br from-white/20 via-white/5 to-transparent blur-2xl" />
-          <div className="relative rounded-[2rem] border border-white/15 bg-white/10 p-6 shadow-2xl backdrop-blur-2xl sm:p-8">
-            <div className="mb-8 flex items-start justify-between gap-4">
-              <div>
-                <p className="text-sm font-medium text-cyan-300">Secure login</p>
-                <h2 className="mt-2 text-3xl font-semibold text-white">Welcome back</h2>
-                <p className="mt-2 text-sm leading-6 text-slate-300">
-                  Sign in to your personalized Haven dashboard.
-                </p>
-              </div>
-              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 to-cyan-400 shadow-lg shadow-indigo-500/30">
+          <div className="relative overflow-hidden rounded-3xl border border-slate-200 bg-white p-8 shadow-2xl shadow-slate-900/10 sm:p-10">
+            {/* Form header */}
+            <div className="mb-8">
+              <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-600 via-violet-600 to-cyan-500 shadow-lg shadow-indigo-500/25">
                 <Lock className="h-6 w-6 text-white" />
               </div>
+              <p className="text-sm font-medium text-indigo-600">Secure login</p>
+              <h2 className="mt-2 text-3xl font-semibold text-slate-900">Welcome back</h2>
+              <p className="mt-2 text-sm leading-6 text-slate-600">
+                Sign in to your personalized Haven dashboard.
+              </p>
             </div>
 
+            {/* Login form */}
             <form onSubmit={handleLogin} className="space-y-5">
               <Field
                 label="Agent ID"
@@ -145,7 +158,8 @@ export default function LoginPage() {
               />
 
               {error && (
-                <div className="rounded-2xl border border-rose-400/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-100">
+                <div className="flex items-start gap-3 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+                  <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0" />
                   {error}
                 </div>
               )}
@@ -153,14 +167,15 @@ export default function LoginPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="group inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-white px-4 py-3.5 font-semibold text-slate-950 transition hover:bg-cyan-50 disabled:cursor-not-allowed disabled:opacity-60"
+                className="group inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-indigo-600 via-violet-600 to-cyan-500 px-4 py-3.5 font-semibold text-white shadow-lg shadow-indigo-500/25 transition-all hover:shadow-xl hover:shadow-indigo-500/30 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 <span>{loading ? 'Signing in...' : 'Sign in to dashboard'}</span>
                 {!loading && <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />}
               </button>
             </form>
 
-            <div className="mt-6 rounded-2xl border border-white/10 bg-slate-950/30 p-4 text-sm text-slate-300">
+            {/* Help text */}
+            <div className="mt-6 rounded-2xl border border-slate-100 bg-slate-50 p-4 text-sm text-slate-600">
               Need access? Your team leader can create and manage credentials for each agent.
             </div>
           </div>
@@ -187,12 +202,12 @@ function Field({
 }) {
   return (
     <label className="block space-y-2">
-      <span className="text-sm font-medium text-slate-200">{label}</span>
+      <span className="text-sm font-medium text-slate-700">{label}</span>
       <input
         type={type}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-2xl border border-white/10 bg-slate-950/40 px-4 py-3 text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-300/60 focus:ring-2 focus:ring-cyan-300/20"
+        className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3.5 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-indigo-300 focus:ring-4 focus:ring-indigo-100"
         placeholder={placeholder}
         autoComplete={autoComplete}
         required
@@ -211,10 +226,10 @@ function FeatureBadge({
   description: string;
 }) {
   return (
-    <div className="rounded-3xl border border-white/10 bg-white/8 p-5 backdrop-blur-xl">
-      <div className="mb-3 inline-flex rounded-2xl bg-white/12 p-3 text-cyan-300">{icon}</div>
-      <h3 className="text-lg font-semibold text-white">{title}</h3>
-      <p className="mt-2 text-sm leading-6 text-slate-300">{description}</p>
+    <div className="group rounded-3xl border border-slate-200 bg-white p-5 shadow-sm transition-shadow hover:shadow-md">
+      <div className="mb-3 inline-flex rounded-2xl bg-indigo-50 p-3 text-indigo-600 transition-colors group-hover:bg-indigo-100">{icon}</div>
+      <h3 className="text-lg font-semibold text-slate-900">{title}</h3>
+      <p className="mt-2 text-sm leading-6 text-slate-600">{description}</p>
     </div>
   );
 }

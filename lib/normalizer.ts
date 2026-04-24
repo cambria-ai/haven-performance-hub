@@ -360,13 +360,13 @@ function calculateTeamStats(agents: Record<string, AgentSnapshot>): TeamStats {
     totalClosedTransactions: agentValues.reduce((sum, a) => sum + a.closedTransactions, 0),
     totalClosedVolume: agentValues.reduce((sum, a) => sum + a.closedVolume, 0),
     totalPendingTransactions: agentValues.reduce((sum, a) => sum + a.pendingTransactions, 0),
+    totalPendingVolume: agentValues.reduce((sum, a) => sum + a.pendingVolume, 0),
     totalActiveListings: agentValues.reduce((sum, a) => sum + a.activeListings, 0),
     totalCmasCompleted: agentValues.reduce((sum, a) => sum + a.cmasCompleted, 0),
     avgZillowConversion: agentValues.length > 0 
       ? agentValues.reduce((sum, a) => sum + a.zillowConversion, 0) / agentValues.length 
       : 0,
     totalZillowLeads: agentValues.reduce((sum, a) => sum + a.zillowLeads, 0),
-    totalZillowCost: agentValues.reduce((sum, a) => sum + a.zillowCost, 0),
   };
 }
 

@@ -208,10 +208,10 @@ export default function AgentDashboard() {
               />
               <StatCard
                 icon={<TrendingUp className="h-5 w-5" />}
-                label="Conversion rate"
-                value={`${(agentData.zillowConversion || 0).toFixed(1)}%`}
-                helper={agentData.zillowConversion >= 4 ? 'On target' : 'Goal is 4%'}
-                accent="amber"
+                label="Pending deals"
+                value={agentData.pendingTransactions || 0}
+                helper="In-flight transactions"
+                accent="emerald"
               />
             </section>
 
@@ -253,10 +253,9 @@ export default function AgentDashboard() {
                   <h2 className="mt-2 text-2xl font-semibold text-slate-950">Paid lead performance</h2>
 
                   <div className="mt-6 space-y-3">
-                    <MetricRow label="Lead volume" value={agentData.zillowLeads || 0} />
+                    <MetricRow label="Zillow leads" value={agentData.zillowLeads || 0} />
                     <MetricRow label="Conversion rate" value={`${(agentData.zillowConversion || 0).toFixed(1)}%`} />
-                    <MetricRow label="Cost per lead" value={formatCurrency((agentData.zillowCost || 0) / (agentData.zillowLeads || 1))} />
-                    <MetricRow label="Total Zillow cost" value={formatCurrency(agentData.zillowCost || 0)} />
+                    <MetricRow label="Zillow closings" value={agentData.zillowClosed || Math.round((agentData.zillowLeads || 0) * (agentData.zillowConversion || 0) / 100)} />
                   </div>
 
                   <div className="mt-6 rounded-3xl bg-slate-50 p-5">
@@ -293,13 +292,12 @@ export default function AgentDashboard() {
                 <div className="rounded-full bg-slate-100 px-3 py-1 text-sm font-medium text-slate-600">Readable at a glance</div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-6">
+              <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-5">
                 <FinancialItem label="Cap progress" value={`${((agentData.capProgress || 0) / (agentData.capTarget || 1) * 100).toFixed(0)}%`} />
                 <FinancialItem label="Haven fees" value={formatCurrency(agentData.havenFees || 0)} />
                 <FinancialItem label="B&O tax" value={formatCurrency(agentData.boTax || 0)} />
                 <FinancialItem label="L&I" value={formatCurrency(agentData.lni || 0)} />
                 <FinancialItem label="Transaction fees" value={formatCurrency(agentData.transactionFees || 0)} />
-                <FinancialItem label="Zillow costs" value={formatCurrency(agentData.zillowCost || 0)} />
               </div>
             </section>
           </>

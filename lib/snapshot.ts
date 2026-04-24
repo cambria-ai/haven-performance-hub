@@ -81,11 +81,11 @@ export interface TeamStats {
   totalClosedTransactions: number;
   totalClosedVolume: number;
   totalPendingTransactions: number;
+  totalPendingVolume: number;
   totalActiveListings: number;
   totalCmasCompleted: number;
   avgZillowConversion: number;
   totalZillowLeads: number;
-  totalZillowCost: number;
 }
 
 const SNAPSHOTS_DIR = path.join(process.cwd(), 'data', 'snapshots');
