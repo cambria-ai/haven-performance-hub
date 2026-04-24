@@ -33,6 +33,7 @@ export default function AgentDashboard() {
   const [agent, setAgent] = useState<any>(null);
   const [token, setToken] = useState<string>('');
   const [data, setData] = useState<AgentData | null>(null);
+  const [leads, setLeads] = useState<any[]>([]);
   const [showLeadForm, setShowLeadForm] = useState(false);
   const [newLead, setNewLead] = useState({ type: 'sphere', name: '', source: '', notes: '' });
 
@@ -55,17 +56,30 @@ export default function AgentDashboard() {
 
   async function loadData(authToken: string) {
     try {
-      const res = await fetch('/api/agent-data', {
-        headers: {
-          'Authorization': `Bearer ${authToken}`,
-        },
-      });
-      
-      if (res.ok) {
-        const result = await res.json();
+      const agentId = JSON.parse(localStorage.getItem('haven_agent') || '{}')?.id;
+      const [dashboardRes, leadsRes] = await Promise.all([
+        fetch('/api/agent-data', {
+          headers: {
+            'Authorization': `Bearer ${authToken}`,
+          },
+        }),
+        fetch('/api/leads', {
+          headers: {
+            'Authorization': `Bearer ${authToken}`,
+          },
+        }),
+      ]);
+
+      if (dashboardRes.ok) {
+        const result = await dashboardRes.json();
         setData(result);
-      } else if (res.status === 401 || res.status === 403) {
+      } else if (dashboardRes.status === 401 || dashboardRes.status === 403) {
         router.push('/');
+      }
+
+      if (leadsRes.ok) {
+        const leadsResult = await leadsRes.json();
+        setLeads(leadsResult?.leads?.[agentId] || []);
       }
     } catch (err) {
       console.error('Failed to load data:', err);
@@ -90,6 +104,11 @@ export default function AgentDashboard() {
       });
 
       if (res.ok) {
+        const createdLead = {
+          ...newLead,
+          createdAt: new Date().toISOString(),
+        };
+        setLeads((current) => [createdLead, ...current]);
         alert('✅ Lead added!');
         setShowLeadForm(false);
         setNewLead({ type: 'sphere', name: '', source: '', notes: '' });
@@ -117,11 +136,9 @@ export default function AgentDashboard() {
 
   const agentData = data?.agent;
   const leaderboard = data?.leaderboard || [];
-  const teamStats = data?.teamStats;
   const myRank = leaderboard.find(l => l.isOwn);
   const conversionRate = agentData?.zillowConversion || 0;
   const conversionProgress = Math.min((conversionRate / 4) * 100, 100);
-  const [leads, setLeads] = useState<any[]>([]);
   
   const motivationMessage = !agentData
     ? 'Your dashboard is ready and waiting for the next report upload.'

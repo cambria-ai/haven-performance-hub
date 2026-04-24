@@ -248,25 +248,67 @@ export default function TeamLeaderDashboard() {
           />
           <StatCard
             icon={<DollarSign className="h-5 w-5" />}
-            label="Total transactions"
-            value={totalTransactions}
-            helper={totalTransactions ? 'Year to date closings' : 'Waiting for first import'}
+            label="Closed volume"
+            value={formatCurrency(data?.teamStats?.totalClosedVolume || 0)}
+            helper={data?.teamStats?.totalClosedVolume ? 'Team production value' : 'Waiting for first import'}
             accent="emerald"
           />
           <StatCard
             icon={<Target className="h-5 w-5" />}
-            label="Import status"
-            value={importHealth?.lastImport ? 'Connected' : 'Not started'}
-            helper={importHealth?.lastImport ? `Last: ${formatDate(importHealth.lastImport)}` : 'Upload your first weekly snapshot'}
-            accent={importHealth?.lastImport ? 'cyan' : 'amber'}
+            label="Closed transactions"
+            value={data?.teamStats?.totalClosedTransactions || totalTransactions}
+            helper={data?.teamStats?.totalClosedTransactions ? 'Across the full team' : 'Waiting for first import'}
+            accent="cyan"
           />
           <StatCard
             icon={<TrendingUp className="h-5 w-5" />}
-            label="Team health"
-            value={importHealth?.warnings?.length ? 'Needs attention' : 'Healthy'}
-            helper={importHealth?.warnings?.[0] || 'All systems operational'}
-            accent={importHealth?.warnings?.length ? 'amber' : 'emerald'}
+            label="Average Zillow conversion"
+            value={`${(data?.teamStats?.avgZillowConversion || 0).toFixed(1)}%`}
+            helper={importHealth?.warnings?.[0] || 'Live team benchmark'}
+            accent={(data?.teamStats?.avgZillowConversion || 0) >= 4 ? 'emerald' : 'amber'}
           />
+        </section>
+
+        <section className="mb-8 grid gap-6 xl:grid-cols-[1.05fr_0.95fr]">
+          <div className="rounded-[2rem] border border-white/70 bg-white/85 p-6 shadow-[0_30px_80px_-35px_rgba(15,23,42,0.24)] backdrop-blur">
+            <div className="mb-5 flex items-center justify-between gap-4">
+              <div>
+                <p className="text-sm font-semibold uppercase tracking-[0.24em] text-slate-500">Team race</p>
+                <h3 className="mt-2 text-2xl font-semibold text-slate-950">Agent leaderboard</h3>
+                <p className="mt-2 text-sm text-slate-600">Ranked by closed transactions, with volume and pending deals breaking ties.</p>
+              </div>
+              <div className="rounded-full bg-slate-100 px-3 py-1 text-sm font-medium text-slate-600">
+                {data?.leaderboard?.length || 0} agents
+              </div>
+            </div>
+
+            {data?.leaderboard?.length ? (
+              <div className="space-y-3">
+                {data.leaderboard.map((entry: any) => (
+                  <AdminLeaderboardRow key={entry.agentId} entry={entry} />
+                ))}
+              </div>
+            ) : (
+              <EmptyCard
+                title="No agents in the current snapshot"
+                description="Once the weekly import is loaded, the named leaderboard will appear here for leadership."
+              />
+            )}
+          </div>
+
+          <div className="rounded-[2rem] border border-white/70 bg-white/85 p-6 shadow-[0_30px_80px_-35px_rgba(15,23,42,0.24)] backdrop-blur">
+            <div className="mb-5">
+              <p className="text-sm font-semibold uppercase tracking-[0.24em] text-slate-500">Team totals</p>
+              <h3 className="mt-2 text-2xl font-semibold text-slate-950">What leadership should see at a glance</h3>
+            </div>
+
+            <div className="grid gap-4 md:grid-cols-2">
+              <FocusCard title="Pending transactions" description={`${data?.teamStats?.totalPendingTransactions || 0} deals are currently in flight across the team.`} />
+              <FocusCard title="Active listings" description={`${data?.teamStats?.totalActiveListings || 0} listings are currently represented in the live snapshot.`} />
+              <FocusCard title="CMAs completed" description={`${data?.teamStats?.totalCmasCompleted || 0} comparative market analyses completed to support listing momentum.`} />
+              <FocusCard title="Zillow lead volume" description={`${data?.teamStats?.totalZillowLeads || 0} Zillow leads are tracked in the current view with spend and conversion context.`} />
+            </div>
+          </div>
         </section>
 
         <section className="grid gap-6 xl:grid-cols-[0.95fr_1.05fr]">
@@ -485,6 +527,31 @@ function FocusCard({ title, description }: { title: string; description: string 
     <div className="rounded-3xl border border-slate-100 bg-slate-50/80 p-5">
       <h4 className="text-base font-semibold text-slate-900">{title}</h4>
       <p className="mt-2 text-sm leading-6 text-slate-600">{description}</p>
+    </div>
+  );
+}
+
+function AdminLeaderboardRow({ entry }: { entry: any }) {
+  return (
+    <div className="flex items-center justify-between rounded-2xl border border-slate-100 bg-slate-50/70 px-4 py-3">
+      <div className="flex items-center gap-4">
+        <div className={`flex h-10 w-10 items-center justify-center rounded-full text-sm font-bold ${
+          entry.rank === 1 ? 'bg-amber-100 text-amber-700' :
+          entry.rank === 2 ? 'bg-slate-200 text-slate-700' :
+          entry.rank === 3 ? 'bg-orange-100 text-orange-700' :
+          'bg-slate-100 text-slate-600'
+        }`}>
+          {entry.rank}
+        </div>
+        <div>
+          <p className="font-semibold text-slate-900">{entry.agentName}</p>
+          <p className="text-xs text-slate-500">{formatCurrency(entry.closedVolume || 0)} • {entry.pendingTransactions || 0} pending</p>
+        </div>
+      </div>
+      <div className="text-right">
+        <p className="text-lg font-bold text-slate-950">{entry.closedTransactions}</p>
+        <p className="text-xs text-slate-500">closed</p>
+      </div>
     </div>
   );
 }
