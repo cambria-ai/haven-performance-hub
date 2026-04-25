@@ -86,17 +86,86 @@ export async function fetchTabCSV(tabName: string): Promise<string> {
 }
 
 /**
- * Parse CSV text into rows
+ * Parse CSV text into rows. Handles multi-line quoted fields.
  */
 function parseCSV(csvText: string): Record<string, any>[] {
-  const lines = csvText.split('\n').filter(line => line.trim());
-  if (lines.length === 0) return [];
+  const rows: string[][] = [];
+  let currentRow: string[] = [];
+  let currentField = '';
+  let inQuotes = false;
+  let i = 0;
   
-  const headers = parseCSVLine(lines[0]).map(h => h.trim());
-  const rows: Record<string, any>[] = [];
+  while (i < csvText.length) {
+    const char = csvText[i];
+    
+    if (inQuotes) {
+      if (char === '"') {
+        // Check for escaped quote
+        if (csvText[i + 1] === '"') {
+          currentField += '"';
+          i += 2;
+          continue;
+        } else {
+          // End of quoted field
+          inQuotes = false;
+          i++;
+          continue;
+        }
+      } else {
+        currentField += char;
+        i++;
+        continue;
+      }
+    }
+    
+    // Not in quotes
+    if (char === '"') {
+      inQuotes = true;
+      i++;
+      continue;
+    }
+    
+    if (char === ',') {
+      currentRow.push(currentField.trim());
+      currentField = '';
+      i++;
+      continue;
+    }
+    
+    if (char === '\n' || char === '\r') {
+      // Skip \r\n combinations
+      if (char === '\r' && csvText[i + 1] === '\n') {
+        i++;
+      }
+      currentRow.push(currentField.trim());
+      if (currentRow.length > 0 && currentRow.some(f => f.length > 0)) {
+        rows.push(currentRow);
+      }
+      currentRow = [];
+      currentField = '';
+      i++;
+      continue;
+    }
+    
+    currentField += char;
+    i++;
+  }
   
-  for (let i = 1; i < lines.length; i++) {
-    const values = parseCSVLine(lines[i]);
+  // Handle last field/row
+  if (currentField || currentRow.length > 0) {
+    currentRow.push(currentField.trim());
+    if (currentRow.some(f => f.length > 0)) {
+      rows.push(currentRow);
+    }
+  }
+  
+  if (rows.length === 0) return [];
+  
+  const headers = rows[0].map(h => h.trim());
+  const result: Record<string, any>[] = [];
+  
+  for (let rowIdx = 1; rowIdx < rows.length; rowIdx++) {
+    const values = rows[rowIdx];
     if (values.length === 0) continue;
     
     const row: Record<string, any> = {};
@@ -105,35 +174,9 @@ function parseCSV(csvText: string): Record<string, any>[] {
         row[header] = values[idx];
       }
     });
-    rows.push(row);
+    result.push(row);
   }
   
-  return rows;
-}
-
-function parseCSVLine(line: string): string[] {
-  const result: string[] = [];
-  let current = '';
-  let inQuotes = false;
-  
-  for (let i = 0; i < line.length; i++) {
-    const char = line[i];
-    if (char === '"') {
-      // Handle escaped quotes (double quotes inside quoted field)
-      if (inQuotes && line[i + 1] === '"') {
-        current += '"';
-        i++;
-      } else {
-        inQuotes = !inQuotes;
-      }
-    } else if (char === ',' && !inQuotes) {
-      result.push(current.trim());
-      current = '';
-    } else {
-      current += char;
-    }
-  }
-  result.push(current.trim());
   return result;
 }
 
@@ -186,13 +229,17 @@ async function loadRoster(): Promise<Map<string, string>> {
 }
 
 /**
- * Load pending transactions from MASTER HAVEN PNDS
- * Uses match keys to match transaction agents to roster entries
+ * Load all transactions from MASTER HAVEN PNDS and classify as pending or closed based on CLOSING date.
+ * Uses match keys to match transaction agents to roster entries.
+ * A transaction is "closed" if it has a valid CLOSING date in the past.
+ * A transaction is "pending" if CLOSING is empty or in the future.
  */
-async function loadPendings(roster: Map<string, string>): Promise<TransactionRecord[]> {
+async function loadTransactions(roster: Map<string, string>): Promise<{ pendings: TransactionRecord[]; closed: TransactionRecord[] }> {
   const csv = await fetchTabCSV('MASTER HAVEN PNDS');
   const rows = parseCSV(csv);
-  const transactions: TransactionRecord[] = [];
+  const pendings: TransactionRecord[] = [];
+  const closed: TransactionRecord[] = [];
+  const now = new Date();
   
   // Build a reverse map: matchKey -> roster agentId
   const rosterMatchKeys = new Map<string, string>();
@@ -226,84 +273,24 @@ async function loadPendings(roster: Map<string, string>): Promise<TransactionRec
     const contractDate = parseDate(row['Mutual Acceptance'] || row['contract date']);
     const closingDate = parseDate(row['CLOSING'] || row['closing']);
     const leadSource = (row['Lead Generated'] || row['lead source'] || '') as string;
-    
-    transactions.push({
-      id: `pend-${agentId}-${address.replace(/\s+/g, '-').substring(0, 20)}-${contractDate?.toISOString() || ''}`,
-      agentId: rosterAgentId,
-      agentName: agentName.trim(),
-      address,
-      price,
-      status: 'pending',
-      side: ((row['Purch/List'] || '') as string).toLowerCase().includes('list') ? 'seller' : 'buyer',
-      contractDate: contractDate?.toISOString() || undefined,
-      closedDate: undefined,
-      gci: parseCurrency(row['Haven Income'] || row['GCI']) || 0,
-      leadSource,
-      isSphere: isSphereDeal(leadSource),
-      capContribution: 0,
-      isZillow: leadSource.toLowerCase().includes('zillow'),
-    });
-  }
-  
-  return transactions;
-}
-
-/**
- * Load closed transactions from Master Closed 2026
- * Uses match keys to match transaction agents to roster entries
- */
-async function loadClosed(roster: Map<string, string>): Promise<TransactionRecord[]> {
-  const csv = await fetchTabCSV('Master Closed 2026');
-  const rows = parseCSV(csv);
-  const transactions: TransactionRecord[] = [];
-  
-  // Build reverse map: matchKey -> roster agentId
-  const rosterMatchKeys = new Map<string, string>();
-  for (const [agentId, agentName] of roster.entries()) {
-    const matchKey = getAgentMatchKey(agentName);
-    rosterMatchKeys.set(matchKey, agentId);
-  }
-  
-  for (const row of rows) {
-    const agentName = (row['Agent'] || row['agent']) as string;
-    if (!agentName || !isValidAgentName(agentName)) continue;
-    
-    const agentId = normalizeAgentId(agentName);
-    const matchKey = getAgentMatchKey(agentName);
-    
-    // Check direct roster membership first
-    let rosterAgentId = roster.has(agentId) ? agentId : null;
-    
-    // If not found, try match key
-    if (!rosterAgentId && rosterMatchKeys.has(matchKey)) {
-      rosterAgentId = rosterMatchKeys.get(matchKey)!;
-    }
-    
-    // Skip non-roster agents (they're no longer with the team)
-    if (!rosterAgentId) continue;
-    
-    const price = parseCurrency(row['PRICE'] || row['price']);
-    if (!price) continue;
-    
-    const address = (row['ADDRESS'] || row['address'] || 'Unknown') as string;
-    const contractDate = parseDate(row['Mutual Acceptance'] || row['contract date']);
-    const closingDate = parseDate(row['CLOSING'] || row['closing']);
-    const leadSource = (row['Lead Generated'] || row['lead source'] || '') as string;
     const havenIncome = parseCurrency(row['Haven Income'] || row['GCI']) || 0;
     
-    // Calculate cap contribution for sphere deals only
+    // Classify based on closing date
+    const isClosed = closingDate && closingDate <= now;
+    
+    // Calculate cap contribution for sphere deals only (closed transactions)
     let capContribution = 0;
-    if (isSphereDeal(leadSource)) {
+    if (isClosed && isSphereDeal(leadSource)) {
       capContribution = havenIncome;
     }
     
-    transactions.push({
-      id: `closed-${agentId}-${address.replace(/\s+/g, '-').substring(0, 20)}-${closingDate?.toISOString() || ''}`,
+    const transaction: TransactionRecord = {
+      id: `${isClosed ? 'closed' : 'pend'}-${agentId}-${address.replace(/\s+/g, '-').substring(0, 20)}-${closingDate?.toISOString() || contractDate?.toISOString() || ''}`,
       agentId: rosterAgentId,
       agentName: agentName.trim(),
       address,
       price,
-      status: 'closed',
+      status: isClosed ? 'closed' : 'pending',
       side: ((row['Purch/List'] || '') as string).toLowerCase().includes('list') ? 'seller' : 'buyer',
       contractDate: contractDate?.toISOString() || undefined,
       closedDate: closingDate?.toISOString() || undefined,
@@ -312,10 +299,16 @@ async function loadClosed(roster: Map<string, string>): Promise<TransactionRecor
       isSphere: isSphereDeal(leadSource),
       capContribution,
       isZillow: leadSource.toLowerCase().includes('zillow'),
-    });
+    };
+    
+    if (isClosed) {
+      closed.push(transaction);
+    } else {
+      pendings.push(transaction);
+    }
   }
   
-  return transactions;
+  return { pendings, closed };
 }
 
 /**
@@ -404,9 +397,8 @@ export async function loadFromGoogleSheets(): Promise<LoadResult> {
       warnings.push('Roster loaded but appears empty');
     }
     
-    // Step 2: Load transactions
-    const pendings = await loadPendings(roster);
-    const closed = await loadClosed(roster);
+    // Step 2: Load transactions from MASTER HAVEN PNDS (single source, classified by closing date)
+    const { pendings, closed } = await loadTransactions(roster);
     const allTransactions = [...pendings, ...closed];
     
     // Step 3: Load activity metrics
