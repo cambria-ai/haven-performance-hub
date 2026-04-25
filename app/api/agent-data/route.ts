@@ -19,8 +19,50 @@ export async function GET(request: NextRequest) {
         { status: 401 }
       );
     }
-    
+
+    const requestedAgentId = request.nextUrl.searchParams.get('agentId')?.trim() || null;
     const snapshot = loadCurrentSnapshot();
+
+    if (auth.role === 'admin') {
+      const targetAgentId = requestedAgentId || auth.agentId;
+      const agentData = snapshot?.agents?.[targetAgentId] || null;
+
+      if (!agentData) {
+        return NextResponse.json(
+          {
+            error: 'Agent not found in current snapshot',
+            agent: null,
+            leaderboard: snapshot?.leaderboard || [],
+            teamStats: snapshot?.teamStats || null,
+            isAdmin: true,
+            snapshotDate: snapshot?.metadata.createdAt || null,
+            timeWindowStats: null,
+          },
+          { status: 404 }
+        );
+      }
+
+      let agentTimeWindowStats: any = null;
+      try {
+        const statsPath = path.join(process.cwd(), 'data', 'snapshots', 'time-window-stats.json');
+        if (fs.existsSync(statsPath)) {
+          const allStats = JSON.parse(fs.readFileSync(statsPath, 'utf-8'));
+          agentTimeWindowStats = allStats[targetAgentId] || null;
+        }
+      } catch {
+        // Time-window stats not available
+      }
+
+      return NextResponse.json({
+        agent: agentData,
+        leaderboard: snapshot?.leaderboard || [],
+        teamStats: snapshot?.teamStats || null,
+        isAdmin: true,
+        snapshotDate: snapshot?.metadata.createdAt || null,
+        timeWindowStats: agentTimeWindowStats,
+      });
+    }
+
     const scopedData = getScopedSnapshotData(snapshot, auth);
     
     if (!scopedData.snapshot && scopedData.error) {

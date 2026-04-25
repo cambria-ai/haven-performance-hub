@@ -33,11 +33,13 @@ interface AgentData {
 export default function AgentDashboard() {
   const router = useRouter();
   const params = useParams();
+  const requestedAgentId = Array.isArray(params.id) ? params.id[0] : String(params.id || '');
   const [agent, setAgent] = useState<any>(null);
   const [token, setToken] = useState<string>('');
   const [data, setData] = useState<AgentData | null>(null);
   const [leads, setLeads] = useState<any[]>([]);
   const [showLeadForm, setShowLeadForm] = useState(false);
+  const [showCapDrilldown, setShowCapDrilldown] = useState(false);
   const [newLead, setNewLead] = useState({ type: 'sphere', name: '', source: '', notes: '' });
 
   useEffect(() => {
@@ -49,20 +51,19 @@ export default function AgentDashboard() {
     }
     const agentData = JSON.parse(stored);
     // Allow admin to view any agent page; agents can only view their own
-    if (agentData.role !== 'admin' && params.id !== agentData.id) {
+    if (agentData.role !== 'admin' && requestedAgentId !== agentData.id) {
       router.push('/');
       return;
     }
     setAgent(agentData);
     setToken(storedToken);
-    loadData(storedToken);
-  }, [router, params.id]);
+    loadData(storedToken, agentData.role === 'admin' ? requestedAgentId : agentData.id, agentData.role === 'admin');
+  }, [router, requestedAgentId]);
 
-  async function loadData(authToken: string) {
+  async function loadData(authToken: string, targetAgentId: string, isAdminView = false) {
     try {
-      const agentId = JSON.parse(localStorage.getItem('haven_agent') || '{}')?.id;
       const [dashboardRes, leadsRes] = await Promise.all([
-        fetch('/api/agent-data', {
+        fetch(`/api/agent-data${isAdminView ? `?agentId=${encodeURIComponent(targetAgentId)}` : ''}`, {
           headers: {
             'Authorization': `Bearer ${authToken}`,
           },
@@ -83,7 +84,7 @@ export default function AgentDashboard() {
 
       if (leadsRes.ok) {
         const leadsResult = await leadsRes.json();
-        setLeads(leadsResult?.leads?.[agentId] || []);
+        setLeads(leadsResult?.leads?.[targetAgentId] || []);
       }
     } catch (err) {
       console.error('Failed to load data:', err);
@@ -145,7 +146,6 @@ export default function AgentDashboard() {
   const conversionProgress = Math.min((conversionRate / 4) * 100, 100);
   const timeWindowStats = data?.timeWindowStats;
   const isAdminViewing = agent?.role === 'admin';
-  const [showCapDrilldown, setShowCapDrilldown] = useState(false);
   
   const motivationMessage = !agentData
     ? 'Your dashboard is ready and waiting for the next report upload.'
@@ -173,7 +173,7 @@ export default function AgentDashboard() {
                   </div>
                   <div>
                     <p className="text-sm font-semibold uppercase tracking-[0.28em] text-cyan-200/80">Haven Performance Hub</p>
-                    <h1 className="mt-2 text-3xl font-semibold tracking-tight sm:text-4xl">Hi {agent.name}, here is your scoreboard.</h1>
+                    <h1 className="mt-2 text-3xl font-semibold tracking-tight sm:text-4xl">Hi {agentData?.name || agent.name}, here is your scoreboard.</h1>
                     <p className="mt-3 max-w-2xl text-base leading-7 text-slate-300">{motivationMessage}</p>
                   </div>
                 </div>
