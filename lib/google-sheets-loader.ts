@@ -274,15 +274,17 @@ async function loadTransactions(roster: Map<string, string>): Promise<{ pendings
     const closingDate = parseDate(row['CLOSING'] || row['closing']);
     const leadSource = (row['Lead Generated'] || row['lead source'] || '') as string;
     const havenIncome = parseCurrency(row['Haven Income'] || row['GCI']) || 0;
+    const referralAmount = parseCurrency(row['Referral $'] || row['Referral']) || 0;
     
     // Classify based on closing date
     const isClosed = closingDate && closingDate <= now;
     
-    // Calculate cap contribution for sphere deals only (closed transactions)
-    let capContribution = 0;
-    if (isClosed && isSphereDeal(leadSource)) {
-      capContribution = havenIncome;
-    }
+    // CAP CONTRIBUTION: Do NOT calculate from Haven Income.
+    // Cap must come from explicit commission breakdown / payout source with actual cap fields.
+    // The MASTER HAVEN PNDS sheet does not contain explicit cap contribution columns.
+    // Until a proper commission breakdown sheet is loaded with explicit cap fields,
+    // capContribution remains 0 for all transactions.
+    const capContribution = 0; // No explicit cap field in current source
     
     const transaction: TransactionRecord = {
       id: `${isClosed ? 'closed' : 'pend'}-${agentId}-${address.replace(/\s+/g, '-').substring(0, 20)}-${closingDate?.toISOString() || contractDate?.toISOString() || ''}`,
@@ -296,9 +298,8 @@ async function loadTransactions(roster: Map<string, string>): Promise<{ pendings
       closedDate: closingDate?.toISOString() || undefined,
       gci: havenIncome,
       leadSource,
-      isSphere: isSphereDeal(leadSource),
-      capContribution,
       isZillow: leadSource.toLowerCase().includes('zillow'),
+      // capContribution, isSphere omitted - no explicit cap data in MASTER HAVEN PNDS source
     };
     
     if (isClosed) {
@@ -407,12 +408,10 @@ export async function loadFromGoogleSheets(): Promise<LoadResult> {
     
     // Step 4: Build agent records
     const agents: Record<string, AgentSnapshot> = {};
-    const capContributions: Record<string, CapContribution[]> = {};
     
     // Initialize agents from roster
     for (const [agentId, agentName] of roster.entries()) {
       agents[agentId] = createEmptyAgent(agentName, agentId);
-      capContributions[agentId] = [];
     }
     
     // Process transactions
@@ -424,24 +423,6 @@ export async function loadFromGoogleSheets(): Promise<LoadResult> {
         agent.closedTransactions += 1;
         agent.closedVolume += txn.price;
         agent.gci += txn.gci;
-        
-        // Track cap contribution for sphere deals only
-        if (txn.isSphere && (txn.capContribution || 0) > 0) {
-          const remainingCap = Math.max(0, CAP_MAX - agent.capProgress);
-          const actualContribution = Math.min(txn.capContribution || 0, remainingCap);
-          agent.capProgress += actualContribution;
-          
-          capContributions[txn.agentId].push({
-            transactionId: txn.id,
-            address: txn.address,
-            closedDate: txn.closedDate,
-            contractDate: txn.contractDate,
-            purchasePrice: txn.price,
-            capContribution: actualContribution,
-            isSphere: true,
-            notes: txn.leadSource,
-          });
-        }
       } else if (txn.status === 'pending') {
         agent.pendingTransactions += 1;
         agent.pendingVolume += txn.price;
@@ -465,12 +446,7 @@ export async function loadFromGoogleSheets(): Promise<LoadResult> {
       }
     }
     
-    // Attach cap-contributing transactions
-    for (const [agentId, agent] of Object.entries(agents)) {
-      if (capContributions[agentId].length > 0) {
-        agent.capContributingTransactions = capContributions[agentId];
-      }
-    }
+    // Note: capContributingTransactions not populated - no explicit cap data in MASTER HAVEN PNDS source
     
     // Build leaderboard
     const leaderboard = buildLeaderboard(agents);
@@ -768,36 +744,4 @@ function parseDate(value: any): Date | null {
   if (!value) return null;
   const date = new Date(value);
   return isNaN(date.getTime()) ? null : date;
-}
-
-/**
- * Determine if a lead source qualifies as "sphere" for cap contribution.
- * Sphere = personal contacts, SOI, repeat clients, referrals
- * Non-sphere = paid leads (Zillow, Redfin, etc.)
- */
-function isSphereDeal(leadSource: string): boolean {
-  const source = leadSource.toLowerCase();
-  
-  const nonSphereKeywords = [
-    'zillow', 'redfin', 'realtor.com', 'floor', 'cold',
-    'google ads', 'facebook ads', 'paid', 'zhl', 'myplusleads',
-  ];
-  
-  const sphereKeywords = [
-    'sphere', 'soi', 'personal', 'repeat', 'referral',
-    'past client', 'family', 'friend', 'self-generated',
-  ];
-  
-  // Check non-sphere first
-  for (const keyword of nonSphereKeywords) {
-    if (source.includes(keyword)) return false;
-  }
-  
-  // Check sphere keywords
-  for (const keyword of sphereKeywords) {
-    if (source.includes(keyword)) return true;
-  }
-  
-  // Default: not sphere (conservative)
-  return false;
 }

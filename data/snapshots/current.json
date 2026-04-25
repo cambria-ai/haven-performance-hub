@@ -1,16 +1,16 @@
 {
   "metadata": {
-    "id": "snapshot-2026-04-25-20-44",
-    "createdAt": "2026-04-25T03:44:08.579Z",
+    "id": "snapshot-2026-04-25-20-48",
+    "createdAt": "2026-04-25T03:48:09.046Z",
     "uploadedBy": "google-sheets-auto-load",
     "sourceFiles": [
       "Haven Transactions 2026"
     ],
     "agentCount": 27,
-    "transactionCount": 59,
+    "transactionCount": 57,
     "weekStart": "2026-04-20T07:00:00.000Z",
     "weekEnd": "2026-04-27T06:59:59.999Z",
-    "notes": "Loaded from Haven Transactions 2026. Roster-based filtering active. Excluded tabs: Sorting 2, Sorting 3, Closed_Off Market Listings."
+    "notes": "Loaded from Haven Transactions 2026. Roster-based filtering active. Cap contribution NOT calculated - no explicit cap field in source."
   },
   "agents": {
     "didi-emtman": {
@@ -33,9 +33,9 @@
       "id": "kurt-burgan",
       "name": "Kurt Burgan",
       "closedTransactions": 0,
-      "pendingTransactions": 9,
+      "pendingTransactions": 8,
       "closedVolume": 0,
-      "pendingVolume": 5537940,
+      "pendingVolume": 4897940,
       "gci": 0,
       "capProgress": 0,
       "activeListings": 9,
@@ -321,9 +321,9 @@
       "id": "jesse-miller",
       "name": "Jesse Miller",
       "closedTransactions": 0,
-      "pendingTransactions": 4,
+      "pendingTransactions": 3,
       "closedVolume": 0,
-      "pendingVolume": 1960689,
+      "pendingVolume": 1335689,
       "gci": 0,
       "capProgress": 0,
       "activeListings": 4,
@@ -463,7 +463,7 @@
       "agentName": "Kurt Burgan",
       "closedVolume": 0,
       "closedTransactions": 0,
-      "pendingTransactions": 9,
+      "pendingTransactions": 8,
       "gci": 0,
       "capProgress": 0
     },
@@ -633,7 +633,7 @@
       "agentName": "Jesse Miller",
       "closedVolume": 0,
       "closedTransactions": 0,
-      "pendingTransactions": 4,
+      "pendingTransactions": 3,
       "gci": 0,
       "capProgress": 0
     },
@@ -712,8 +712,8 @@
     "totalAgents": 27,
     "totalClosedTransactions": 1,
     "totalClosedVolume": 314000,
-    "totalPendingTransactions": 58,
-    "totalPendingVolume": 30297636,
+    "totalPendingTransactions": 56,
+    "totalPendingVolume": 29032636,
     "totalActiveListings": 60,
     "totalCmasCompleted": 0,
     "avgZillowConversion": 0,
