@@ -37,21 +37,10 @@ export interface AgentSnapshot {
   activeListings: number;
   cmasCompleted: number;
   zillowLeads: number;
-  zillowConversion: number;
-  zillowCost: number;
+  zillowConversion: number | null;
+  zillowCost: number | null;
   gci: number;
   capProgress: number;
-  capTarget: number;
-  commissionLevel: number;
-  payoutTotal: number;
-  havenFees: number;
-  boTax: number;
-  lni: number;
-  transactionFees: number;
-  calls: number;
-  showings: number;
-  emails: number;
-  transactions?: TransactionRecord[];
   capContributingTransactions?: CapContribution[];
 }
 
@@ -79,8 +68,8 @@ export interface TransactionRecord {
   isZillow: boolean;
   isSphere?: boolean;
   capContribution?: number;
-  agentId?: string;
-  agentName?: string;
+  agentId: string;
+  agentName: string;
 }
 
 export interface LeaderboardEntry {
@@ -90,22 +79,15 @@ export interface LeaderboardEntry {
   closedTransactions: number;
   closedVolume: number;
   pendingTransactions: number;
-  zillowClosed: number;
-  movement: 'up' | 'down' | 'same' | 'new';
-  distanceToNext: number;
+  gci: number;
+  capProgress: number;
 }
 
 export interface TeamStats {
-  totalClosedTransactions: number;
+  totalAgents: number;
   totalClosedVolume: number;
-  totalPendingTransactions: number;
   totalPendingVolume: number;
-  totalActiveListings: number;
-  totalCmasCompleted: number;
-  avgZillowConversion: number;
-  totalZillowLeads: number;
-  totalZillowCost: number;
-  totalCapContributions: number;
+  totalGCI: number;
 }
 
 const SNAPSHOTS_DIR = path.join(process.cwd(), 'data', 'snapshots');

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAuthFromRequest } from '@/lib/auth-helpers';
 import { saveCurrentSnapshot, archiveCurrentSnapshot } from '@/lib/snapshot';
-import { loadFromGoogleSheets, LOCKED_SOURCES } from '@/lib/google-sheets-loader';
+import { loadFromGoogleSheets } from '@/lib/google-sheets-loader';
 
 export async function POST(request: NextRequest) {
   try {
@@ -32,9 +32,8 @@ export async function POST(request: NextRequest) {
     
     return NextResponse.json({
       success: true,
-      message: `Loaded real data from ${result.sourcesLoaded.length} Google Sheets`,
+      message: `Loaded real data from Haven Transactions 2026`,
       sourcesLoaded: result.sourcesLoaded,
-      lockedSourcesExcluded: LOCKED_SOURCES,
       snapshotId: result.snapshot.metadata.id,
       agentCount: result.snapshot.metadata.agentCount,
       transactionCount: result.snapshot.metadata.transactionCount,
@@ -53,13 +52,10 @@ export async function POST(request: NextRequest) {
 
 export async function GET() {
   try {
-    // Return info about accessible sources without loading
-    const { ACCESSIBLE_SOURCES, LOCKED_SOURCES } = await import('@/lib/google-sheets-loader');
-    
     return NextResponse.json({
-      accessibleSources: ACCESSIBLE_SOURCES,
-      lockedSources: LOCKED_SOURCES,
-      note: 'POST to this endpoint to load real data from accessible Google Sheets',
+      accessibleSources: [{ id: '1qmwuePI7Q47gjcI5WmvQj1gjTLmmVpnl', name: 'Haven Transactions 2026', tabs: ['MASTER HAVEN PNDS', 'Master Closed 2026', 'Spokane Agent Roster', 'Listings', 'CMAS_2026'] }],
+      excludedTabs: ['Sorting 2', 'Sorting 3', 'Closed_Off Market Listings'],
+      note: 'POST to this endpoint to load real data from Haven Transactions 2026',
     });
   } catch (error) {
     return NextResponse.json({ 

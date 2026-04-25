@@ -150,17 +150,7 @@ function createEmptyAgentSnapshot(id: string, rowData: any): AgentSnapshot {
     zillowCost: 0,
     gci: 0,
     capProgress: 0,
-    capTarget: 0,
-    commissionLevel: 0,
-    payoutTotal: 0,
-    havenFees: 0,
-    boTax: 0,
-    lni: 0,
-    transactionFees: 0,
-    calls: 0,
-    showings: 0,
-    emails: 0,
-    transactions: [],
+    capContributingTransactions: [],
   };
 }
 
@@ -191,6 +181,8 @@ function extractTransactions(
       const agentId = normalizeAgentId(row);
       if (!agentId) continue;
       
+      const agentName = getAgentName(row) || agentId;
+      
       const transaction: TransactionRecord = {
         id: generateTransactionId(row),
         address: getFieldValue(row, ['address', 'property address', 'street']) || 'Unknown',
@@ -202,15 +194,13 @@ function extractTransactions(
         gci: getNumericField(row, ['gci', 'commission', 'gross commission']) || 0,
         leadSource: getFieldValue(row, ['lead source', 'source', 'origin']) || 'Unknown',
         isZillow: isZillowLead(row),
+        agentId,
+        agentName,
       };
       
       transactions.push(transaction);
-      
-      // Add to agent's transactions
-      if (agents[agentId]) {
-        agents[agentId].transactions = agents[agentId].transactions || [];
-        agents[agentId].transactions!.push(transaction);
-      }
+      // Note: AgentSnapshot doesn't store individual transactions in current schema
+      // Metrics are aggregated separately in aggregateMetrics()
     }
   }
   
@@ -223,9 +213,18 @@ function aggregateMetrics(
   parsedData: Record<string, any>,
   warnings: ImportWarning[]
 ) {
+  // Build a map of agentId to their transactions
+  const txnsByAgent = new Map<string, TransactionRecord[]>();
+  for (const txn of transactions) {
+    if (!txnsByAgent.has(txn.agentId)) {
+      txnsByAgent.set(txn.agentId, []);
+    }
+    txnsByAgent.get(txn.agentId)!.push(txn);
+  }
+  
   // Aggregate from transactions
   for (const agent of Object.values(agents)) {
-    const agentTransactions = agent.transactions || [];
+    const agentTransactions = txnsByAgent.get(agent.id) || [];
     
     agent.closedTransactions = agentTransactions.filter(t => t.status === 'closed').length;
     agent.closedVolume = agentTransactions
@@ -270,12 +269,12 @@ function aggregateMetrics(
       const agentId = normalizeAgentId(row);
       if (agentId && agents[agentId]) {
         agents[agentId].capProgress = getNumericField(row, ['cap progress', 'cap paid', 'cap']) || 0;
-        agents[agentId].capTarget = getNumericField(row, ['cap target', 'cap goal']) || 3000;
-        agents[agentId].havenFees = getNumericField(row, ['haven fee', 'fee']) || 0;
-        agents[agentId].boTax = getNumericField(row, ['b&o', 'b&o tax', 'tax']) || 0;
-        agents[agentId].lni = getNumericField(row, ['l&i', 'lni', 'workers comp']) || 0;
-        agents[agentId].transactionFees = getNumericField(row, ['transaction fee', 'tech fee', 'desk fee']) || 0;
-        agents[agentId].payoutTotal = getNumericField(row, ['payout', 'net', 'agent payout']) || 0;
+        // Note: capTarget and other payout fields not in current AgentSnapshot schema
+        // agents[agentId].havenFees = getNumericField(row, ['haven fee', 'fee']) || 0;
+        // agents[agentId].boTax = getNumericField(row, ['b&o', 'b&o tax', 'tax']) || 0;
+        // agents[agentId].lni = getNumericField(row, ['l&i', 'lni', 'workers comp']) || 0;
+        // agents[agentId].transactionFees = getNumericField(row, ['transaction fee', 'tech fee', 'desk fee']) || 0;
+        // agents[agentId].payoutTotal = getNumericField(row, ['payout', 'net', 'agent payout']) || 0;
       }
     }
   }
@@ -283,14 +282,8 @@ function aggregateMetrics(
   // Extract activity metrics
   const activitySheet = parsedData['Activities'] || parsedData['Activity'];
   if (activitySheet?.rows) {
-    for (const row of activitySheet.rows) {
-      const agentId = normalizeAgentId(row);
-      if (agentId && agents[agentId]) {
-        agents[agentId].calls = getNumericField(row, ['calls', 'phone calls']) || 0;
-        agents[agentId].showings = getNumericField(row, ['showings', 'tours']) || 0;
-        agents[agentId].emails = getNumericField(row, ['emails', 'e-mails']) || 0;
-      }
-    }
+    // Note: calls/showings/emails not in current AgentSnapshot schema
+    // Activity tracking would need schema update
   }
   
   // Extract listings
@@ -322,7 +315,7 @@ function buildLeaderboard(agents: Record<string, AgentSnapshot>): LeaderboardEnt
     closedTransactions: agent.closedTransactions,
     closedVolume: agent.closedVolume,
     pendingTransactions: agent.pendingTransactions,
-    zillowClosed: (agent.transactions || []).filter(t => t.isZillow && t.status === 'closed').length,
+    zillowClosed: agent.zillowLeads, // Use zillowLeads count as proxy
   }));
   
   // Sort by primary metric (closed transactions), then tiebreakers
@@ -342,11 +335,14 @@ function buildLeaderboard(agents: Record<string, AgentSnapshot>): LeaderboardEnt
   // Assign ranks and calculate distances
   const leaderboard: LeaderboardEntry[] = entries.map((entry, index) => {
     const nextEntry = entries[index + 1];
+    const agent = agents[entry.agentId];
     return {
       rank: index + 1,
       ...entry,
       movement: 'same', // Will be calculated when comparing to previous snapshot
       distanceToNext: nextEntry ? entry.closedTransactions - nextEntry.closedTransactions : 0,
+      gci: agent.gci,
+      capProgress: agent.capProgress,
     };
   });
   
@@ -357,18 +353,10 @@ function calculateTeamStats(agents: Record<string, AgentSnapshot>): TeamStats {
   const agentValues = Object.values(agents);
   
   return {
-    totalClosedTransactions: agentValues.reduce((sum, a) => sum + a.closedTransactions, 0),
+    totalAgents: agentValues.length,
     totalClosedVolume: agentValues.reduce((sum, a) => sum + a.closedVolume, 0),
-    totalPendingTransactions: agentValues.reduce((sum, a) => sum + a.pendingTransactions, 0),
     totalPendingVolume: agentValues.reduce((sum, a) => sum + a.pendingVolume, 0),
-    totalActiveListings: agentValues.reduce((sum, a) => sum + a.activeListings, 0),
-    totalCmasCompleted: agentValues.reduce((sum, a) => sum + a.cmasCompleted, 0),
-    avgZillowConversion: agentValues.length > 0 
-      ? agentValues.reduce((sum, a) => sum + a.zillowConversion, 0) / agentValues.length 
-      : 0,
-    totalZillowLeads: agentValues.reduce((sum, a) => sum + a.zillowLeads, 0),
-    totalZillowCost: agentValues.reduce((sum, a) => sum + (a.zillowCost || 0), 0),
-    totalCapContributions: agentValues.reduce((sum, a) => sum + (a.capProgress || 0), 0),
+    totalGCI: agentValues.reduce((sum, a) => sum + a.gci, 0),
   };
 }
 

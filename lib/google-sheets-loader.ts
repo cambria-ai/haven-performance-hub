@@ -1,7 +1,12 @@
 /**
  * Google Sheets data loader for Haven Performance Hub.
- * Fetches data from accessible Google Sheets via public CSV export endpoints.
- * Builds real snapshots from source-backed data with time-window rollups.
+ * Core source: Haven Transactions 2026 (1qmwuePI7Q47gjcI5WmvQj1gjTLmmVpnl)
+ * 
+ * Business rules:
+ * - Roster membership determines active agent status
+ * - Non-roster closers are excluded from active dashboards
+ * - Cap applies only to sphere deals, maxes at $20,000
+ * - Excluded tabs: Sorting 2, Sorting 3, Closed_Off Market Listings
  */
 
 import {
@@ -38,75 +43,58 @@ export interface MetricRollup {
 
 export interface LoadResult {
   snapshot: WeeklySnapshot;
-  timeWindowStats: Record<string, TimeWindowStats>; // keyed by agentId
+  timeWindowStats: Record<string, TimeWindowStats>;
   warnings: string[];
   errors: string[];
   sourcesLoaded: string[];
 }
 
-export interface SheetSource {
-  id: string;
-  name: string;
-  tabs: string[];
-}
+// Core source sheet
+export const SHEET_ID = '1qmwuePI7Q47gjcI5WmvQj1gjTLmmVpnl';
 
-// Accessible Google Sheet sources
-export const ACCESSIBLE_SOURCES: SheetSource[] = [
-  {
-    id: '15Wfyp7Z8hvLayj2DtPQ9K_ydtdwIUojLhmlVzHOra3k',
-    name: 'Haven Master Payout & Cap Dashboard',
-    tabs: ['MASTER HAVEN PNDS'],
-  },
-  {
-    id: '1qmwuePI7Q47gjcI5WmvQj1gjTLmmVpnl',
-    name: 'Haven Transactions 2026',
-    tabs: ['MASTER HAVEN PNDS', 'Master Closed 2026', 'Listings', 'CMAS_2026'],
-  },
-  {
-    id: '1cqoprcDPxah-1b9gSUiXwNUFJBlCcfrq5-XyUmIarmI',
-    name: 'Weekly Zillow Stats',
-    tabs: ['Sheet1'],
-  },
-  {
-    id: '11lKgPwG_p7PTTD7nSetijPxx9gz5NEw0U20foCA9On4',
-    name: 'Zillow Transactions Tracking',
-    tabs: ['Sheet1'],
-  },
-];
+// Tab GIDs from inspection
+export const TAB_GIDS: Record<string, number> = {
+  'MASTER HAVEN PNDS': 0,
+  'Master Closed 2026': 1,
+  'Spokane Agent Roster': 1454437421,
+  'Upcoming Listings': 1196688652,
+  'Listings': 1085800109,
+  'Closed_Off Market Listings': 1044193093,
+  'Spokane Rescissions': 862721766,
+  'CMAS_2026': 1932605207,
+  'Sorting 2': 2043111127,
+  'Sorting 3': 1948698996,
+};
 
-// Locked/unavailable sources (explicitly NOT loaded)
-export const LOCKED_SOURCES: string[] = [
-  'Haven 2026 Offer Activity Reports',
-  'WA Haven RE Group Commission Spreadsheet',
-  'ID Haven RE Group Commission Spreadsheet',
-];
+// Explicitly excluded per business rules
+export const EXCLUDED_TABS = ['Sorting 2', 'Sorting 3', 'Closed_Off Market Listings'];
 
 /**
- * Fetch a Google Sheet as CSV using the gviz endpoint (no auth required for public/link-shared sheets)
+ * Fetch a Google Sheet tab as CSV
  */
-export async function fetchSheetCSV(spreadsheetId: string, gid?: string): Promise<string> {
-  const url = gid 
-    ? `https://docs.google.com/spreadsheets/d/${spreadsheetId}/gviz/tq?tqx=out:csv&gid=${gid}`
-    : `https://docs.google.com/spreadsheets/d/${spreadsheetId}/gviz/tq?tqx=out:csv`;
-  
+export async function fetchTabCSV(tabName: string): Promise<string> {
+  const gid = TAB_GIDS[tabName];
+  if (gid === undefined) {
+    throw new Error(`Unknown tab: ${tabName}`);
+  }
+  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=${gid}`;
   const response = await fetch(url);
   if (!response.ok) {
-    throw new Error(`Failed to fetch sheet ${spreadsheetId}: ${response.status} ${response.statusText}`);
+    throw new Error(`Failed to fetch tab ${tabName}: ${response.status} ${response.statusText}`);
   }
   return response.text();
 }
 
 /**
- * Parse CSV text into rows of objects
+ * Parse CSV text into rows
  */
-export function parseCSV(csvText: string): Record<string, any>[] {
+function parseCSV(csvText: string): Record<string, any>[] {
   const lines = csvText.split('\n').filter(line => line.trim());
   if (lines.length === 0) return [];
   
-  // Parse header line (handle quoted fields)
   const headers = parseCSVLine(lines[0]).map(h => h.trim());
-  
   const rows: Record<string, any>[] = [];
+  
   for (let i = 1; i < lines.length; i++) {
     const values = parseCSVLine(lines[i]);
     if (values.length === 0) continue;
@@ -123,9 +111,6 @@ export function parseCSV(csvText: string): Record<string, any>[] {
   return rows;
 }
 
-/**
- * Parse a single CSV line handling quoted fields
- */
 function parseCSVLine(line: string): string[] {
   const result: string[] = [];
   let current = '';
@@ -134,230 +119,444 @@ function parseCSVLine(line: string): string[] {
   for (let i = 0; i < line.length; i++) {
     const char = line[i];
     if (char === '"') {
-      inQuotes = !inQuotes;
+      // Handle escaped quotes (double quotes inside quoted field)
+      if (inQuotes && line[i + 1] === '"') {
+        current += '"';
+        i++;
+      } else {
+        inQuotes = !inQuotes;
+      }
     } else if (char === ',' && !inQuotes) {
-      result.push(current.trim().replace(/^"|"$/g, ''));
+      result.push(current.trim());
       current = '';
     } else {
       current += char;
     }
   }
-  result.push(current.trim().replace(/^"|"$/g, ''));
+  result.push(current.trim());
   return result;
 }
 
 /**
- * Load all accessible sheet data and build a real snapshot
+ * Load roster and return set of active agent IDs
+ * Spokane Agent Roster structure: AGENT name is in first column, header row at index 21
+ * Uses match keys to handle name variations and multi-state duplicates
+ */
+async function loadRoster(): Promise<Set<string>> {
+  const csv = await fetchTabCSV('Spokane Agent Roster');
+  const rows = parseCSV(csv);
+  const roster = new Set<string>();
+  const rosterMatchKeys = new Map<string, string>(); // matchKey -> canonical agentId
+  
+  // Find the header row that contains 'AGENT' in first column
+  let headerIndex = -1;
+  for (let i = 0; i < rows.length; i++) {
+    const firstCol = Object.values(rows[i])[0];
+    if (firstCol && String(firstCol).toUpperCase() === 'AGENT') {
+      headerIndex = i;
+      break;
+    }
+  }
+  
+  // Load roster entries, building a map of match keys to canonical IDs
+  for (let i = (headerIndex >= 0 ? headerIndex + 1 : 0); i < rows.length; i++) {
+    const row = rows[i];
+    const agentName = 
+      (row['AGENT'] as string) || 
+      (row['Agent'] as string) || 
+      (row['agent'] as string) || 
+      (row['Name'] as string) || 
+      (row['name'] as string) ||
+      (headerIndex >= 0 ? (Object.values(row)[0] as string) : null);
+    
+    if (!agentName || !isValidAgentName(agentName)) continue;
+    
+    const agentId = normalizeAgentId(agentName);
+    const matchKey = getAgentMatchKey(agentName);
+    
+    // Store the first occurrence as canonical (handles multi-state duplicates)
+    if (!rosterMatchKeys.has(matchKey)) {
+      rosterMatchKeys.set(matchKey, agentId);
+      roster.add(agentId);
+    }
+  }
+  
+  return roster;
+}
+
+/**
+ * Load pending transactions from MASTER HAVEN PNDS
+ * Uses match keys to match transaction agents to roster entries
+ */
+async function loadPendings(roster: Set<string>): Promise<TransactionRecord[]> {
+  const csv = await fetchTabCSV('MASTER HAVEN PNDS');
+  const rows = parseCSV(csv);
+  const transactions: TransactionRecord[] = [];
+  
+  // Build a reverse map: matchKey -> roster agentId
+  const rosterMatchKeys = new Map<string, string>();
+  for (const agentId of roster) {
+    // Convert agentId back to a name-like format for matching
+    // This is approximate but works for most cases
+    const nameFromId = agentId.split('-').map(p => p.charAt(0).toUpperCase() + p.slice(1)).join(' ');
+    const matchKey = getAgentMatchKey(nameFromId);
+    rosterMatchKeys.set(matchKey, agentId);
+  }
+  
+  for (const row of rows) {
+    const agentName = (row['Agent'] || row['agent']) as string;
+    if (!agentName || !isValidAgentName(agentName)) continue;
+    
+    const agentId = normalizeAgentId(agentName);
+    const matchKey = getAgentMatchKey(agentName);
+    
+    // Check direct roster membership first
+    let rosterAgentId = roster.has(agentId) ? agentId : null;
+    
+    // If not found, try match key (handles "Kurt Burgan" vs "Kurt Antone Burgan")
+    if (!rosterAgentId && rosterMatchKeys.has(matchKey)) {
+      rosterAgentId = rosterMatchKeys.get(matchKey)!;
+    }
+    
+    // Skip non-roster agents
+    if (!rosterAgentId) continue;
+    
+    const price = parseCurrency(row['PRICE'] || row['price']);
+    if (!price) continue;
+    
+    const address = (row['ADDRESS'] || row['address'] || 'Unknown') as string;
+    const contractDate = parseDate(row['Mutual Acceptance'] || row['contract date']);
+    const closingDate = parseDate(row['CLOSING'] || row['closing']);
+    const leadSource = (row['Lead Generated'] || row['lead source'] || '') as string;
+    
+    transactions.push({
+      id: `pend-${agentId}-${address.replace(/\s+/g, '-').substring(0, 20)}-${contractDate?.toISOString() || ''}`,
+      agentId: rosterAgentId,
+      agentName: agentName.trim(),
+      address,
+      price,
+      status: 'pending',
+      side: ((row['Purch/List'] || '') as string).toLowerCase().includes('list') ? 'seller' : 'buyer',
+      contractDate: contractDate?.toISOString() || undefined,
+      closedDate: undefined,
+      gci: parseCurrency(row['Haven Income'] || row['GCI']) || 0,
+      leadSource,
+      isSphere: isSphereDeal(leadSource),
+      capContribution: 0,
+      isZillow: leadSource.toLowerCase().includes('zillow'),
+    });
+  }
+  
+  return transactions;
+}
+
+/**
+ * Load closed transactions from Master Closed 2026
+ * Uses match keys to match transaction agents to roster entries
+ */
+async function loadClosed(roster: Set<string>): Promise<TransactionRecord[]> {
+  const csv = await fetchTabCSV('Master Closed 2026');
+  const rows = parseCSV(csv);
+  const transactions: TransactionRecord[] = [];
+  
+  // Build reverse map: matchKey -> roster agentId
+  const rosterMatchKeys = new Map<string, string>();
+  for (const agentId of roster) {
+    const nameFromId = agentId.split('-').map(p => p.charAt(0).toUpperCase() + p.slice(1)).join(' ');
+    const matchKey = getAgentMatchKey(nameFromId);
+    rosterMatchKeys.set(matchKey, agentId);
+  }
+  
+  for (const row of rows) {
+    const agentName = (row['Agent'] || row['agent']) as string;
+    if (!agentName || !isValidAgentName(agentName)) continue;
+    
+    const agentId = normalizeAgentId(agentName);
+    const matchKey = getAgentMatchKey(agentName);
+    
+    // Check direct roster membership first
+    let rosterAgentId = roster.has(agentId) ? agentId : null;
+    
+    // If not found, try match key
+    if (!rosterAgentId && rosterMatchKeys.has(matchKey)) {
+      rosterAgentId = rosterMatchKeys.get(matchKey)!;
+    }
+    
+    // Skip non-roster agents (they're no longer with the team)
+    if (!rosterAgentId) continue;
+    
+    const price = parseCurrency(row['PRICE'] || row['price']);
+    if (!price) continue;
+    
+    const address = (row['ADDRESS'] || row['address'] || 'Unknown') as string;
+    const contractDate = parseDate(row['Mutual Acceptance'] || row['contract date']);
+    const closingDate = parseDate(row['CLOSING'] || row['closing']);
+    const leadSource = (row['Lead Generated'] || row['lead source'] || '') as string;
+    const havenIncome = parseCurrency(row['Haven Income'] || row['GCI']) || 0;
+    
+    // Calculate cap contribution for sphere deals only
+    let capContribution = 0;
+    if (isSphereDeal(leadSource)) {
+      capContribution = havenIncome;
+    }
+    
+    transactions.push({
+      id: `closed-${agentId}-${address.replace(/\s+/g, '-').substring(0, 20)}-${closingDate?.toISOString() || ''}`,
+      agentId: rosterAgentId,
+      agentName: agentName.trim(),
+      address,
+      price,
+      status: 'closed',
+      side: ((row['Purch/List'] || '') as string).toLowerCase().includes('list') ? 'seller' : 'buyer',
+      contractDate: contractDate?.toISOString() || undefined,
+      closedDate: closingDate?.toISOString() || undefined,
+      gci: havenIncome,
+      leadSource,
+      isSphere: isSphereDeal(leadSource),
+      capContribution,
+      isZillow: leadSource.toLowerCase().includes('zillow'),
+    });
+  }
+  
+  return transactions;
+}
+
+/**
+ * Load active listings count per agent
+ */
+async function loadListings(roster: Set<string>): Promise<Record<string, number>> {
+  const csv = await fetchTabCSV('Listings');
+  const rows = parseCSV(csv);
+  const listingsByAgent: Record<string, number> = {};
+  
+  // Build reverse map: matchKey -> roster agentId
+  const rosterMatchKeys = new Map<string, string>();
+  for (const agentId of roster) {
+    const nameFromId = agentId.split('-').map(p => p.charAt(0).toUpperCase() + p.slice(1)).join(' ');
+    const matchKey = getAgentMatchKey(nameFromId);
+    rosterMatchKeys.set(matchKey, agentId);
+  }
+  
+  for (const row of rows) {
+    const agentName = (row['Agent'] || row['agent']) as string;
+    if (!agentName || !isValidAgentName(agentName)) continue;
+    
+    const agentId = normalizeAgentId(agentName);
+    const matchKey = getAgentMatchKey(agentName);
+    
+    let rosterAgentId = roster.has(agentId) ? agentId : null;
+    if (!rosterAgentId && rosterMatchKeys.has(matchKey)) {
+      rosterAgentId = rosterMatchKeys.get(matchKey)!;
+    }
+    if (!rosterAgentId) continue;
+    
+    listingsByAgent[rosterAgentId] = (listingsByAgent[rosterAgentId] || 0) + 1;
+  }
+  
+  return listingsByAgent;
+}
+
+/**
+ * Load completed CMAs per agent
+ */
+async function loadCmas(roster: Set<string>): Promise<Record<string, number>> {
+  const csv = await fetchTabCSV('CMAS_2026');
+  const rows = parseCSV(csv);
+  const cmasByAgent: Record<string, number> = {};
+  
+  // Build reverse map: matchKey -> roster agentId
+  const rosterMatchKeys = new Map<string, string>();
+  for (const agentId of roster) {
+    const nameFromId = agentId.split('-').map(p => p.charAt(0).toUpperCase() + p.slice(1)).join(' ');
+    const matchKey = getAgentMatchKey(nameFromId);
+    rosterMatchKeys.set(matchKey, agentId);
+  }
+  
+  for (const row of rows) {
+    const agentName = (row['Agent'] || row['agent']) as string;
+    if (!agentName || !isValidAgentName(agentName)) continue;
+    
+    const agentId = normalizeAgentId(agentName);
+    const matchKey = getAgentMatchKey(agentName);
+    
+    let rosterAgentId = roster.has(agentId) ? agentId : null;
+    if (!rosterAgentId && rosterMatchKeys.has(matchKey)) {
+      rosterAgentId = rosterMatchKeys.get(matchKey)!;
+    }
+    if (!rosterAgentId) continue;
+    
+    const status = ((row['Status'] || row['status'] || '') as string).toLowerCase();
+    if (status.includes('complete') || status.includes('done')) {
+      cmasByAgent[rosterAgentId] = (cmasByAgent[rosterAgentId] || 0) + 1;
+    }
+  }
+  
+  return cmasByAgent;
+}
+
+/**
+ * Main loader function
  */
 export async function loadFromGoogleSheets(): Promise<LoadResult> {
   const warnings: string[] = [];
   const errors: string[] = [];
-  const sourcesLoaded: string[] = [];
+  const sourcesLoaded: string[] = ['Haven Transactions 2026'];
   
-  const allTransactions: TransactionRecord[] = [];
-  const agents: Record<string, AgentSnapshot> = {};
-  const activityData: any[] = [];
-  const zillowData: any[] = [];
-  const listingsData: any[] = [];
-  const cmasData: any[] = [];
-  const capContributions: Record<string, CapContribution[]> = {};
-  
-  // Load from each accessible source
-  for (const source of ACCESSIBLE_SOURCES) {
-    try {
-      const csvText = await fetchSheetCSV(source.id);
-      const rows = parseCSV(csvText);
+  try {
+    // Step 1: Load roster first
+    const roster = await loadRoster();
+    if (roster.size === 0) {
+      warnings.push('Roster loaded but appears empty');
+    }
+    
+    // Step 2: Load transactions
+    const pendings = await loadPendings(roster);
+    const closed = await loadClosed(roster);
+    const allTransactions = [...pendings, ...closed];
+    
+    // Step 3: Load activity metrics
+    const listingsByAgent = await loadListings(roster);
+    const cmasByAgent = await loadCmas(roster);
+    
+    // Step 4: Build agent records
+    const agents: Record<string, AgentSnapshot> = {};
+    const capContributions: Record<string, CapContribution[]> = {};
+    
+    // Initialize agents from roster
+    for (const agentId of roster) {
+      agents[agentId] = createEmptyAgent(agentId);
+      capContributions[agentId] = [];
+    }
+    
+    // Process transactions
+    for (const txn of allTransactions) {
+      if (!agents[txn.agentId]) continue;
+      const agent = agents[txn.agentId];
       
-      if (rows.length === 0) {
-        warnings.push(`Sheet "${source.name}" returned no data`);
-        continue;
-      }
-      
-      sourcesLoaded.push(source.name);
-      
-      // Categorize data by sheet structure
-      if (source.name.includes('Transactions')) {
-        // Parse transaction data
-        for (const row of rows) {
-          const txn = parseTransactionFromRow(row);
-          if (txn && txn.agentId) {
-            allTransactions.push(txn);
-            
-            // Initialize agent if needed (only valid agent names)
-            if (txn.agentId && !agents[txn.agentId] && isValidAgentName(txn.agentName || txn.agentId)) {
-              agents[txn.agentId] = createEmptyAgent(txn.agentName || txn.agentId);
-              capContributions[txn.agentId] = [];
-            }
-          }
+      if (txn.status === 'closed') {
+        agent.closedTransactions += 1;
+        agent.closedVolume += txn.price;
+        agent.gci += txn.gci;
+        
+        // Track cap contribution for sphere deals only
+        if (txn.isSphere && (txn.capContribution || 0) > 0) {
+          const remainingCap = Math.max(0, CAP_MAX - agent.capProgress);
+          const actualContribution = Math.min(txn.capContribution || 0, remainingCap);
+          agent.capProgress += actualContribution;
+          
+          capContributions[txn.agentId].push({
+            transactionId: txn.id,
+            address: txn.address,
+            closedDate: txn.closedDate,
+            contractDate: txn.contractDate,
+            purchasePrice: txn.price,
+            capContribution: actualContribution,
+            isSphere: true,
+            notes: txn.leadSource,
+          });
         }
+      } else if (txn.status === 'pending') {
+        agent.pendingTransactions += 1;
+        agent.pendingVolume += txn.price;
       }
       
-      if (source.name.includes('Payout') || source.name.includes('Cap')) {
-        // Parse financial/payout data
-        for (const row of rows) {
-          const agentId = extractAgentId(row);
-          const agentName = extractAgentName(row);
-          // Only process rows with valid agent names
-          if (agentId && agentName && isValidAgentName(agentName)) {
-            if (!agents[agentId]) {
-              agents[agentId] = createEmptyAgent(agentName);
-              capContributions[agentId] = [];
-            }
-            if (agents[agentId]) {
-              updateAgentFinancials(agents[agentId], row);
-            }
-          }
-        }
+      if (txn.isZillow) {
+        agent.zillowLeads += 1;
       }
-      
-      if (source.name.includes('Zillow')) {
-        zillowData.push(...rows);
-      }
-      
-      if (source.name.includes('Listings')) {
-        listingsData.push(...rows);
-      }
-      
-      if (source.name.includes('CMA') || source.name.includes('CMAS')) {
-        cmasData.push(...rows);
-      }
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : String(err);
-      warnings.push(`Failed to load "${source.name}": ${msg}`);
-    }
-  }
-  
-  // Aggregate transaction metrics per agent and calculate cap contributions
-  for (const txn of allTransactions) {
-    if (!txn.agentId || !agents[txn.agentId]) continue;
-    const agent = agents[txn.agentId];
-    
-    if (txn.status === 'closed') {
-      agent.closedTransactions += 1;
-      agent.closedVolume += txn.price;
-    } else if (txn.status === 'pending') {
-      agent.pendingTransactions += 1;
-      agent.pendingVolume += txn.price;
     }
     
-    if (txn.isZillow) {
-      agent.zillowLeads += 1;
+    // Add activity metrics
+    for (const [agentId, count] of Object.entries(listingsByAgent)) {
+      if (agents[agentId]) {
+        agents[agentId].activeListings = count;
+      }
     }
     
-    agent.gci += txn.gci;
+    for (const [agentId, count] of Object.entries(cmasByAgent)) {
+      if (agents[agentId]) {
+        agents[agentId].cmasCompleted = count;
+      }
+    }
     
-    // Calculate cap contribution for sphere deals only
-    if (txn.isSphere && txn.status === 'closed' && txn.capContribution) {
-      const remainingCap = Math.max(0, CAP_MAX - agent.capProgress);
-      const actualContribution = Math.min(txn.capContribution, remainingCap);
-      
-      agent.capProgress += actualContribution;
-      txn.capContribution = actualContribution;
-      
-      // Track cap-contributing transactions
-      capContributions[txn.agentId].push({
-        transactionId: txn.id,
-        address: txn.address,
-        closedDate: txn.closedDate,
-        contractDate: txn.contractDate,
-        purchasePrice: txn.price,
-        capContribution: actualContribution,
-        isSphere: true,
-        notes: txn.leadSource,
-      });
+    // Attach cap-contributing transactions
+    for (const [agentId, agent] of Object.entries(agents)) {
+      if (capContributions[agentId].length > 0) {
+        agent.capContributingTransactions = capContributions[agentId];
+      }
     }
+    
+    // Build leaderboard
+    const leaderboard = buildLeaderboard(agents);
+    
+    // Calculate team stats
+    const teamStats = calculateTeamStats(agents);
+    
+    // Build time-window rollups
+    const timeWindowStats = buildTimeWindowStats(allTransactions, agents);
+    
+    // Metadata
+    const { weekStart, weekEnd } = getWeekDates();
+    const metadata: SnapshotMetadata = {
+      id: generateSnapshotId(),
+      createdAt: new Date().toISOString(),
+      uploadedBy: 'google-sheets-auto-load',
+      sourceFiles: sourcesLoaded,
+      agentCount: Object.keys(agents).length,
+      transactionCount: allTransactions.length,
+      weekStart,
+      weekEnd,
+      notes: `Loaded from Haven Transactions 2026. Roster-based filtering active. Excluded tabs: ${EXCLUDED_TABS.join(', ')}.`,
+    };
+    
+    const snapshot: WeeklySnapshot = {
+      metadata,
+      agents,
+      leaderboard,
+      teamStats,
+    };
+    
+    return {
+      snapshot,
+      timeWindowStats,
+      warnings,
+      errors,
+      sourcesLoaded,
+    };
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    errors.push(`Failed to load from Google Sheets: ${msg}`);
+    
+    // Return empty snapshot on error
+    const { weekStart, weekEnd } = getWeekDates();
+    const snapshot: WeeklySnapshot = {
+      metadata: {
+        id: generateSnapshotId(),
+        createdAt: new Date().toISOString(),
+        uploadedBy: 'error-fallback',
+        sourceFiles: [],
+        agentCount: 0,
+        transactionCount: 0,
+        weekStart,
+        weekEnd,
+        notes: 'Error loading data',
+      },
+      agents: {},
+      leaderboard: [],
+      teamStats: { totalAgents: 0, totalClosedVolume: 0, totalPendingVolume: 0, totalGCI: 0 },
+    };
+    
+    return {
+      snapshot,
+      timeWindowStats: {},
+      warnings: [],
+      errors,
+      sourcesLoaded: [],
+    };
   }
-  
-  // Process Zillow stats
-  for (const row of zillowData) {
-    const agentId = extractAgentId(row);
-    const agentName = extractAgentName(row);
-    if (agentId && agentName && isValidAgentName(agentName) && agents[agentId]) {
-      const conversion = parsePercent(row['conversion rate'] || row['conversion'] || row['Conv %']);
-      const cost = parseCurrency(row['total cost'] || row['cost'] || row['spend']);
-      if (conversion !== null) agents[agentId].zillowConversion = conversion;
-      if (cost !== null) agents[agentId].zillowCost = cost;
-    }
-  }
-  
-  // Process listings
-  for (const row of listingsData) {
-    const agentId = extractAgentId(row);
-    const agentName = extractAgentName(row);
-    if (agentId && agentName && isValidAgentName(agentName) && agents[agentId]) {
-      agents[agentId].activeListings += 1;
-    }
-  }
-  
-  // Process CMAs
-  for (const row of cmasData) {
-    const agentId = extractAgentId(row);
-    const agentName = extractAgentName(row);
-    const status = (row['status'] || '').toLowerCase();
-    if (agentId && agentName && isValidAgentName(agentName) && agents[agentId] && status.includes('complete')) {
-      agents[agentId].cmasCompleted += 1;
-    }
-  }
-  
-  // Final cleanup: remove any agents that don't pass validation (safety net)
-  for (const agentId of Object.keys(agents)) {
-    const agent = agents[agentId];
-    if (!isValidAgentName(agent.name)) {
-      delete agents[agentId];
-      delete capContributions[agentId];
-      warnings.push(`Removed invalid agent entry: "${agent.name}"`);
-    }
-  }
-  
-  // Attach cap-contributing transactions to each agent
-  for (const [agentId, agent] of Object.entries(agents)) {
-    if (capContributions[agentId] && capContributions[agentId].length > 0) {
-      agent.capContributingTransactions = capContributions[agentId];
-    }
-  }
-  
-  // Build leaderboard
-  const leaderboard = buildLeaderboard(agents);
-  
-  // Calculate team stats
-  const teamStats = calculateTeamStats(agents);
-  
-  // Build time-window rollups
-  const timeWindowStats = buildTimeWindowStats(allTransactions, agents);
-  
-  // Create metadata
-  const { weekStart, weekEnd } = getWeekDates();
-  const metadata: SnapshotMetadata = {
-    id: generateSnapshotId(),
-    createdAt: new Date().toISOString(),
-    uploadedBy: 'google-sheets-auto-load',
-    sourceFiles: sourcesLoaded,
-    agentCount: Object.keys(agents).length,
-    transactionCount: allTransactions.length,
-    weekStart,
-    weekEnd,
-    notes: `Auto-loaded from ${sourcesLoaded.length} accessible Google Sheets. Locked sources excluded: ${LOCKED_SOURCES.join(', ')}.`,
-  };
-  
-  // Build final snapshot
-  const snapshot: WeeklySnapshot = {
-    metadata,
-    agents,
-    leaderboard,
-    teamStats,
-  };
-  
-  return {
-    snapshot,
-    timeWindowStats,
-    warnings,
-    errors,
-    sourcesLoaded,
-  };
 }
 
 /**
- * Build time-window rollups (weekly, monthly, yearly) for production metrics
+ * Build time-window rollups
  */
 function buildTimeWindowStats(
   transactions: TransactionRecord[],
@@ -379,9 +578,6 @@ function buildTimeWindowStats(
   return result;
 }
 
-/**
- * Calculate a metric rollup for a specific time window
- */
 function calculateRollup(
   transactions: TransactionRecord[],
   referenceDate: Date,
@@ -403,8 +599,8 @@ function calculateRollup(
     period,
     startDate: startDate.toISOString(),
     endDate: endDate.toISOString(),
-    showings: 0, // Not available in current source data
-    cmasCompleted: 0, // Would need activity sheet with dates
+    showings: 0,
+    cmasCompleted: 0,
     listings,
     pendings,
     solds,
@@ -413,16 +609,12 @@ function calculateRollup(
   };
 }
 
-/**
- * Get date bounds for a period type
- */
 function getPeriodBounds(referenceDate: Date, period: 'week' | 'month' | 'year'): { startDate: Date; endDate: Date } {
   const endDate = new Date(referenceDate);
   const startDate = new Date(referenceDate);
   
   switch (period) {
     case 'week':
-      // Start of current week (Monday)
       const day = startDate.getDay();
       const diff = startDate.getDate() - day + (day === 0 ? -6 : 1);
       startDate.setDate(diff);
@@ -445,241 +637,77 @@ function getPeriodBounds(referenceDate: Date, period: 'week' | 'month' | 'year')
   return { startDate, endDate };
 }
 
-/**
- * Parse a transaction from a raw sheet row
- */
-function parseTransactionFromRow(row: Record<string, any>): TransactionRecord | null {
-  const agentName = extractAgentName(row);
-  if (!agentName) return null;
-  
-  const agentId = normalizeAgentId(agentName);
-  const address = row['ADDRESS'] || row['address'] || row['Property Address'] || 'Unknown';
-  const price = parseCurrency(row['PRICE'] || row['price'] || row['Purchase Price'] || row['Sales Price']);
-  const gci = parseCurrency(row['Gross Commission'] || row['GCI'] || row['commission']) || (price ? price * 0.03 : 0);
-  
-  const closedDate = parseDate(row['CLOSING'] || row['Closing Date'] || row['Closed Date']);
-  const contractDate = parseDate(row['Mutual Acceptance'] || row['Contract Date'] || row['Pending Date']);
-  
-  const leadSource = row['Lead Source'] || row['lead source'] || 'Unknown';
-  const isZillow = leadSource.toLowerCase().includes('zillow') || leadSource.toLowerCase().includes('zhl');
-  
-  // Determine if this is a sphere deal (cap-eligible)
-  // Sphere = Personal, SOI, Repeat Client, Referral from past client
-  // NOT sphere = Zillow, Redfin, Realtor.com, Floor time, Cold lead
-  const isSphere = isSphereDeal(leadSource);
-  
-  // Determine status
-  let status: 'closed' | 'pending' | 'rescinded' = 'pending';
-  if (closedDate) {
-    status = 'closed';
-  } else if (row['Rescinded'] || (row['status'] || '').toLowerCase().includes('rescind')) {
-    status = 'rescinded';
-  }
-  
-  // Determine side
-  let side: 'buyer' | 'seller' | 'both' = 'both';
-  const type = (row['Purch/List'] || row['type'] || '').toLowerCase();
-  if (type.includes('purch')) side = 'buyer';
-  else if (type.includes('list')) side = 'seller';
-  
-  // Calculate cap contribution (3% of GCI for sphere deals, capped at agent's remaining cap)
-  // Only sphere deals contribute to cap
-  const capContribution = isSphere && status === 'closed' ? gci * 0.03 : 0;
-  
-  return {
-    id: `txn-${Date.now()}-${agentId}-${address.toString().slice(0, 10)}`,
-    address: String(address),
-    status,
-    side,
-    closedDate: closedDate?.toISOString(),
-    contractDate: contractDate?.toISOString(),
-    price: price || 0,
-    gci: gci || 0,
-    leadSource: String(leadSource),
-    isZillow,
-    isSphere,
-    capContribution,
-    agentId,
-    agentName,
-  };
-}
-
-/**
- * Create an empty agent snapshot
- */
 function createEmptyAgent(name: string): AgentSnapshot {
-  const id = normalizeAgentId(name);
   return {
-    id,
-    name,
+    id: normalizeAgentId(name),
+    name: name.trim(),
     closedTransactions: 0,
-    closedVolume: 0,
     pendingTransactions: 0,
+    closedVolume: 0,
     pendingVolume: 0,
+    gci: 0,
+    capProgress: 0,
     activeListings: 0,
     cmasCompleted: 0,
     zillowLeads: 0,
-    zillowConversion: 0,
-    zillowCost: 0,
-    gci: 0,
-    capProgress: 0,
-    capTarget: 3000,
-    commissionLevel: 0,
-    payoutTotal: 0,
-    havenFees: 0,
-    boTax: 0,
-    lni: 0,
-    transactionFees: 0,
-    calls: 0,
-    showings: 0,
-    emails: 0,
-    transactions: [],
+    zillowConversion: null,
+    zillowCost: null,
+    capContributingTransactions: [],
   };
 }
 
-/**
- * Update agent financials from a payout row
- */
-function updateAgentFinancials(agent: AgentSnapshot, row: Record<string, any>) {
-  const capProgress = parseCurrency(row['cap progress'] || row['cap paid'] || row['Cap Progress']);
-  const capTarget = parseCurrency(row['cap target'] || row['cap goal']);
-  const havenFees = parseCurrency(row['Haven Gross Commission'] || row['haven fee'] || row['Haven Fee']);
-  const boTax = parseCurrency(row['B&O Tax'] || row['b&o'] || row['Agent B&O Tax']);
-  const lni = parseCurrency(row['L&I'] || row['lni'] || row['Workers Comp']);
-  const transactionFees = parseCurrency(row['Transaction Fees'] || row['transaction fee'] || row['TF']);
-  const payoutTotal = parseCurrency(row['Agent Net Commission'] || row['payout'] || row['Agent Income']);
-  
-  if (capProgress !== null) agent.capProgress = capProgress;
-  if (capTarget !== null) agent.capTarget = capTarget;
-  if (havenFees !== null) agent.havenFees = havenFees;
-  if (boTax !== null) agent.boTax = boTax;
-  if (lni !== null) agent.lni = lni;
-  if (transactionFees !== null) agent.transactionFees = transactionFees;
-  if (payoutTotal !== null) agent.payoutTotal = payoutTotal;
-}
-
-/**
- * Build leaderboard from agents
- */
 function buildLeaderboard(agents: Record<string, AgentSnapshot>): LeaderboardEntry[] {
-  const entries = Object.values(agents).map(agent => ({
-    agentId: agent.id,
-    agentName: agent.name,
-    closedTransactions: agent.closedTransactions,
-    closedVolume: agent.closedVolume,
-    pendingTransactions: agent.pendingTransactions,
-    zillowClosed: (agent.transactions || []).filter(t => t.isZillow && t.status === 'closed').length,
-  }));
-  
-  entries.sort((a, b) => {
-    if (b.closedTransactions !== a.closedTransactions) return b.closedTransactions - a.closedTransactions;
-    if (b.closedVolume !== a.closedVolume) return b.closedVolume - a.closedVolume;
-    if (b.pendingTransactions !== a.pendingTransactions) return b.pendingTransactions - a.pendingTransactions;
-    return b.zillowClosed - a.zillowClosed;
-  });
-  
-  return entries.map((entry, index) => ({
-    rank: index + 1,
-    ...entry,
-    movement: 'same',
-    distanceToNext: entries[index + 1] ? entry.closedTransactions - entries[index + 1].closedTransactions : 0,
-  }));
+  return Object.values(agents)
+    .filter(agent => agent.closedTransactions > 0 || agent.pendingTransactions > 0)
+    .sort((a, b) => b.closedVolume - a.closedVolume)
+    .map((agent, index) => ({
+      rank: index + 1,
+      agentId: agent.id,
+      agentName: agent.name,
+      closedVolume: agent.closedVolume,
+      closedTransactions: agent.closedTransactions,
+      pendingTransactions: agent.pendingTransactions,
+      gci: agent.gci,
+      capProgress: agent.capProgress,
+    }));
 }
 
-/**
- * Calculate team stats
- */
 function calculateTeamStats(agents: Record<string, AgentSnapshot>): TeamStats {
   const values = Object.values(agents);
   return {
-    totalClosedTransactions: values.reduce((sum, a) => sum + a.closedTransactions, 0),
+    totalAgents: values.length,
     totalClosedVolume: values.reduce((sum, a) => sum + a.closedVolume, 0),
-    totalPendingTransactions: values.reduce((sum, a) => sum + a.pendingTransactions, 0),
     totalPendingVolume: values.reduce((sum, a) => sum + a.pendingVolume, 0),
-    totalActiveListings: values.reduce((sum, a) => sum + a.activeListings, 0),
-    totalCmasCompleted: values.reduce((sum, a) => sum + a.cmasCompleted, 0),
-    avgZillowConversion: values.length > 0 ? values.reduce((sum, a) => sum + a.zillowConversion, 0) / values.length : 0,
-    totalZillowLeads: values.reduce((sum, a) => sum + a.zillowLeads, 0),
-    totalZillowCost: values.reduce((sum, a) => sum + a.zillowCost, 0),
-    totalCapContributions: values.reduce((sum, a) => sum + a.capProgress, 0),
+    totalGCI: values.reduce((sum, a) => sum + a.gci, 0),
   };
 }
 
-// Helper functions
-
-/**
- * Extract and validate agent name from a row.
- * Returns null for non-agent rows (headers, dates, status labels, totals, etc.)
- */
-function extractAgentName(row: Record<string, any>): string | null {
-  const keys = ['Agent', 'agent', 'AGENT', 'Realtor', 'Team Member'];
-  let rawValue: any = null;
+function isValidAgentName(name: string): boolean {
+  if (!name || typeof name !== 'string') return false;
+  const trimmed = name.trim();
+  if (trimmed.length < 2) return false;
   
-  for (const key of keys) {
-    if (row[key] !== undefined && row[key] !== null) {
-      rawValue = row[key];
-      break;
-    }
-  }
-  
-  if (rawValue === null || rawValue === undefined) return null;
-  
-  const value = String(rawValue).trim();
-  
-  // Reject empty values
-  if (!value) return null;
+  // Must contain at least one letter
+  if (!/[a-zA-Z]/.test(trimmed)) return false;
   
   // Reject obvious non-agent values
-  const lower = value.toLowerCase();
-  
-  // Status labels, headers, and metadata that should never be agents
+  const lower = trimmed.toLowerCase();
   const rejectedPatterns = [
     'pending', 'closed', 'rescinded', 'active', 'contingent',
-    'anniversary date', 'contract date', 'closing date', 'mutual acceptance',
     'total', 'totals', 'sum', 'count', 'average',
     'address', 'price', 'commission', 'gci', 'lead source',
-    'purch/list', 'side', 'type', 'status',
-    'agent name', 'team member', 'realtor name',
     'n/a', 'none', 'null', 'undefined', 'tbd',
-    'pending sale', 'closed sale', 'pending listing', 'active listing',
   ];
   
   for (const pattern of rejectedPatterns) {
-    if (lower === pattern || lower.includes(pattern)) return null;
+    if (lower === pattern || lower.includes(pattern)) return false;
   }
   
-  // Reject date-like values (MM-DD-YY, YYYY-MM-DD, etc.)
-  if (/^\d{1,4}[-/]\d{1,2}[-/]\d{1,4}$/.test(value)) return null;
+  // Reject date-like values
+  if (/^\d{1,4}[-/]\d{1,2}[-/]\d{1,4}$/.test(trimmed)) return false;
   
-  // Reject pure numbers or currency values
-  if (/^[\d.,$%]+$/.test(value)) return null;
-  
-  // Reject values that are just punctuation or symbols
-  if (/^[^a-zA-Z0-9]+$/.test(value)) return null;
-  
-  // Must contain at least one letter and be at least 2 characters
-  if (value.length < 2 || !/[a-zA-Z]/.test(value)) return null;
-  
-  return value;
-}
-
-function extractAgentId(row: Record<string, any>): string | null {
-  const name = extractAgentName(row);
-  return name ? normalizeAgentId(name) : null;
-}
-
-/**
- * Check if an agent name appears to be a real person (not junk data)
- */
-function isValidAgentName(name: string): boolean {
-  // Must have at least a first and last name component (or hyphenated equivalent)
-  const parts = name.split(/[-\s]+/).filter(p => p.length > 0);
-  if (parts.length < 2) return false;
-  
-  // Each part should start with a letter
-  for (const part of parts) {
-    if (!/^[A-Za-z]/.test(part)) return false;
-  }
+  // Reject pure numbers or currency
+  if (/^[\d.,$%]+$/.test(trimmed)) return false;
   
   return true;
 }
@@ -691,16 +719,39 @@ function normalizeAgentId(name: string): string {
     .replace(/^-+|-+$/g, '');
 }
 
+/**
+ * Extract a canonical agent key for matching roster to transactions.
+ * Uses last name + first initial to handle variations like:
+ * - "Kurt Antone Burgan" (roster) vs "Kurt Burgan" (transactions)
+ * - Multi-state duplicates (same person, different license numbers)
+ */
+function getAgentMatchKey(name: string): string {
+  const parts = name.trim().split(/\s+/).filter(p => p.length > 0);
+  if (parts.length === 0) return '';
+  
+  // Handle "Last, First" format
+  let firstName: string;
+  let lastName: string;
+  
+  if (parts[0].endsWith(',')) {
+    // "Burgan, Kurt" format
+    lastName = parts[0].replace(',', '').toLowerCase();
+    firstName = parts[1] ? parts[1].toLowerCase() : '';
+  } else {
+    // "Kurt Antone Burgan" format - assume last word is last name
+    lastName = parts[parts.length - 1].toLowerCase();
+    firstName = parts[0].toLowerCase();
+  }
+  
+  // Create a match key: lastname + first initial
+  // This matches "Kurt Antone Burgan" with "Kurt Burgan"
+  const firstInitial = firstName.charAt(0);
+  return `${lastName}-${firstInitial}`;
+}
+
 function parseCurrency(value: any): number | null {
   if (value === null || value === undefined) return null;
   const str = String(value).replace(/[^0-9.-]/g, '');
-  const num = parseFloat(str);
-  return isNaN(num) ? null : num;
-}
-
-function parsePercent(value: any): number | null {
-  if (value === null || value === undefined) return null;
-  const str = String(value).replace('%', '').trim();
   const num = parseFloat(str);
   return isNaN(num) ? null : num;
 }
@@ -712,40 +763,24 @@ function parseDate(value: any): Date | null {
 }
 
 /**
- * Determine if a lead source qualifies as "sphere" for cap contribution purposes.
- * Sphere deals = personal contacts, SOI, repeat clients, referrals from past clients
- * Non-sphere = paid leads (Zillow, Redfin, etc.), floor time, cold leads
+ * Determine if a lead source qualifies as "sphere" for cap contribution.
+ * Sphere = personal contacts, SOI, repeat clients, referrals
+ * Non-sphere = paid leads (Zillow, Redfin, etc.)
  */
 function isSphereDeal(leadSource: string): boolean {
   const source = leadSource.toLowerCase();
   
-  // Explicitly sphere sources
-  const sphereKeywords = [
-    'sphere',
-    'soi',
-    'personal',
-    'repeat',
-    'referral',
-    'past client',
-    'family',
-    'friend',
-    'self-generated',
-  ];
-  
-  // Explicitly non-sphere sources (paid leads, cold leads)
   const nonSphereKeywords = [
-    'zillow',
-    'redfin',
-    'realtor.com',
-    'floor',
-    'cold',
-    'google ads',
-    'facebook ads',
-    'paid',
-    'zhl',
+    'zillow', 'redfin', 'realtor.com', 'floor', 'cold',
+    'google ads', 'facebook ads', 'paid', 'zhl', 'myplusleads',
   ];
   
-  // Check non-sphere first (explicit exclusion)
+  const sphereKeywords = [
+    'sphere', 'soi', 'personal', 'repeat', 'referral',
+    'past client', 'family', 'friend', 'self-generated',
+  ];
+  
+  // Check non-sphere first
   for (const keyword of nonSphereKeywords) {
     if (source.includes(keyword)) return false;
   }
@@ -755,7 +790,6 @@ function isSphereDeal(leadSource: string): boolean {
     if (source.includes(keyword)) return true;
   }
   
-  // Default: if unclear, conservatively treat as non-sphere
-  // (agent must prove it's sphere to count toward cap)
+  // Default: not sphere (conservative)
   return false;
 }
