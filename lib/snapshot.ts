@@ -85,9 +85,17 @@ export interface LeaderboardEntry {
 
 export interface TeamStats {
   totalAgents: number;
+  totalClosedTransactions: number;
   totalClosedVolume: number;
+  totalPendingTransactions: number;
   totalPendingVolume: number;
-  totalGCI: number;
+  totalActiveListings: number;
+  totalCmasCompleted: number;
+  avgZillowConversion: number;
+  totalZillowLeads: number;
+  totalZillowCost: number;
+  totalCapContributions: number;
+  totalGCI?: number;
 }
 
 const SNAPSHOTS_DIR = path.join(process.cwd(), 'data', 'snapshots');

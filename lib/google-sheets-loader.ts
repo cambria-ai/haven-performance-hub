@@ -142,10 +142,10 @@ function parseCSVLine(line: string): string[] {
  * Spokane Agent Roster structure: AGENT name is in first column, header row at index 21
  * Uses match keys to handle name variations and multi-state duplicates
  */
-async function loadRoster(): Promise<Set<string>> {
+async function loadRoster(): Promise<Map<string, string>> {
   const csv = await fetchTabCSV('Spokane Agent Roster');
   const rows = parseCSV(csv);
-  const roster = new Set<string>();
+  const roster = new Map<string, string>(); // agentId -> canonical display name
   const rosterMatchKeys = new Map<string, string>(); // matchKey -> canonical agentId
   
   // Find the header row that contains 'AGENT' in first column
@@ -170,14 +170,15 @@ async function loadRoster(): Promise<Set<string>> {
       (headerIndex >= 0 ? (Object.values(row)[0] as string) : null);
     
     if (!agentName || !isValidAgentName(agentName)) continue;
-    
-    const agentId = normalizeAgentId(agentName);
-    const matchKey = getAgentMatchKey(agentName);
+
+    const canonicalName = agentName.trim();
+    const agentId = normalizeAgentId(canonicalName);
+    const matchKey = getAgentMatchKey(canonicalName);
     
     // Store the first occurrence as canonical (handles multi-state duplicates)
     if (!rosterMatchKeys.has(matchKey)) {
       rosterMatchKeys.set(matchKey, agentId);
-      roster.add(agentId);
+      roster.set(agentId, canonicalName);
     }
   }
   
@@ -188,18 +189,15 @@ async function loadRoster(): Promise<Set<string>> {
  * Load pending transactions from MASTER HAVEN PNDS
  * Uses match keys to match transaction agents to roster entries
  */
-async function loadPendings(roster: Set<string>): Promise<TransactionRecord[]> {
+async function loadPendings(roster: Map<string, string>): Promise<TransactionRecord[]> {
   const csv = await fetchTabCSV('MASTER HAVEN PNDS');
   const rows = parseCSV(csv);
   const transactions: TransactionRecord[] = [];
   
   // Build a reverse map: matchKey -> roster agentId
   const rosterMatchKeys = new Map<string, string>();
-  for (const agentId of roster) {
-    // Convert agentId back to a name-like format for matching
-    // This is approximate but works for most cases
-    const nameFromId = agentId.split('-').map(p => p.charAt(0).toUpperCase() + p.slice(1)).join(' ');
-    const matchKey = getAgentMatchKey(nameFromId);
+  for (const [agentId, agentName] of roster.entries()) {
+    const matchKey = getAgentMatchKey(agentName);
     rosterMatchKeys.set(matchKey, agentId);
   }
   
@@ -254,16 +252,15 @@ async function loadPendings(roster: Set<string>): Promise<TransactionRecord[]> {
  * Load closed transactions from Master Closed 2026
  * Uses match keys to match transaction agents to roster entries
  */
-async function loadClosed(roster: Set<string>): Promise<TransactionRecord[]> {
+async function loadClosed(roster: Map<string, string>): Promise<TransactionRecord[]> {
   const csv = await fetchTabCSV('Master Closed 2026');
   const rows = parseCSV(csv);
   const transactions: TransactionRecord[] = [];
   
   // Build reverse map: matchKey -> roster agentId
   const rosterMatchKeys = new Map<string, string>();
-  for (const agentId of roster) {
-    const nameFromId = agentId.split('-').map(p => p.charAt(0).toUpperCase() + p.slice(1)).join(' ');
-    const matchKey = getAgentMatchKey(nameFromId);
+  for (const [agentId, agentName] of roster.entries()) {
+    const matchKey = getAgentMatchKey(agentName);
     rosterMatchKeys.set(matchKey, agentId);
   }
   
@@ -324,16 +321,15 @@ async function loadClosed(roster: Set<string>): Promise<TransactionRecord[]> {
 /**
  * Load active listings count per agent
  */
-async function loadListings(roster: Set<string>): Promise<Record<string, number>> {
+async function loadListings(roster: Map<string, string>): Promise<Record<string, number>> {
   const csv = await fetchTabCSV('Listings');
   const rows = parseCSV(csv);
   const listingsByAgent: Record<string, number> = {};
   
   // Build reverse map: matchKey -> roster agentId
   const rosterMatchKeys = new Map<string, string>();
-  for (const agentId of roster) {
-    const nameFromId = agentId.split('-').map(p => p.charAt(0).toUpperCase() + p.slice(1)).join(' ');
-    const matchKey = getAgentMatchKey(nameFromId);
+  for (const [agentId, agentName] of roster.entries()) {
+    const matchKey = getAgentMatchKey(agentName);
     rosterMatchKeys.set(matchKey, agentId);
   }
   
@@ -359,16 +355,15 @@ async function loadListings(roster: Set<string>): Promise<Record<string, number>
 /**
  * Load completed CMAs per agent
  */
-async function loadCmas(roster: Set<string>): Promise<Record<string, number>> {
+async function loadCmas(roster: Map<string, string>): Promise<Record<string, number>> {
   const csv = await fetchTabCSV('CMAS_2026');
   const rows = parseCSV(csv);
   const cmasByAgent: Record<string, number> = {};
   
   // Build reverse map: matchKey -> roster agentId
   const rosterMatchKeys = new Map<string, string>();
-  for (const agentId of roster) {
-    const nameFromId = agentId.split('-').map(p => p.charAt(0).toUpperCase() + p.slice(1)).join(' ');
-    const matchKey = getAgentMatchKey(nameFromId);
+  for (const [agentId, agentName] of roster.entries()) {
+    const matchKey = getAgentMatchKey(agentName);
     rosterMatchKeys.set(matchKey, agentId);
   }
   
@@ -423,8 +418,8 @@ export async function loadFromGoogleSheets(): Promise<LoadResult> {
     const capContributions: Record<string, CapContribution[]> = {};
     
     // Initialize agents from roster
-    for (const agentId of roster) {
-      agents[agentId] = createEmptyAgent(agentId);
+    for (const [agentId, agentName] of roster.entries()) {
+      agents[agentId] = createEmptyAgent(agentName, agentId);
       capContributions[agentId] = [];
     }
     
@@ -542,7 +537,20 @@ export async function loadFromGoogleSheets(): Promise<LoadResult> {
       },
       agents: {},
       leaderboard: [],
-      teamStats: { totalAgents: 0, totalClosedVolume: 0, totalPendingVolume: 0, totalGCI: 0 },
+      teamStats: {
+        totalAgents: 0,
+        totalClosedTransactions: 0,
+        totalClosedVolume: 0,
+        totalPendingTransactions: 0,
+        totalPendingVolume: 0,
+        totalActiveListings: 0,
+        totalCmasCompleted: 0,
+        avgZillowConversion: 0,
+        totalZillowLeads: 0,
+        totalZillowCost: 0,
+        totalCapContributions: 0,
+        totalGCI: 0,
+      },
     };
     
     return {
@@ -637,9 +645,9 @@ function getPeriodBounds(referenceDate: Date, period: 'week' | 'month' | 'year')
   return { startDate, endDate };
 }
 
-function createEmptyAgent(name: string): AgentSnapshot {
+function createEmptyAgent(name: string, id?: string): AgentSnapshot {
   return {
-    id: normalizeAgentId(name),
+    id: id || normalizeAgentId(name),
     name: name.trim(),
     closedTransactions: 0,
     pendingTransactions: 0,
@@ -676,10 +684,18 @@ function calculateTeamStats(agents: Record<string, AgentSnapshot>): TeamStats {
   const values = Object.values(agents);
   return {
     totalAgents: values.length,
+    totalClosedTransactions: values.reduce((sum, a) => sum + a.closedTransactions, 0),
     totalClosedVolume: values.reduce((sum, a) => sum + a.closedVolume, 0),
+    totalPendingTransactions: values.reduce((sum, a) => sum + a.pendingTransactions, 0),
     totalPendingVolume: values.reduce((sum, a) => sum + a.pendingVolume, 0),
+    totalActiveListings: values.reduce((sum, a) => sum + a.activeListings, 0),
+    totalCmasCompleted: values.reduce((sum, a) => sum + a.cmasCompleted, 0),
+    avgZillowConversion: values.length ? values.reduce((sum, a) => sum + (a.zillowConversion || 0), 0) / values.length : 0,
+    totalZillowLeads: values.reduce((sum, a) => sum + a.zillowLeads, 0),
+    totalZillowCost: values.reduce((sum, a) => sum + (a.zillowCost || 0), 0),
+    totalCapContributions: values.reduce((sum, a) => sum + a.capProgress, 0),
     totalGCI: values.reduce((sum, a) => sum + a.gci, 0),
-  };
+  } as TeamStats & { totalGCI: number };
 }
 
 function isValidAgentName(name: string): boolean {

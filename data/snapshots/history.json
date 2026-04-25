@@ -1,5 +1,31 @@
 [
   {
+    "id": "snapshot-2026-04-25-18-54",
+    "createdAt": "2026-04-25T01:54:18.834Z",
+    "uploadedBy": "google-sheets-auto-load",
+    "sourceFiles": [
+      "Haven Transactions 2026"
+    ],
+    "agentCount": 27,
+    "transactionCount": 118,
+    "weekStart": "2026-04-20T07:00:00.000Z",
+    "weekEnd": "2026-04-27T06:59:59.999Z",
+    "notes": "Loaded from Haven Transactions 2026. Roster-based filtering active. Excluded tabs: Sorting 2, Sorting 3, Closed_Off Market Listings."
+  },
+  {
+    "id": "snapshot-2026-04-25-18-48",
+    "createdAt": "2026-04-25T01:48:21.581Z",
+    "uploadedBy": "google-sheets-auto-load",
+    "sourceFiles": [
+      "Haven Transactions 2026"
+    ],
+    "agentCount": 27,
+    "transactionCount": 118,
+    "weekStart": "2026-04-20T07:00:00.000Z",
+    "weekEnd": "2026-04-27T06:59:59.999Z",
+    "notes": "Loaded from Haven Transactions 2026. Roster-based filtering active. Excluded tabs: Sorting 2, Sorting 3, Closed_Off Market Listings."
+  },
+  {
     "id": "snapshot-2026-04-24-13-48",
     "createdAt": "2026-04-24T20:48:55.095Z",
     "uploadedBy": "google-sheets-auto-load",
