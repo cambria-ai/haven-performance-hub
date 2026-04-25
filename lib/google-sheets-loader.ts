@@ -3,10 +3,14 @@
  * Core source: Haven Transactions 2026 (1qmwuePI7Q47gjcI5WmvQj1gjTLmmVpnl)
  * 
  * Business rules:
+ * - MASTER HAVEN PNDS = pending/current pipeline ONLY
+ * - Master Closed 2026 = closed/sold transactions ONLY
  * - Roster membership determines active agent status
  * - Non-roster closers are excluded from active dashboards
- * - Cap applies only to sphere deals, maxes at $20,000
+ * - Duplicate roster rows (multi-state licensing) merge into one person
+ * - Same address/deal cannot count twice across tabs
  * - Excluded tabs: Sorting 2, Sorting 3, Closed_Off Market Listings
+ * - Cap does NOT derive from Haven Income - requires explicit commission breakdown
  */
 
 import {
@@ -100,13 +104,11 @@ function parseCSV(csvText: string): Record<string, any>[] {
     
     if (inQuotes) {
       if (char === '"') {
-        // Check for escaped quote
         if (csvText[i + 1] === '"') {
           currentField += '"';
           i += 2;
           continue;
         } else {
-          // End of quoted field
           inQuotes = false;
           i++;
           continue;
@@ -118,7 +120,6 @@ function parseCSV(csvText: string): Record<string, any>[] {
       }
     }
     
-    // Not in quotes
     if (char === '"') {
       inQuotes = true;
       i++;
@@ -133,14 +134,9 @@ function parseCSV(csvText: string): Record<string, any>[] {
     }
     
     if (char === '\n' || char === '\r') {
-      // Skip \r\n combinations
-      if (char === '\r' && csvText[i + 1] === '\n') {
-        i++;
-      }
+      if (char === '\r' && csvText[i + 1] === '\n') i++;
       currentRow.push(currentField.trim());
-      if (currentRow.length > 0 && currentRow.some(f => f.length > 0)) {
-        rows.push(currentRow);
-      }
+      if (currentRow.some(f => f.length > 0)) rows.push(currentRow);
       currentRow = [];
       currentField = '';
       i++;
@@ -151,12 +147,9 @@ function parseCSV(csvText: string): Record<string, any>[] {
     i++;
   }
   
-  // Handle last field/row
   if (currentField || currentRow.length > 0) {
     currentRow.push(currentField.trim());
-    if (currentRow.some(f => f.length > 0)) {
-      rows.push(currentRow);
-    }
+    if (currentRow.some(f => f.length > 0)) rows.push(currentRow);
   }
   
   if (rows.length === 0) return [];
@@ -170,9 +163,7 @@ function parseCSV(csvText: string): Record<string, any>[] {
     
     const row: Record<string, any> = {};
     headers.forEach((header, idx) => {
-      if (header && values[idx] !== undefined) {
-        row[header] = values[idx];
-      }
+      if (header && values[idx] !== undefined) row[header] = values[idx];
     });
     result.push(row);
   }
@@ -181,17 +172,52 @@ function parseCSV(csvText: string): Record<string, any>[] {
 }
 
 /**
- * Load roster and return set of active agent IDs
- * Spokane Agent Roster structure: AGENT name is in first column, header row at index 21
- * Uses match keys to handle name variations and multi-state duplicates
+ * Normalize an address for deduplication comparison.
+ * - Lowercase
+ * - Remove extra whitespace
+ * - Standardize common suffixes (ST -> STREET, AVE -> AVENUE, etc.)
+ * - Remove unit/apt suffixes for primary address matching
+ */
+function normalizeAddress(address: string): string {
+  if (!address) return '';
+  
+  let normalized = address.toLowerCase().trim();
+  
+  const suffixMap: Record<string, string> = {
+    ' st ': ' street ', ' st,': ' street,', ' st.': ' street',
+    ' ave ': ' avenue ', ' ave,': ' avenue,', ' ave.': ' avenue',
+    ' blvd ': ' boulevard ', ' blvd,': ' boulevard,', ' blvd.': ' boulevard',
+    ' dr ': ' drive ', ' dr,': ' drive,', ' dr.': ' drive',
+    ' ln ': ' lane ', ' ln,': ' lane,', ' ln.': ' lane',
+    ' ct ': ' court ', ' ct,': ' court,', ' ct.': ' court',
+    ' wy ': ' way ', ' wy,': ' way,', ' wy.': ' way',
+    ' pl ': ' place ', ' pl,': ' place,', ' pl.': ' place',
+    ' hwy ': ' highway ', ' hwy,': ' highway,', ' hwy.': ' highway',
+    ' rd ': ' road ', ' rd,': ' road,', ' rd.': ' road',
+  };
+  
+  for (const [short, long] of Object.entries(suffixMap)) {
+    normalized = normalized.replace(new RegExp(short.replace(' ', '\\s+'), 'g'), long);
+  }
+  
+  normalized = normalized.replace(/\s*(?:unit|apt|suite|#|ste)\.?\s*[a-z0-9-]+/gi, '');
+  normalized = normalized.replace(/\s+/g, ' ').trim();
+  
+  return normalized;
+}
+
+/**
+ * Load roster and return set of active agent IDs.
+ * Spokane Agent Roster structure: AGENT name is in first column, header row at index 21.
+ * Uses match keys to handle name variations and multi-state duplicates.
+ * Duplicate roster entries (same person, different state licenses) collapse into one agent.
  */
 async function loadRoster(): Promise<Map<string, string>> {
   const csv = await fetchTabCSV('Spokane Agent Roster');
   const rows = parseCSV(csv);
-  const roster = new Map<string, string>(); // agentId -> canonical display name
-  const rosterMatchKeys = new Map<string, string>(); // matchKey -> canonical agentId
+  const roster = new Map<string, string>();
+  const rosterMatchKeys = new Map<string, string>();
   
-  // Find the header row that contains 'AGENT' in first column
   let headerIndex = -1;
   for (let i = 0; i < rows.length; i++) {
     const firstCol = Object.values(rows[i])[0];
@@ -201,7 +227,6 @@ async function loadRoster(): Promise<Map<string, string>> {
     }
   }
   
-  // Load roster entries, building a map of match keys to canonical IDs
   for (let i = (headerIndex >= 0 ? headerIndex + 1 : 0); i < rows.length; i++) {
     const row = rows[i];
     const agentName = 
@@ -218,7 +243,6 @@ async function loadRoster(): Promise<Map<string, string>> {
     const agentId = normalizeAgentId(canonicalName);
     const matchKey = getAgentMatchKey(canonicalName);
     
-    // Store the first occurrence as canonical (handles multi-state duplicates)
     if (!rosterMatchKeys.has(matchKey)) {
       rosterMatchKeys.set(matchKey, agentId);
       roster.set(agentId, canonicalName);
@@ -229,19 +253,19 @@ async function loadRoster(): Promise<Map<string, string>> {
 }
 
 /**
- * Load all transactions from MASTER HAVEN PNDS and classify as pending or closed based on CLOSING date.
- * Uses match keys to match transaction agents to roster entries.
- * A transaction is "closed" if it has a valid CLOSING date in the past.
- * A transaction is "pending" if CLOSING is empty or in the future.
+ * Load CLOSED transactions from Master Closed 2026 tab.
+ * This is the authoritative source for closed/sold transactions.
+ * 
+ * DEDUPE LOGIC:
+ * - Build deterministic key: normalizedAddress + agentMatchKey + price + closingDate
+ * - Same address can only count twice if clearly separate (different agents or different closing dates >30 days apart)
  */
-async function loadTransactions(roster: Map<string, string>): Promise<{ pendings: TransactionRecord[]; closed: TransactionRecord[] }> {
-  const csv = await fetchTabCSV('MASTER HAVEN PNDS');
+async function loadClosedTransactions(roster: Map<string, string>): Promise<TransactionRecord[]> {
+  const csv = await fetchTabCSV('Master Closed 2026');
   const rows = parseCSV(csv);
-  const pendings: TransactionRecord[] = [];
   const closed: TransactionRecord[] = [];
-  const now = new Date();
+  const seenTransactions = new Map<string, TransactionRecord>();
   
-  // Build a reverse map: matchKey -> roster agentId
   const rosterMatchKeys = new Map<string, string>();
   for (const [agentId, agentName] of roster.entries()) {
     const matchKey = getAgentMatchKey(agentName);
@@ -255,72 +279,144 @@ async function loadTransactions(roster: Map<string, string>): Promise<{ pendings
     const agentId = normalizeAgentId(agentName);
     const matchKey = getAgentMatchKey(agentName);
     
-    // Check direct roster membership first
     let rosterAgentId = roster.has(agentId) ? agentId : null;
-    
-    // If not found, try match key (handles "Kurt Burgan" vs "Kurt Antone Burgan")
     if (!rosterAgentId && rosterMatchKeys.has(matchKey)) {
       rosterAgentId = rosterMatchKeys.get(matchKey)!;
     }
-    
-    // Skip non-roster agents
     if (!rosterAgentId) continue;
     
-    const price = parseCurrency(row['PRICE'] || row['price']);
+    const price = parseCurrency(row['PRICE'] || row['price'] || row['Sales Price'] || row['sales price']);
     if (!price) continue;
     
-    const address = (row['ADDRESS'] || row['address'] || 'Unknown') as string;
-    const contractDate = parseDate(row['Mutual Acceptance'] || row['contract date']);
-    const closingDate = parseDate(row['CLOSING'] || row['closing']);
-    const leadSource = (row['Lead Generated'] || row['lead source'] || '') as string;
-    const havenIncome = parseCurrency(row['Haven Income'] || row['GCI']) || 0;
-    const referralAmount = parseCurrency(row['Referral $'] || row['Referral']) || 0;
+    const address = (row['ADDRESS'] || row['address'] || row['Property Address'] || row['property address'] || 'Unknown') as string;
+    const normalizedAddress = normalizeAddress(address);
+    const contractDate = parseDate(row['Mutual Acceptance'] || row['contract date'] || row['Contract Date']);
+    const closingDate = parseDate(row['CLOSING'] || row['closing'] || row['Close Date'] || row['close date']);
     
-    // Classify based on closing date
-    const isClosed = closingDate && closingDate <= now;
+    if (!closingDate) continue;
     
-    // CAP CONTRIBUTION: Do NOT calculate from Haven Income.
-    // Cap must come from explicit commission breakdown / payout source with actual cap fields.
-    // The MASTER HAVEN PNDS sheet does not contain explicit cap contribution columns.
-    // Until a proper commission breakdown sheet is loaded with explicit cap fields,
-    // capContribution remains 0 for all transactions.
-    const capContribution = 0; // No explicit cap field in current source
+    const leadSource = (row['Lead Generated'] || row['lead source'] || row['Lead Source'] || '') as string;
+    const havenIncome = parseCurrency(row['Haven Income'] || row['GCI'] || row['gci']) || 0;
+    
+    const dedupeKey = `${normalizedAddress}|${matchKey}|${price}|${closingDate.toISOString().split('T')[0]}`;
+    
+    if (seenTransactions.has(dedupeKey)) continue;
     
     const transaction: TransactionRecord = {
-      id: `${isClosed ? 'closed' : 'pend'}-${agentId}-${address.replace(/\s+/g, '-').substring(0, 20)}-${closingDate?.toISOString() || contractDate?.toISOString() || ''}`,
+      id: `closed-${rosterAgentId}-${normalizedAddress.replace(/\s+/g, '-').substring(0, 30)}-${closingDate.toISOString()}`,
       agentId: rosterAgentId,
       agentName: agentName.trim(),
       address,
       price,
-      status: isClosed ? 'closed' : 'pending',
-      side: ((row['Purch/List'] || '') as string).toLowerCase().includes('list') ? 'seller' : 'buyer',
+      status: 'closed',
+      side: ((row['Purch/List'] || row['purch/list'] || row['Side'] || row['side'] || '') as string).toLowerCase().includes('list') ? 'seller' : 'buyer',
       contractDate: contractDate?.toISOString() || undefined,
-      closedDate: closingDate?.toISOString() || undefined,
+      closedDate: closingDate.toISOString(),
       gci: havenIncome,
       leadSource,
       isZillow: leadSource.toLowerCase().includes('zillow'),
-      // capContribution, isSphere omitted - no explicit cap data in MASTER HAVEN PNDS source
     };
     
-    if (isClosed) {
-      closed.push(transaction);
-    } else {
-      pendings.push(transaction);
-    }
+    seenTransactions.set(dedupeKey, transaction);
+    closed.push(transaction);
   }
   
-  return { pendings, closed };
+  return closed;
 }
 
 /**
- * Load active listings count per agent
+ * Load PENDING transactions from MASTER HAVEN PNDS tab.
+ * This is the authoritative source for pending/current pipeline.
+ * 
+ * CRITICAL: If a deal in MASTER HAVEN PNDS also appears in Master Closed 2026,
+ * it should NOT count as pending - it's already closed.
+ * 
+ * DEDUPE LOGIC:
+ * - Build deterministic key: normalizedAddress + agentMatchKey + price
+ * - Cross-check against closed transactions to avoid double-counting
+ */
+async function loadPendingTransactions(roster: Map<string, string>, closedTransactions: TransactionRecord[]): Promise<TransactionRecord[]> {
+  const csv = await fetchTabCSV('MASTER HAVEN PNDS');
+  const rows = parseCSV(csv);
+  const pendings: TransactionRecord[] = [];
+  const seenTransactions = new Set<string>();
+  const now = new Date();
+  
+  const closedSignatures = new Set<string>();
+  for (const txn of closedTransactions) {
+    const agentMatchKey = getAgentMatchKey(txn.agentName);
+    const normalizedAddr = normalizeAddress(txn.address);
+    closedSignatures.add(`${normalizedAddr}|${agentMatchKey}|${txn.price}`);
+  }
+  
+  const rosterMatchKeys = new Map<string, string>();
+  for (const [agentId, agentName] of roster.entries()) {
+    const matchKey = getAgentMatchKey(agentName);
+    rosterMatchKeys.set(matchKey, agentId);
+  }
+  
+  for (const row of rows) {
+    const agentName = (row['Agent'] || row['agent']) as string;
+    if (!agentName || !isValidAgentName(agentName)) continue;
+    
+    const agentId = normalizeAgentId(agentName);
+    const matchKey = getAgentMatchKey(agentName);
+    
+    let rosterAgentId = roster.has(agentId) ? agentId : null;
+    if (!rosterAgentId && rosterMatchKeys.has(matchKey)) {
+      rosterAgentId = rosterMatchKeys.get(matchKey)!;
+    }
+    if (!rosterAgentId) continue;
+    
+    const price = parseCurrency(row['PRICE'] || row['price'] || row['Sales Price']);
+    if (!price) continue;
+    
+    const address = (row['ADDRESS'] || row['address'] || row['Property Address'] || 'Unknown') as string;
+    const normalizedAddress = normalizeAddress(address);
+    const contractDate = parseDate(row['Mutual Acceptance'] || row['contract date'] || row['Contract Date']);
+    const closingDate = parseDate(row['CLOSING'] || row['closing'] || row['Close Date']);
+    const leadSource = (row['Lead Generated'] || row['lead source'] || row['Lead Source'] || '') as string;
+    const havenIncome = parseCurrency(row['Haven Income'] || row['GCI'] || row['gci']) || 0;
+    
+    const pendingDedupeKey = `${normalizedAddress}|${matchKey}|${price}`;
+    if (seenTransactions.has(pendingDedupeKey)) continue;
+    if (closedSignatures.has(pendingDedupeKey)) continue;
+    
+    const isActuallyClosed = closingDate && closingDate <= now;
+    if (isActuallyClosed) continue;
+    
+    const transaction: TransactionRecord = {
+      id: `pend-${rosterAgentId}-${normalizedAddress.replace(/\s+/g, '-').substring(0, 30)}-${contractDate?.toISOString() || ''}`,
+      agentId: rosterAgentId,
+      agentName: agentName.trim(),
+      address,
+      price,
+      status: 'pending',
+      side: ((row['Purch/List'] || row['purch/list'] || row['Side'] || '') as string).toLowerCase().includes('list') ? 'seller' : 'buyer',
+      contractDate: contractDate?.toISOString() || undefined,
+      closedDate: undefined,
+      gci: havenIncome,
+      leadSource,
+      isZillow: leadSource.toLowerCase().includes('zillow'),
+    };
+    
+    seenTransactions.add(pendingDedupeKey);
+    pendings.push(transaction);
+  }
+  
+  return pendings;
+}
+
+/**
+ * Load active listings count per agent.
+ * Sources: Listings tab + Upcoming Listings (if appropriate).
+ * Does NOT include Closed_Off Market Listings (explicitly excluded).
  */
 async function loadListings(roster: Map<string, string>): Promise<Record<string, number>> {
   const csv = await fetchTabCSV('Listings');
   const rows = parseCSV(csv);
   const listingsByAgent: Record<string, number> = {};
   
-  // Build reverse map: matchKey -> roster agentId
   const rosterMatchKeys = new Map<string, string>();
   for (const [agentId, agentName] of roster.entries()) {
     const matchKey = getAgentMatchKey(agentName);
@@ -354,7 +450,6 @@ async function loadCmas(roster: Map<string, string>): Promise<Record<string, num
   const rows = parseCSV(csv);
   const cmasByAgent: Record<string, number> = {};
   
-  // Build reverse map: matchKey -> roster agentId
   const rosterMatchKeys = new Map<string, string>();
   for (const [agentId, agentName] of roster.entries()) {
     const matchKey = getAgentMatchKey(agentName);
@@ -392,29 +487,23 @@ export async function loadFromGoogleSheets(): Promise<LoadResult> {
   const sourcesLoaded: string[] = ['Haven Transactions 2026'];
   
   try {
-    // Step 1: Load roster first
     const roster = await loadRoster();
     if (roster.size === 0) {
       warnings.push('Roster loaded but appears empty');
     }
     
-    // Step 2: Load transactions from MASTER HAVEN PNDS (single source, classified by closing date)
-    const { pendings, closed } = await loadTransactions(roster);
+    const closed = await loadClosedTransactions(roster);
+    const pendings = await loadPendingTransactions(roster, closed);
     const allTransactions = [...pendings, ...closed];
     
-    // Step 3: Load activity metrics
     const listingsByAgent = await loadListings(roster);
     const cmasByAgent = await loadCmas(roster);
     
-    // Step 4: Build agent records
     const agents: Record<string, AgentSnapshot> = {};
-    
-    // Initialize agents from roster
     for (const [agentId, agentName] of roster.entries()) {
       agents[agentId] = createEmptyAgent(agentName, agentId);
     }
     
-    // Process transactions
     for (const txn of allTransactions) {
       if (!agents[txn.agentId]) continue;
       const agent = agents[txn.agentId];
@@ -433,31 +522,18 @@ export async function loadFromGoogleSheets(): Promise<LoadResult> {
       }
     }
     
-    // Add activity metrics
     for (const [agentId, count] of Object.entries(listingsByAgent)) {
-      if (agents[agentId]) {
-        agents[agentId].activeListings = count;
-      }
+      if (agents[agentId]) agents[agentId].activeListings = count;
     }
     
     for (const [agentId, count] of Object.entries(cmasByAgent)) {
-      if (agents[agentId]) {
-        agents[agentId].cmasCompleted = count;
-      }
+      if (agents[agentId]) agents[agentId].cmasCompleted = count;
     }
     
-    // Note: capContributingTransactions not populated - no explicit cap data in MASTER HAVEN PNDS source
-    
-    // Build leaderboard
     const leaderboard = buildLeaderboard(agents);
-    
-    // Calculate team stats
     const teamStats = calculateTeamStats(agents);
-    
-    // Build time-window rollups
     const timeWindowStats = buildTimeWindowStats(allTransactions, agents);
     
-    // Metadata
     const { weekStart, weekEnd } = getWeekDates();
     const metadata: SnapshotMetadata = {
       id: generateSnapshotId(),
@@ -468,28 +544,16 @@ export async function loadFromGoogleSheets(): Promise<LoadResult> {
       transactionCount: allTransactions.length,
       weekStart,
       weekEnd,
-      notes: `Loaded from Haven Transactions 2026. Roster-based filtering active. Excluded tabs: ${EXCLUDED_TABS.join(', ')}.`,
+      notes: `Loaded from Haven Transactions 2026. Roster-based filtering active. Excluded tabs: ${EXCLUDED_TABS.join(', ')}. CLOSED from Master Closed 2026 (${closed.length} txns). PENDING from MASTER HAVEN PNDS (${pendings.length} txns). Dedupe: normalizedAddress+agentMatchKey+price+closingDate.`,
     };
     
-    const snapshot: WeeklySnapshot = {
-      metadata,
-      agents,
-      leaderboard,
-      teamStats,
-    };
+    const snapshot: WeeklySnapshot = { metadata, agents, leaderboard, teamStats };
     
-    return {
-      snapshot,
-      timeWindowStats,
-      warnings,
-      errors,
-      sourcesLoaded,
-    };
+    return { snapshot, timeWindowStats, warnings, errors, sourcesLoaded };
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
     errors.push(`Failed to load from Google Sheets: ${msg}`);
     
-    // Return empty snapshot on error
     const { weekStart, weekEnd } = getWeekDates();
     const snapshot: WeeklySnapshot = {
       metadata: {
@@ -521,19 +585,10 @@ export async function loadFromGoogleSheets(): Promise<LoadResult> {
       },
     };
     
-    return {
-      snapshot,
-      timeWindowStats: {},
-      warnings: [],
-      errors,
-      sourcesLoaded: [],
-    };
+    return { snapshot, timeWindowStats: {}, warnings: [], errors, sourcesLoaded: [] };
   }
 }
 
-/**
- * Build time-window rollups
- */
 function buildTimeWindowStats(
   transactions: TransactionRecord[],
   agents: Record<string, AgentSnapshot>
@@ -543,7 +598,6 @@ function buildTimeWindowStats(
   
   for (const [agentId, agent] of Object.entries(agents)) {
     const agentTxns = transactions.filter(t => t.agentId === agentId);
-    
     result[agentId] = {
       weekly: calculateRollup(agentTxns, now, 'week'),
       monthly: calculateRollup(agentTxns, now, 'month'),
@@ -670,65 +724,40 @@ function isValidAgentName(name: string): boolean {
   if (!name || typeof name !== 'string') return false;
   const trimmed = name.trim();
   if (trimmed.length < 2) return false;
-  
-  // Must contain at least one letter
   if (!/[a-zA-Z]/.test(trimmed)) return false;
   
-  // Reject obvious non-agent values
   const lower = trimmed.toLowerCase();
-  const rejectedPatterns = [
-    'pending', 'closed', 'rescinded', 'active', 'contingent',
-    'total', 'totals', 'sum', 'count', 'average',
-    'address', 'price', 'commission', 'gci', 'lead source',
-    'n/a', 'none', 'null', 'undefined', 'tbd',
-  ];
+  const rejectedPatterns = ['pending', 'closed', 'rescinded', 'active', 'contingent', 'total', 'totals', 'sum', 'count', 'average', 'address', 'price', 'commission', 'gci', 'lead source', 'n/a', 'none', 'null', 'undefined', 'tbd'];
   
   for (const pattern of rejectedPatterns) {
     if (lower === pattern || lower.includes(pattern)) return false;
   }
   
-  // Reject date-like values
   if (/^\d{1,4}[-/]\d{1,2}[-/]\d{1,4}$/.test(trimmed)) return false;
-  
-  // Reject pure numbers or currency
   if (/^[\d.,$%]+$/.test(trimmed)) return false;
   
   return true;
 }
 
 function normalizeAgentId(name: string): string {
-  return name
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '');
+  return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
 }
 
-/**
- * Extract a canonical agent key for matching roster to transactions.
- * Uses last name + first initial to handle variations like:
- * - "Kurt Antone Burgan" (roster) vs "Kurt Burgan" (transactions)
- * - Multi-state duplicates (same person, different license numbers)
- */
 function getAgentMatchKey(name: string): string {
   const parts = name.trim().split(/\s+/).filter(p => p.length > 0);
   if (parts.length === 0) return '';
   
-  // Handle "Last, First" format
   let firstName: string;
   let lastName: string;
   
   if (parts[0].endsWith(',')) {
-    // "Burgan, Kurt" format
     lastName = parts[0].replace(',', '').toLowerCase();
     firstName = parts[1] ? parts[1].toLowerCase() : '';
   } else {
-    // "Kurt Antone Burgan" format - assume last word is last name
     lastName = parts[parts.length - 1].toLowerCase();
     firstName = parts[0].toLowerCase();
   }
   
-  // Create a match key: lastname + first initial
-  // This matches "Kurt Antone Burgan" with "Kurt Burgan"
   const firstInitial = firstName.charAt(0);
   return `${lastName}-${firstInitial}`;
 }

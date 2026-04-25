@@ -1,13 +1,21 @@
 /**
  * Load snapshot from Google Sheets and save to data/snapshots/current.json
  * Run: node scripts/load-snapshot.js
+ * 
+ * BUSINESS RULES:
+ * - MASTER HAVEN PNDS = pending/current pipeline ONLY
+ * - Master Closed 2026 = closed/sold transactions ONLY
+ * - Roster membership determines active agent status
+ * - Duplicate roster rows (multi-state licensing) merge into one person
+ * - Same address/deal cannot count twice across tabs
+ * - Excluded tabs: Sorting 2, Sorting 3, Closed_Off Market Listings
+ * - Cap does NOT derive from Haven Income
  */
 
 const fs = require('fs');
 const path = require('path');
 const https = require('https');
 
-// Simple HTTPS GET helper for Node without undici
 function httpsGet(url) {
   return new Promise((resolve, reject) => {
     https.get(url, (res) => {
@@ -23,7 +31,6 @@ const SNAPSHOTS_DIR = path.join(__dirname, '..', 'data', 'snapshots');
 const CURRENT_SNAPSHOT = path.join(SNAPSHOTS_DIR, 'current.json');
 const TIME_WINDOW_STATS = path.join(SNAPSHOTS_DIR, 'time-window-stats.json');
 
-// Ensure snapshots directory exists
 if (!fs.existsSync(SNAPSHOTS_DIR)) {
   fs.mkdirSync(SNAPSHOTS_DIR, { recursive: true });
 }
@@ -42,8 +49,6 @@ const TAB_GIDS = {
   'Sorting 3': 1948698996,
 };
 
-const CAP_MAX = 20000;
-
 async function fetchTabCSV(tabName) {
   const gid = TAB_GIDS[tabName];
   if (gid === undefined) throw new Error(`Unknown tab: ${tabName}`);
@@ -60,73 +65,36 @@ function parseCSV(csvText) {
   
   while (i < csvText.length) {
     const char = csvText[i];
-    
     if (inQuotes) {
       if (char === '"') {
-        if (csvText[i + 1] === '"') {
-          currentField += '"';
-          i += 2;
-          continue;
-        } else {
-          inQuotes = false;
-          i++;
-          continue;
-        }
-      } else {
-        currentField += char;
-        i++;
-        continue;
-      }
+        if (csvText[i + 1] === '"') { currentField += '"'; i += 2; continue; }
+        else { inQuotes = false; i++; continue; }
+      } else { currentField += char; i++; continue; }
     }
-    
-    if (char === '"') {
-      inQuotes = true;
-      i++;
-      continue;
-    }
-    
-    if (char === ',') {
-      currentRow.push(currentField.trim());
-      currentField = '';
-      i++;
-      continue;
-    }
-    
+    if (char === '"') { inQuotes = true; i++; continue; }
+    if (char === ',') { currentRow.push(currentField.trim()); currentField = ''; i++; continue; }
     if (char === '\n' || char === '\r') {
       if (char === '\r' && csvText[i + 1] === '\n') i++;
       currentRow.push(currentField.trim());
       if (currentRow.some(f => f.length > 0)) rows.push(currentRow);
-      currentRow = [];
-      currentField = '';
-      i++;
-      continue;
+      currentRow = []; currentField = ''; i++; continue;
     }
-    
-    currentField += char;
-    i++;
+    currentField += char; i++;
   }
-  
   if (currentField || currentRow.length > 0) {
     currentRow.push(currentField.trim());
     if (currentRow.some(f => f.length > 0)) rows.push(currentRow);
   }
-  
   if (rows.length === 0) return [];
-  
   const headers = rows[0].map(h => h.trim());
   const result = [];
-  
   for (let rowIdx = 1; rowIdx < rows.length; rowIdx++) {
     const values = rows[rowIdx];
     if (values.length === 0) continue;
-    
     const row = {};
-    headers.forEach((header, idx) => {
-      if (header && values[idx] !== undefined) row[header] = values[idx];
-    });
+    headers.forEach((header, idx) => { if (header && values[idx] !== undefined) row[header] = values[idx]; });
     result.push(row);
   }
-  
   return result;
 }
 
@@ -135,16 +103,11 @@ function isValidAgentName(name) {
   const trimmed = name.trim();
   if (trimmed.length < 2) return false;
   if (!/[a-zA-Z]/.test(trimmed)) return false;
-  
   const lower = trimmed.toLowerCase();
   const rejected = ['pending', 'closed', 'rescinded', 'active', 'total', 'sum', 'count', 'average', 'address', 'price', 'n/a', 'none', 'null', 'tbd'];
-  for (const pattern of rejected) {
-    if (lower === pattern || lower.includes(pattern)) return false;
-  }
-  
+  for (const pattern of rejected) { if (lower === pattern || lower.includes(pattern)) return false; }
   if (/^\d{1,4}[-/]\d{1,2}[-/]\d{1,4}$/.test(trimmed)) return false;
   if (/^[\d.,$%]+$/.test(trimmed)) return false;
-  
   return true;
 }
 
@@ -155,7 +118,6 @@ function normalizeAgentId(name) {
 function getAgentMatchKey(name) {
   const parts = name.trim().split(/\s+/).filter(p => p.length > 0);
   if (parts.length === 0) return '';
-  
   let firstName, lastName;
   if (parts[0].endsWith(',')) {
     lastName = parts[0].replace(',', '').toLowerCase();
@@ -164,7 +126,6 @@ function getAgentMatchKey(name) {
     lastName = parts[parts.length - 1].toLowerCase();
     firstName = parts[0].toLowerCase();
   }
-  
   return `${lastName}-${firstName.charAt(0)}`;
 }
 
@@ -179,6 +140,31 @@ function parseDate(value) {
   if (!value) return null;
   const date = new Date(value);
   return isNaN(date.getTime()) ? null : date;
+}
+
+/**
+ * Normalize address for deduplication
+ */
+function normalizeAddress(address) {
+  if (!address) return '';
+  let normalized = address.toLowerCase().trim();
+  const suffixMap = {
+    ' st ': ' street ', ' st,': ' street,', ' st.': ' street',
+    ' ave ': ' avenue ', ' ave,': ' avenue,', ' ave.': ' avenue',
+    ' blvd ': ' boulevard ', ' blvd,': ' boulevard,', ' blvd.': ' boulevard',
+    ' dr ': ' drive ', ' dr,': ' drive,', ' dr.': ' drive',
+    ' ln ': ' lane ', ' ln,': ' lane,', ' ln.': ' lane',
+    ' ct ': ' court ', ' ct,': ' court,', ' ct.': ' court',
+    ' wy ': ' way ', ' wy,': ' way,', ' wy.': ' way',
+    ' pl ': ' place ', ' pl,': ' place,', ' pl.': ' place',
+    ' rd ': ' road ', ' rd,': ' road,', ' rd.': ' road',
+  };
+  for (const [short, long] of Object.entries(suffixMap)) {
+    normalized = normalized.replace(new RegExp(short.replace(' ', '\\s+'), 'g'), long);
+  }
+  normalized = normalized.replace(/\s*(?:unit|apt|suite|#|ste)\.?\s*[a-z0-9-]+/gi, '');
+  normalized = normalized.replace(/\s+/g, ' ').trim();
+  return normalized;
 }
 
 async function loadRoster() {
@@ -199,37 +185,33 @@ async function loadRoster() {
   for (let i = (headerIndex >= 0 ? headerIndex + 1 : 0); i < rows.length; i++) {
     const row = rows[i];
     const agentName = row['AGENT'] || row['Agent'] || row['agent'] || row['Name'] || row['name'] || (headerIndex >= 0 ? Object.values(row)[0] : null);
-    
     if (!agentName || !isValidAgentName(agentName)) continue;
-    
     const canonicalName = agentName.trim();
     const agentId = normalizeAgentId(canonicalName);
     const matchKey = getAgentMatchKey(canonicalName);
-    
     if (!rosterMatchKeys.has(matchKey)) {
       rosterMatchKeys.set(matchKey, agentId);
       roster.set(agentId, canonicalName);
     }
   }
-  
   return roster;
 }
 
-async function loadTransactions(roster) {
-  const csv = await fetchTabCSV('MASTER HAVEN PNDS');
+/**
+ * Load CLOSED transactions from Master Closed 2026 (authoritative closed source)
+ * DEDUPE: normalizedAddress + agentMatchKey + price + closingDate
+ */
+async function loadClosedTransactions(roster) {
+  const csv = await fetchTabCSV('Master Closed 2026');
   const rows = parseCSV(csv);
-  const pendings = [];
   const closed = [];
-  const now = new Date();
+  const seenTransactions = new Map();
   
   const rosterMatchKeys = new Map();
   for (const [agentId, agentName] of roster.entries()) {
     const matchKey = getAgentMatchKey(agentName);
     rosterMatchKeys.set(matchKey, agentId);
   }
-  
-  // Track unique transactions by address + closing date to avoid duplicates
-  const seenTransactions = new Set();
   
   for (const row of rows) {
     const agentName = row['Agent'] || row['agent'];
@@ -244,75 +226,141 @@ async function loadTransactions(roster) {
     }
     if (!rosterAgentId) continue;
     
-    const price = parseCurrency(row['PRICE'] || row['price']);
+    const price = parseCurrency(row['PRICE'] || row['price'] || row['Sales Price'] || row['sales price']);
     if (!price) continue;
     
-    const address = row['ADDRESS'] || row['address'] || 'Unknown';
-    const contractDate = parseDate(row['Mutual Acceptance'] || row['contract date']);
-    const closingDate = parseDate(row['CLOSING'] || row['closing']);
-    const leadSource = row['Lead Generated'] || row['lead source'] || '';
-    const havenIncome = parseCurrency(row['Haven Income'] || row['GCI']) || 0;
+    const address = row['ADDRESS'] || row['address'] || row['Property Address'] || row['property address'] || 'Unknown';
+    const normalizedAddress = normalizeAddress(address);
+    const closingDate = parseDate(row['CLOSING'] || row['closing'] || row['Close Date'] || row['close date']);
+    if (!closingDate) continue;
     
-    const isClosed = closingDate && closingDate <= now;
+    const leadSource = row['Lead Generated'] || row['lead source'] || row['Lead Source'] || '';
+    const havenIncome = parseCurrency(row['Haven Income'] || row['GCI'] || row['gci']) || 0;
+    const clientName = row['Client'] || row['client'] || row['Buyer'] || row['buyer'] || row['Seller'] || row['seller'] || '';
     
-    // Create unique key for deduplication
-    const txnKey = `${address}-${closingDate?.toISOString() || contractDate?.toISOString() || ''}-${price}`;
-    if (seenTransactions.has(txnKey)) continue;
-    seenTransactions.add(txnKey);
+    const dedupeKey = `${normalizedAddress}|${matchKey}|${price}|${closingDate.toISOString().split('T')[0]}`;
+    if (seenTransactions.has(dedupeKey)) continue;
     
     const transaction = {
-      id: `${isClosed ? 'closed' : 'pend'}-${rosterAgentId}-${address.replace(/\s+/g, '-').substring(0, 20)}-${closingDate?.toISOString() || contractDate?.toISOString() || ''}`,
+      id: `closed-${rosterAgentId}-${normalizedAddress.replace(/\s+/g, '-').substring(0, 30)}-${closingDate.toISOString()}`,
       agentId: rosterAgentId,
       agentName: agentName.trim(),
       address,
       price,
-      status: isClosed ? 'closed' : 'pending',
-      side: ((row['Purch/List'] || '') || '').toLowerCase().includes('list') ? 'seller' : 'buyer',
-      contractDate: contractDate?.toISOString() || undefined,
-      closedDate: closingDate?.toISOString() || undefined,
+      status: 'closed',
+      side: ((row['Purch/List'] || row['purch/list'] || row['Side'] || row['side'] || '') || '').toLowerCase().includes('list') ? 'seller' : 'buyer',
+      contractDate: parseDate(row['Mutual Acceptance'] || row['contract date'] || row['Contract Date'])?.toISOString() || undefined,
+      closedDate: closingDate.toISOString(),
       gci: havenIncome,
       leadSource,
       isZillow: leadSource.toLowerCase().includes('zillow'),
-      // NOTE: capContribution NOT calculated - no explicit cap field in source
+      clientName: clientName || undefined,
     };
     
-    if (isClosed) {
-      closed.push(transaction);
-    } else {
-      pendings.push(transaction);
-    }
+    seenTransactions.set(dedupeKey, transaction);
+    closed.push(transaction);
+  }
+  return closed;
+}
+
+/**
+ * Load PENDING transactions from MASTER HAVEN PNDS (authoritative pending source)
+ * Cross-checks against closed transactions to avoid double-counting
+ */
+async function loadPendingTransactions(roster, closedTransactions) {
+  const csv = await fetchTabCSV('MASTER HAVEN PNDS');
+  const rows = parseCSV(csv);
+  const pendings = [];
+  const seenTransactions = new Set();
+  const now = new Date();
+  
+  const closedSignatures = new Set();
+  for (const txn of closedTransactions) {
+    const agentMatchKey = getAgentMatchKey(txn.agentName);
+    const normalizedAddr = normalizeAddress(txn.address);
+    closedSignatures.add(`${normalizedAddr}|${agentMatchKey}|${txn.price}`);
   }
   
-  return { pendings, closed };
+  const rosterMatchKeys = new Map();
+  for (const [agentId, agentName] of roster.entries()) {
+    const matchKey = getAgentMatchKey(agentName);
+    rosterMatchKeys.set(matchKey, agentId);
+  }
+  
+  for (const row of rows) {
+    const agentName = row['Agent'] || row['agent'];
+    if (!agentName || !isValidAgentName(agentName)) continue;
+    
+    const agentId = normalizeAgentId(agentName);
+    const matchKey = getAgentMatchKey(agentName);
+    
+    let rosterAgentId = roster.has(agentId) ? agentId : null;
+    if (!rosterAgentId && rosterMatchKeys.has(matchKey)) {
+      rosterAgentId = rosterMatchKeys.get(matchKey);
+    }
+    if (!rosterAgentId) continue;
+    
+    const price = parseCurrency(row['PRICE'] || row['price'] || row['Sales Price']);
+    if (!price) continue;
+    
+    const address = row['ADDRESS'] || row['address'] || row['Property Address'] || 'Unknown';
+    const normalizedAddress = normalizeAddress(address);
+    const contractDate = parseDate(row['Mutual Acceptance'] || row['contract date'] || row['Contract Date']);
+    const closingDate = parseDate(row['CLOSING'] || row['closing'] || row['Close Date']);
+    const leadSource = row['Lead Generated'] || row['lead source'] || row['Lead Source'] || '';
+    const havenIncome = parseCurrency(row['Haven Income'] || row['GCI'] || row['gci']) || 0;
+    const clientName = row['Client'] || row['client'] || row['Buyer'] || row['buyer'] || '';
+    
+    const pendingDedupeKey = `${normalizedAddress}|${matchKey}|${price}`;
+    if (seenTransactions.has(pendingDedupeKey)) continue;
+    if (closedSignatures.has(pendingDedupeKey)) continue;
+    
+    const isActuallyClosed = closingDate && closingDate <= now;
+    if (isActuallyClosed) continue;
+    
+    const transaction = {
+      id: `pend-${rosterAgentId}-${normalizedAddress.replace(/\s+/g, '-').substring(0, 30)}-${contractDate?.toISOString() || ''}`,
+      agentId: rosterAgentId,
+      agentName: agentName.trim(),
+      address,
+      price,
+      status: 'pending',
+      side: ((row['Purch/List'] || row['purch/list'] || row['Side'] || '') || '').toLowerCase().includes('list') ? 'seller' : 'buyer',
+      contractDate: contractDate?.toISOString() || undefined,
+      closedDate: undefined,
+      gci: havenIncome,
+      leadSource,
+      isZillow: leadSource.toLowerCase().includes('zillow'),
+      clientName: clientName || undefined,
+    };
+    
+    seenTransactions.add(pendingDedupeKey);
+    pendings.push(transaction);
+  }
+  return pendings;
 }
 
 async function loadListings(roster) {
   const csv = await fetchTabCSV('Listings');
   const rows = parseCSV(csv);
   const listingsByAgent = {};
-  
   const rosterMatchKeys = new Map();
   for (const [agentId, agentName] of roster.entries()) {
     const matchKey = getAgentMatchKey(agentName);
     rosterMatchKeys.set(matchKey, agentId);
   }
-  
   for (const row of rows) {
     const agentName = row['Agent'] || row['agent'];
     if (!agentName || !isValidAgentName(agentName)) continue;
-    
     const agentId = normalizeAgentId(agentName);
     const matchKey = getAgentMatchKey(agentName);
-    
     let rosterAgentId = roster.has(agentId) ? agentId : null;
     if (!rosterAgentId && rosterMatchKeys.has(matchKey)) {
       rosterAgentId = rosterMatchKeys.get(matchKey);
     }
     if (!rosterAgentId) continue;
-    
     listingsByAgent[rosterAgentId] = (listingsByAgent[rosterAgentId] || 0) + 1;
   }
-  
   return listingsByAgent;
 }
 
@@ -320,32 +368,26 @@ async function loadCmas(roster) {
   const csv = await fetchTabCSV('CMAS_2026');
   const rows = parseCSV(csv);
   const cmasByAgent = {};
-  
   const rosterMatchKeys = new Map();
   for (const [agentId, agentName] of roster.entries()) {
     const matchKey = getAgentMatchKey(agentName);
     rosterMatchKeys.set(matchKey, agentId);
   }
-  
   for (const row of rows) {
     const agentName = row['Agent'] || row['agent'];
     if (!agentName || !isValidAgentName(agentName)) continue;
-    
     const agentId = normalizeAgentId(agentName);
     const matchKey = getAgentMatchKey(agentName);
-    
     let rosterAgentId = roster.has(agentId) ? agentId : null;
     if (!rosterAgentId && rosterMatchKeys.has(matchKey)) {
       rosterAgentId = rosterMatchKeys.get(matchKey);
     }
     if (!rosterAgentId) continue;
-    
     const status = ((row['Status'] || row['status'] || '') || '').toLowerCase();
     if (status.includes('complete') || status.includes('done')) {
       cmasByAgent[rosterAgentId] = (cmasByAgent[rosterAgentId] || 0) + 1;
     }
   }
-  
   return cmasByAgent;
 }
 
@@ -406,18 +448,12 @@ function getWeekDates(date = new Date()) {
   const current = new Date(date);
   const day = current.getDay();
   const diff = current.getDate() - day + (day === 0 ? -6 : 1);
-  
   const weekStart = new Date(current.setDate(diff));
   weekStart.setHours(0, 0, 0, 0);
-  
   const weekEnd = new Date(weekStart);
   weekEnd.setDate(weekEnd.getDate() + 6);
   weekEnd.setHours(23, 59, 59, 999);
-  
-  return {
-    weekStart: weekStart.toISOString(),
-    weekEnd: weekEnd.toISOString(),
-  };
+  return { weekStart: weekStart.toISOString(), weekEnd: weekEnd.toISOString() };
 }
 
 function generateSnapshotId() {
@@ -427,12 +463,16 @@ function generateSnapshotId() {
 
 async function main() {
   console.log('Loading data from Google Sheets...');
+  console.log('Sheet ID:', SHEET_ID);
   
   const roster = await loadRoster();
   console.log(`Roster loaded: ${roster.size} agents`);
   
-  const { pendings, closed } = await loadTransactions(roster);
-  console.log(`Transactions loaded: ${pendings.length} pending, ${closed.length} closed`);
+  const closed = await loadClosedTransactions(roster);
+  console.log(`Closed transactions loaded: ${closed.length}`);
+  
+  const pendings = await loadPendingTransactions(roster, closed);
+  console.log(`Pending transactions loaded: ${pendings.length}`);
   
   const listingsByAgent = await loadListings(roster);
   const cmasByAgent = await loadCmas(roster);
@@ -446,7 +486,6 @@ async function main() {
   for (const txn of allTransactions) {
     if (!agents[txn.agentId]) continue;
     const agent = agents[txn.agentId];
-    
     if (txn.status === 'closed') {
       agent.closedTransactions += 1;
       agent.closedVolume += txn.price;
@@ -455,16 +494,12 @@ async function main() {
       agent.pendingTransactions += 1;
       agent.pendingVolume += txn.price;
     }
-    
-    if (txn.isZillow) {
-      agent.zillowLeads += 1;
-    }
+    if (txn.isZillow) agent.zillowLeads += 1;
   }
   
   for (const [agentId, count] of Object.entries(listingsByAgent)) {
     if (agents[agentId]) agents[agentId].activeListings = count;
   }
-  
   for (const [agentId, count] of Object.entries(cmasByAgent)) {
     if (agents[agentId]) agents[agentId].cmasCompleted = count;
   }
@@ -482,15 +517,10 @@ async function main() {
     transactionCount: allTransactions.length,
     weekStart,
     weekEnd,
-    notes: 'Loaded from Haven Transactions 2026. Roster-based filtering active. Cap contribution NOT calculated - no explicit cap field in source.',
+    notes: `Loaded from Haven Transactions 2026. Roster-based filtering active. CLOSED from Master Closed 2026 (${closed.length} txns). PENDING from MASTER HAVEN PNDS (${pendings.length} txns). Dedupe: normalizedAddress+agentMatchKey+price+closingDate.`,
   };
   
-  const snapshot = {
-    metadata,
-    agents,
-    leaderboard,
-    teamStats,
-  };
+  const snapshot = { metadata, agents, leaderboard, teamStats };
   
   fs.writeFileSync(CURRENT_SNAPSHOT, JSON.stringify(snapshot, null, 2));
   console.log(`\nSnapshot saved to ${CURRENT_SNAPSHOT}`);
