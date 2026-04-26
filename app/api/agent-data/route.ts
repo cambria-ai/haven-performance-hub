@@ -42,6 +42,10 @@ export async function GET(request: NextRequest) {
         );
       }
 
+      // Add rank to agent data from leaderboard
+      const leaderboardEntry = snapshot?.leaderboard?.find(l => l.agentId === targetAgentId);
+      const agentDataWithRank = leaderboardEntry ? { ...agentData, rank: leaderboardEntry.rank } : agentData;
+
       let agentTimeWindowStats: any = null;
       try {
         const statsPath = path.join(process.cwd(), 'data', 'snapshots', 'time-window-stats.json');
@@ -53,9 +57,15 @@ export async function GET(request: NextRequest) {
         // Time-window stats not available
       }
 
+      // Mark the target agent's leaderboard entry
+      const leaderboard = (snapshot?.leaderboard || []).map(entry => ({
+        ...entry,
+        isOwn: entry.agentId === targetAgentId,
+      }));
+
       return NextResponse.json({
-        agent: agentData,
-        leaderboard: snapshot?.leaderboard || [],
+        agent: agentDataWithRank,
+        leaderboard,
         teamStats: snapshot?.teamStats || null,
         isAdmin: true,
         snapshotDate: snapshot?.metadata.createdAt || null,
@@ -79,6 +89,14 @@ export async function GET(request: NextRequest) {
     // Extract agent data
     const agentData = scopedData.snapshot?.agents[auth.agentId] || null;
     
+    // Add rank to agent data from leaderboard
+    const leaderboard = (scopedData.leaderboard || []).map(entry => ({
+      ...entry,
+      isOwn: entry.agentId === auth.agentId,
+    }));
+    const leaderboardEntry = leaderboard.find(l => l.agentId === auth.agentId);
+    const agentDataWithRank = leaderboardEntry ? { ...agentData, rank: leaderboardEntry.rank } : agentData;
+    
     // Load time-window stats for this agent
     let agentTimeWindowStats: any = null;
     try {
@@ -92,8 +110,8 @@ export async function GET(request: NextRequest) {
     }
     
     return NextResponse.json({
-      agent: agentData,
-      leaderboard: scopedData.leaderboard,
+      agent: agentDataWithRank,
+      leaderboard,
       teamStats: scopedData.teamStats,
       isAdmin: scopedData.isAdmin,
       snapshotDate: scopedData.snapshot?.metadata.createdAt || null,
