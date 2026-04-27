@@ -255,7 +255,8 @@ function sanitizeAgentData(agentData: AgentSnapshot, isAdmin: boolean): AgentSna
 
 /**
  * Sanitize leaderboard for non-admin users.
- * Removes GCI from other agents' entries.
+ * Anonymizes other agents' names and removes GCI from other agents' entries.
+ * Only the current agent's entry shows their real name.
  */
 function sanitizeLeaderboard(leaderboard: LeaderboardEntry[], currentAgentId: string, isAdmin: boolean): LeaderboardEntry[] {
   if (isAdmin) {
@@ -265,11 +266,20 @@ function sanitizeLeaderboard(leaderboard: LeaderboardEntry[], currentAgentId: st
   return leaderboard.map(entry => {
     if (entry.agentId === currentAgentId) {
       // Keep own entry with full data (but GCI already 0 from agent sanitization)
-      return { ...entry };
+      return {
+        ...entry,
+        isOwn: true,
+      };
     }
 
-    // Remove GCI from anonymized entries
-    const { gci, ...rest } = entry;
-    return { ...rest, gci: 0 };
+    // Anonymize other entries - hide name and remove GCI
+    const { gci, agentName, ...rest } = entry;
+    return {
+      ...rest,
+      agentName: `Position ${entry.rank}`,
+      agentId: `anon-${entry.rank}`,
+      gci: 0,
+      isOwn: false,
+    };
   });
 }
