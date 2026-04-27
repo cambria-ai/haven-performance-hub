@@ -1,7 +1,7 @@
 {
   "metadata": {
-    "id": "snapshot-2026-04-27-14-6",
-    "createdAt": "2026-04-27T21:06:00.954Z",
+    "id": "snapshot-2026-04-27-14-30",
+    "createdAt": "2026-04-27T21:30:25.437Z",
     "uploadedBy": "clean-room-rebuild",
     "sourceFiles": [
       "Haven Transactions 2026",
@@ -138,7 +138,9 @@
           },
           "leadSource": "Sphere",
           "isSphere": true,
-          "isZillow": false
+          "isZillow": false,
+          "boTax": 0,
+          "transactionFee": 0
         },
         {
           "transactionId": "pend-cambria-henry-6760-w-portrush-dr-2026-04-10T07:00:00.000Z",
@@ -155,7 +157,9 @@
           },
           "leadSource": "Sphere",
           "isSphere": true,
-          "isZillow": false
+          "isZillow": false,
+          "boTax": 0,
+          "transactionFee": 0
         }
       ]
     },
@@ -416,7 +420,9 @@
           },
           "leadSource": "Zillow Flex",
           "isSphere": false,
-          "isZillow": true
+          "isZillow": true,
+          "boTax": 0,
+          "transactionFee": 0
         }
       ]
     },
@@ -544,7 +550,9 @@
           },
           "leadSource": "Sphere",
           "isSphere": true,
-          "isZillow": false
+          "isZillow": false,
+          "boTax": 0,
+          "transactionFee": 0
         },
         {
           "transactionId": "pend-andrey-morgunov-2117-2119-e-euclid-ave-2026-03-09T07:00:00.000Z",
@@ -560,7 +568,9 @@
           },
           "leadSource": "TBD (confirming if it's a zillow lead)",
           "isSphere": false,
-          "isZillow": true
+          "isZillow": true,
+          "boTax": 0,
+          "transactionFee": 0
         }
       ]
     },
@@ -704,7 +714,9 @@
           },
           "leadSource": "Zillow Flex",
           "isSphere": false,
-          "isZillow": true
+          "isZillow": true,
+          "boTax": 0,
+          "transactionFee": 0
         }
       ]
     },
@@ -764,7 +776,9 @@
           },
           "leadSource": "Zillow (Non Flex)",
           "isSphere": false,
-          "isZillow": true
+          "isZillow": true,
+          "boTax": 0,
+          "transactionFee": 0
         }
       ]
     },
@@ -895,7 +909,9 @@
           },
           "leadSource": "Zillow Flex",
           "isSphere": false,
-          "isZillow": true
+          "isZillow": true,
+          "boTax": 0,
+          "transactionFee": 0
         },
         {
           "transactionId": "pend-didi-emtman-1117-s-dover-rd-2026-04-09T07:00:00.000Z",
@@ -912,7 +928,9 @@
           },
           "leadSource": "Zillow Flex",
           "isSphere": false,
-          "isZillow": true
+          "isZillow": true,
+          "boTax": 0,
+          "transactionFee": 0
         }
       ]
     },
@@ -996,7 +1014,9 @@
           },
           "leadSource": "Sphere",
           "isSphere": true,
-          "isZillow": false
+          "isZillow": false,
+          "boTax": 0,
+          "transactionFee": 0
         },
         {
           "transactionId": "pend-emily-polanco-416-s-leta-rd-2026-03-29T07:00:00.000Z",
@@ -1013,7 +1033,9 @@
           },
           "leadSource": "Zillow Flex",
           "isSphere": false,
-          "isZillow": true
+          "isZillow": true,
+          "boTax": 0,
+          "transactionFee": 0
         },
         {
           "transactionId": "pend-emily-polanco-1135-forest-park-park-2026-04-14T07:00:00.000Z",
@@ -1030,7 +1052,9 @@
           },
           "leadSource": "Sphere",
           "isSphere": true,
-          "isZillow": false
+          "isZillow": false,
+          "boTax": 0,
+          "transactionFee": 0
         },
         {
           "transactionId": "pend-emily-polanco-3807-w-pandion-dr-2026-03-17T07:00:00.000Z",
@@ -1047,7 +1071,9 @@
           },
           "leadSource": "Google Inquiry",
           "isSphere": false,
-          "isZillow": false
+          "isZillow": false,
+          "boTax": 0,
+          "transactionFee": 0
         },
         {
           "transactionId": "pend-emily-polanco-5241-f-hattery-owens-rd-2026-04-19T07:00:00.000Z",
@@ -1064,7 +1090,9 @@
           },
           "leadSource": "Sphere",
           "isSphere": true,
-          "isZillow": false
+          "isZillow": false,
+          "boTax": 0,
+          "transactionFee": 0
         },
         {
           "transactionId": "pend-emily-polanco-8511-w-silver-st-2026-04-14T07:00:00.000Z",
@@ -1081,7 +1109,9 @@
           },
           "leadSource": "Zillow Flex",
           "isSphere": false,
-          "isZillow": true
+          "isZillow": true,
+          "boTax": 0,
+          "transactionFee": 0
         }
       ]
     },
@@ -1120,7 +1150,9 @@
           },
           "leadSource": "Zillow Flex",
           "isSphere": false,
-          "isZillow": true
+          "isZillow": true,
+          "boTax": 0,
+          "transactionFee": 0
         }
       ]
     },
@@ -1180,7 +1212,9 @@
           },
           "leadSource": "Direct Call in",
           "isSphere": false,
-          "isZillow": false
+          "isZillow": false,
+          "boTax": 0,
+          "transactionFee": 0
         }
       ]
     },
@@ -1231,7 +1265,9 @@
           },
           "leadSource": "Zillow (Over 2 Years & 2 Closed Transactions)",
           "isSphere": false,
-          "isZillow": true
+          "isZillow": true,
+          "boTax": 0,
+          "transactionFee": 0
         },
         {
           "transactionId": "pend-jesse-miller-14004-s-finney-st-2026-04-20T07:00:00.000Z",
@@ -1248,7 +1284,9 @@
           },
           "leadSource": "SOI",
           "isSphere": false,
-          "isZillow": false
+          "isZillow": false,
+          "boTax": 0,
+          "transactionFee": 0
         },
         {
           "transactionId": "pend-jesse-miller-4609-n-lincoln-st-2026-04-24T07:00:00.000Z",
@@ -1265,7 +1303,9 @@
           },
           "leadSource": "Zillow Flex | Referral form Agent (Monty)",
           "isSphere": false,
-          "isZillow": true
+          "isZillow": true,
+          "boTax": 0,
+          "transactionFee": 0
         },
         {
           "transactionId": "pend-jesse-miller-1526/1528-n-wilhelm-way-2026-02-16T08:00:00.000Z",
@@ -1282,7 +1322,9 @@
           },
           "leadSource": "Sphere",
           "isSphere": true,
-          "isZillow": false
+          "isZillow": false,
+          "boTax": 0,
+          "transactionFee": 0
         },
         {
           "transactionId": "pend-jesse-miller-407-s-treeline-st-2026-04-08T07:00:00.000Z",
@@ -1299,7 +1341,9 @@
           },
           "leadSource": "Sphere",
           "isSphere": true,
-          "isZillow": false
+          "isZillow": false,
+          "boTax": 0,
+          "transactionFee": 0
         }
       ]
     },
@@ -1338,7 +1382,9 @@
           },
           "leadSource": "Zillow Flex",
           "isSphere": false,
-          "isZillow": true
+          "isZillow": true,
+          "boTax": 0,
+          "transactionFee": 0
         }
       ]
     },
@@ -1431,7 +1477,9 @@
           },
           "leadSource": "Zillow Flex",
           "isSphere": false,
-          "isZillow": true
+          "isZillow": true,
+          "boTax": 0,
+          "transactionFee": 0
         },
         {
           "transactionId": "pend-jose-alexander-3649-s-mccabe-ln-2026-04-17T07:00:00.000Z",
@@ -1448,7 +1496,9 @@
           },
           "leadSource": "Zillow Flex",
           "isSphere": false,
-          "isZillow": true
+          "isZillow": true,
+          "boTax": 0,
+          "transactionFee": 0
         },
         {
           "transactionId": "pend-jose-alexander-5271-e-mckinnon-ln-2026-03-23T07:00:00.000Z",
@@ -1465,7 +1515,9 @@
           },
           "leadSource": "Zillow Flex",
           "isSphere": false,
-          "isZillow": true
+          "isZillow": true,
+          "boTax": 0,
+          "transactionFee": 0
         }
       ]
     },
@@ -1525,7 +1577,9 @@
           },
           "leadSource": "Zillow (Over 2 yrs)",
           "isSphere": false,
-          "isZillow": true
+          "isZillow": true,
+          "boTax": 0,
+          "transactionFee": 0
         },
         {
           "transactionId": "pend-justin-smith-4318-n-upland-ct-2026-03-22T07:00:00.000Z",
@@ -1542,7 +1596,9 @@
           },
           "leadSource": "Zillow Non-flex",
           "isSphere": false,
-          "isZillow": true
+          "isZillow": true,
+          "boTax": 0,
+          "transactionFee": 0
         },
         {
           "transactionId": "pend-justin-smith-605-s-streetnley-ct-2026-04-25T07:00:00.000Z",
@@ -1559,7 +1615,9 @@
           },
           "leadSource": "Zillow Flex",
           "isSphere": false,
-          "isZillow": true
+          "isZillow": true,
+          "boTax": 0,
+          "transactionFee": 0
         },
         {
           "transactionId": "pend-justin-smith-5118-n-pinegrove-dr-2026-04-21T07:00:00.000Z",
@@ -1576,7 +1634,9 @@
           },
           "leadSource": "Zillow Flex",
           "isSphere": false,
-          "isZillow": true
+          "isZillow": true,
+          "boTax": 0,
+          "transactionFee": 0
         }
       ]
     },
@@ -1615,7 +1675,9 @@
           },
           "leadSource": "SOI",
           "isSphere": false,
-          "isZillow": false
+          "isZillow": false,
+          "boTax": 0,
+          "transactionFee": 0
         }
       ]
     },
@@ -1666,7 +1728,9 @@
           },
           "leadSource": "Zillow (Over 2 Years)",
           "isSphere": false,
-          "isZillow": true
+          "isZillow": true,
+          "boTax": 0,
+          "transactionFee": 0
         }
       ]
     },
@@ -1782,7 +1846,9 @@
           },
           "leadSource": "Zillow (Over 2 yrs)",
           "isSphere": false,
-          "isZillow": true
+          "isZillow": true,
+          "boTax": 0,
+          "transactionFee": 0
         },
         {
           "transactionId": "pend-kurt-antone-burgan-3079-s-monterey-ln-2026-03-28T07:00:00.000Z",
@@ -1799,7 +1865,9 @@
           },
           "leadSource": "Sphere",
           "isSphere": true,
-          "isZillow": false
+          "isZillow": false,
+          "boTax": 0,
+          "transactionFee": 0
         },
         {
           "transactionId": "pend-kurt-antone-burgan-14922-e-belle-terre-ave-2026-04-06T07:00:00.000Z",
@@ -1816,7 +1884,9 @@
           },
           "leadSource": "SOI",
           "isSphere": false,
-          "isZillow": false
+          "isZillow": false,
+          "boTax": 0,
+          "transactionFee": 0
         },
         {
           "transactionId": "pend-kurt-antone-burgan-2630-s-fairmont-estates-ct-2026-03-29T07:00:00.000Z",
@@ -1833,7 +1903,9 @@
           },
           "leadSource": "Sphere",
           "isSphere": true,
-          "isZillow": false
+          "isZillow": false,
+          "boTax": 0,
+          "transactionFee": 0
         },
         {
           "transactionId": "pend-kurt-antone-burgan-5718-n-cook-st-2026-04-08T07:00:00.000Z",
@@ -1850,7 +1922,9 @@
           },
           "leadSource": "Referral Sphere",
           "isSphere": true,
-          "isZillow": false
+          "isZillow": false,
+          "boTax": 0,
+          "transactionFee": 0
         },
         {
           "transactionId": "pend-kurt-antone-burgan-2601-n-barker-road-2026-03-28T07:00:00.000Z",
@@ -1867,7 +1941,9 @@
           },
           "leadSource": "Sphere",
           "isSphere": true,
-          "isZillow": false
+          "isZillow": false,
+          "boTax": 0,
+          "transactionFee": 0
         },
         {
           "transactionId": "pend-kurt-antone-burgan-14420-w-charles-rd-2026-04-13T07:00:00.000Z",
@@ -1884,7 +1960,9 @@
           },
           "leadSource": "Zillow (Over 2 Years)",
           "isSphere": false,
-          "isZillow": true
+          "isZillow": true,
+          "boTax": 0,
+          "transactionFee": 0
         },
         {
           "transactionId": "pend-kurt-antone-burgan-980-d-westover-rd-2026-04-20T07:00:00.000Z",
@@ -1901,7 +1979,9 @@
           },
           "leadSource": "Realtor.Com Team Lead 2024",
           "isSphere": false,
-          "isZillow": false
+          "isZillow": false,
+          "boTax": 0,
+          "transactionFee": 0
         }
       ]
     },
@@ -1982,7 +2062,9 @@
           },
           "leadSource": "MyPlusLeads",
           "isSphere": false,
-          "isZillow": false
+          "isZillow": false,
+          "boTax": 0,
+          "transactionFee": 0
         },
         {
           "transactionId": "pend-lori-ruby-4224-n-maple-st-2026-04-26T07:00:00.000Z",
@@ -1999,7 +2081,9 @@
           },
           "leadSource": "Sphere",
           "isSphere": true,
-          "isZillow": false
+          "isZillow": false,
+          "boTax": 0,
+          "transactionFee": 0
         }
       ]
     },
@@ -2037,7 +2121,9 @@
           },
           "leadSource": "Zillow Flex",
           "isSphere": false,
-          "isZillow": true
+          "isZillow": true,
+          "boTax": 0,
+          "transactionFee": 0
         }
       ]
     },
@@ -2097,7 +2183,9 @@
           },
           "leadSource": "Sphere",
           "isSphere": true,
-          "isZillow": false
+          "isZillow": false,
+          "boTax": 0,
+          "transactionFee": 0
         },
         {
           "transactionId": "pend-marcus-mathews-1519-w-13th-ave-2026-04-16T07:00:00.000Z",
@@ -2114,7 +2202,9 @@
           },
           "leadSource": "Zillow Flex",
           "isSphere": false,
-          "isZillow": true
+          "isZillow": true,
+          "boTax": 0,
+          "transactionFee": 0
         },
         {
           "transactionId": "pend-marcus-mathews-632-n-hydra-2026-04-19T07:00:00.000Z",
@@ -2131,7 +2221,9 @@
           },
           "leadSource": "Sphere",
           "isSphere": true,
-          "isZillow": false
+          "isZillow": false,
+          "boTax": 0,
+          "transactionFee": 0
         },
         {
           "transactionId": "pend-marcus-mathews-19029-e-boone-avenueue-2026-04-16T07:00:00.000Z",
@@ -2148,7 +2240,9 @@
           },
           "leadSource": "Sphere",
           "isSphere": true,
-          "isZillow": false
+          "isZillow": false,
+          "boTax": 0,
+          "transactionFee": 0
         },
         {
           "transactionId": "pend-marcus-mathews-nna-e-howard-rd-2025-08-12T07:00:00.000Z",
@@ -2165,7 +2259,9 @@
           },
           "leadSource": "Lofty Paid Lead",
           "isSphere": false,
-          "isZillow": false
+          "isZillow": false,
+          "boTax": 0,
+          "transactionFee": 0
         }
       ]
     },
@@ -2216,7 +2312,9 @@
           },
           "leadSource": "Zillow Flex",
           "isSphere": false,
-          "isZillow": true
+          "isZillow": true,
+          "boTax": 0,
+          "transactionFee": 0
         },
         {
           "transactionId": "pend-matt-procter-4007-s-forest-meadows-dr-2026-04-21T07:00:00.000Z",
@@ -2233,7 +2331,9 @@
           },
           "leadSource": "Zillow Flex",
           "isSphere": false,
-          "isZillow": true
+          "isZillow": true,
+          "boTax": 0,
+          "transactionFee": 0
         },
         {
           "transactionId": "pend-matt-procter-21110-w-blue-heron-rd-2026-04-26T07:00:00.000Z",
@@ -2250,7 +2350,9 @@
           },
           "leadSource": "Homes.com",
           "isSphere": false,
-          "isZillow": false
+          "isZillow": false,
+          "boTax": 0,
+          "transactionFee": 0
         }
       ]
     },
@@ -2322,7 +2424,9 @@
           },
           "leadSource": "SOI",
           "isSphere": false,
-          "isZillow": false
+          "isZillow": false,
+          "boTax": 0,
+          "transactionFee": 0
         }
       ]
     },
@@ -2388,7 +2492,9 @@
           },
           "leadSource": "Zillow (Over 2 Years)",
           "isSphere": false,
-          "isZillow": true
+          "isZillow": true,
+          "boTax": 0,
+          "transactionFee": 0
         },
         {
           "transactionId": "pend-paula-kamp-44-elsa-ct-2026-04-13T07:00:00.000Z",
@@ -2405,7 +2511,9 @@
           },
           "leadSource": "Zilllow Flex",
           "isSphere": false,
-          "isZillow": false
+          "isZillow": false,
+          "boTax": 0,
+          "transactionFee": 0
         }
       ]
     },
@@ -2509,7 +2617,9 @@
           },
           "leadSource": "Zillow Flex",
           "isSphere": false,
-          "isZillow": true
+          "isZillow": true,
+          "boTax": 0,
+          "transactionFee": 0
         }
       ]
     },
@@ -2548,7 +2658,9 @@
           },
           "leadSource": "Zillow Flex",
           "isSphere": false,
-          "isZillow": true
+          "isZillow": true,
+          "boTax": 0,
+          "transactionFee": 0
         },
         {
           "transactionId": "pend-shelby-tidd-726-e-rockwell-ave-2026-01-25T08:00:00.000Z",
@@ -2564,7 +2676,9 @@
           },
           "leadSource": "SOI",
           "isSphere": false,
-          "isZillow": false
+          "isZillow": false,
+          "boTax": 0,
+          "transactionFee": 0
         }
       ]
     },
@@ -2710,7 +2824,9 @@
           },
           "leadSource": "Zillow Flex",
           "isSphere": false,
-          "isZillow": true
+          "isZillow": true,
+          "boTax": 0,
+          "transactionFee": 0
         },
         {
           "transactionId": "pend-trevor-hayden-1321-e-gordon-ave-2026-04-21T07:00:00.000Z",
@@ -2727,7 +2843,9 @@
           },
           "leadSource": "Zillow Flex",
           "isSphere": false,
-          "isZillow": true
+          "isZillow": true,
+          "boTax": 0,
+          "transactionFee": 0
         }
       ]
     },
@@ -2829,7 +2947,9 @@
           },
           "leadSource": "Zillow Flex",
           "isSphere": false,
-          "isZillow": true
+          "isZillow": true,
+          "boTax": 0,
+          "transactionFee": 0
         }
       ]
     },

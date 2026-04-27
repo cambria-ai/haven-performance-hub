@@ -121,6 +121,8 @@ export interface PendingTransactionDetail {
   leadSource?: string;
   isSphere?: boolean;
   isZillow?: boolean;
+  boTax?: number;
+  transactionFee?: number;
 }
 
 export interface TransactionRecord {
@@ -144,6 +146,9 @@ export interface TransactionRecord {
   referralFee?: number;
   isZillowFlex?: boolean;
   isRedfin?: boolean;
+  // Fee breakdown
+  boTax?: number;
+  transactionFee?: number;
 }
 
 export interface LeaderboardEntry {

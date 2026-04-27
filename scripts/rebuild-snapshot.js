@@ -286,6 +286,8 @@ async function loadClosedTransactions(roster) {
     
     const leadSource = row['Lead Generated'] || row['Lead Source'] || '';
     const havenIncome = parseCurrency(row['Haven Income'] || row['GCI']) || 0;
+    const boTax = parseCurrency(row['B&O Tax'] || row['B&O'] || row['b&o tax']) || 0;
+    const transactionFee = parseCurrency(row['Transaction Fee'] || row['transaction fee'] || row['Tech Fee']) || 0;
     
     // Identify referrals from Referral column or Lead Generated source
     // EXCLUDE Zillow and Redfin - they are NOT referrals per Cambria's rule
@@ -350,6 +352,8 @@ async function loadClosedTransactions(roster) {
       isZillowFlex: zillowFlexReferral > 0,
       isRedfin: redfinReferral > 0,
       isSphere: personalSphere > 0 || leadSource.toLowerCase().includes('sphere'),
+      boTax,
+      transactionFee,
     });
     
     seenTransactions.set(dedupeKey, true);
@@ -402,6 +406,8 @@ async function loadPendingTransactions(roster, closedTransactions) {
     const closingDate = parseDate(row['CLOSING']);
     const leadSource = row['Lead Generated'] || row['Lead Source'] || '';
     const havenIncome = parseCurrency(row['Haven Income'] || row['GCI']) || 0;
+    const boTax = parseCurrency(row['B&O Tax'] || row['B&O'] || row['b&o tax']) || 0;
+    const transactionFee = parseCurrency(row['Transaction Fee'] || row['transaction fee'] || row['Tech Fee']) || 0;
     
     // Extract agent income fields from MASTER HAVEN PNDS
     // Use Agent Income for normal deals, Personal Sphere column for sphere deals
@@ -490,6 +496,8 @@ async function loadPendingTransactions(roster, closedTransactions) {
       isZillowFlex: zillowFlexReferral > 0,
       isRedfin: redfinReferral > 0,
       isSphere: personalSphere > 0 || leadSource.toLowerCase().includes('sphere'),
+      boTax,
+      transactionFee,
     };
     
     pendings.push(pendingTxn);
@@ -514,6 +522,8 @@ async function loadPendingTransactions(roster, closedTransactions) {
       leadSource,
       isSphere: personalSphere > 0 || leadSource.toLowerCase().includes('sphere'),
       isZillow: leadSource.toLowerCase().includes('zillow'),
+      boTax,
+      transactionFee,
     });
     
     seenTransactions.add(pendingDedupeKey);

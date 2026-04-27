@@ -299,6 +299,8 @@ async function loadClosedTransactions(roster: Map<string, string>): Promise<Tran
     
     const leadSource = (row['Lead Generated'] || row['lead source'] || row['Lead Source'] || '') as string;
     const havenIncome = parseCurrency(row['Haven Income'] || row['GCI'] || row['gci']) || 0;
+    const boTax = parseCurrency(row['B&O Tax'] || row['B&O'] || row['b&o tax'] || row['b&o']) || 0;
+    const transactionFee = parseCurrency(row['Transaction Fee'] || row['transaction fee'] || row['Tech Fee'] || row['tech fee']) || 0;
     
     // Parse referral indicators
     const referralIndicators = parseReferralIndicators(row);
@@ -326,6 +328,8 @@ async function loadClosedTransactions(roster: Map<string, string>): Promise<Tran
       isZillowFlex: referralIndicators.isZillowFlex,
       isRedfin: referralIndicators.isRedfin,
       isSphere: referralIndicators.isSphere,
+      boTax,
+      transactionFee,
     };
     
     seenTransactions.set(dedupeKey, transaction);
@@ -388,6 +392,8 @@ async function loadPendingTransactions(roster: Map<string, string>, closedTransa
     const closingDate = parseDate(row['CLOSING'] || row['closing'] || row['Close Date']);
     const leadSource = (row['Lead Generated'] || row['lead source'] || row['Lead Source'] || '') as string;
     const havenIncome = parseCurrency(row['Haven Income'] || row['GCI'] || row['gci']) || 0;
+    const boTax = parseCurrency(row['B&O Tax'] || row['B&O'] || row['b&o tax'] || row['b&o']) || 0;
+    const transactionFee = parseCurrency(row['Transaction Fee'] || row['transaction fee'] || row['Tech Fee'] || row['tech fee']) || 0;
     
     // Parse referral indicators
     const referralIndicators = parseReferralIndicators(row);
@@ -418,6 +424,8 @@ async function loadPendingTransactions(roster: Map<string, string>, closedTransa
       isZillowFlex: referralIndicators.isZillowFlex,
       isRedfin: referralIndicators.isRedfin,
       isSphere: referralIndicators.isSphere,
+      boTax,
+      transactionFee,
     };
     
     seenTransactions.add(pendingDedupeKey);
