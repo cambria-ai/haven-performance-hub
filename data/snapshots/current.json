@@ -1,7 +1,7 @@
 {
   "metadata": {
-    "id": "snapshot-2026-04-26-10-28",
-    "createdAt": "2026-04-26T17:28:48.619Z",
+    "id": "snapshot-2026-04-27-9-1",
+    "createdAt": "2026-04-27T16:01:56.373Z",
     "uploadedBy": "clean-room-rebuild",
     "sourceFiles": [
       "Haven Transactions 2026",
@@ -12,9 +12,9 @@
     ],
     "agentCount": 67,
     "transactionCount": 157,
-    "weekStart": "2026-04-20T07:00:00.000Z",
-    "weekEnd": "2026-04-27T06:59:59.999Z",
-    "notes": "Clean-room rebuild. Roster: 67 agents. Closed: 97. Pending: 60. Cap from Payout Dashboard. Showings from Weekly Zillow Stats."
+    "weekStart": "2026-04-27T07:00:00.000Z",
+    "weekEnd": "2026-05-04T06:59:59.999Z",
+    "notes": "Clean-room rebuild. Roster: 67 agents. Closed: 98. Pending: 59. Cap from Payout Dashboard. Showings from Weekly Zillow Stats."
   },
   "agents": {
     "phone-590-4701-590-1765-fax-210-5698-ein-47-1273297-naid-hvnrea3297": {
@@ -32,7 +32,10 @@
       "zillowConversion": null,
       "zillowCost": null,
       "showings": 0,
-      "capContributingTransactions": []
+      "capContributingTransactions": [],
+      "referrals": 0,
+      "referralVolume": 0,
+      "referralTransactions": []
     },
     "sar-509-326-9222-office-mls-id-1311-ubi-603417621-dol-19892": {
       "id": "sar-509-326-9222-office-mls-id-1311-ubi-603417621-dol-19892",
@@ -49,7 +52,10 @@
       "zillowConversion": null,
       "zillowCost": null,
       "showings": 0,
-      "capContributingTransactions": []
+      "capContributingTransactions": [],
+      "referrals": 0,
+      "referralVolume": 0,
+      "referralTransactions": []
     },
     "epique-realty-id-license-58764-wa-license-23015112-ein-85-2153910-hud-11826-pqrlty3912": {
       "id": "epique-realty-id-license-58764-wa-license-23015112-ein-85-2153910-hud-11826-pqrlty3912",
@@ -66,7 +72,10 @@
       "zillowConversion": null,
       "zillowCost": null,
       "showings": 0,
-      "capContributingTransactions": []
+      "capContributingTransactions": [],
+      "referrals": 0,
+      "referralVolume": 0,
+      "referralTransactions": []
     },
     "cambria-henry": {
       "id": "cambria-henry",
@@ -83,7 +92,10 @@
       "zillowConversion": null,
       "zillowCost": null,
       "showings": 0,
-      "capContributingTransactions": []
+      "capContributingTransactions": [],
+      "referrals": 0,
+      "referralVolume": 0,
+      "referralTransactions": []
     },
     "robert-henry": {
       "id": "robert-henry",
@@ -100,7 +112,10 @@
       "zillowConversion": null,
       "zillowCost": null,
       "showings": 0,
-      "capContributingTransactions": []
+      "capContributingTransactions": [],
+      "referrals": 0,
+      "referralVolume": 0,
+      "referralTransactions": []
     },
     "jennifer-tiffany": {
       "id": "jennifer-tiffany",
@@ -117,7 +132,10 @@
       "zillowConversion": null,
       "zillowCost": null,
       "showings": 0,
-      "capContributingTransactions": []
+      "capContributingTransactions": [],
+      "referrals": 0,
+      "referralVolume": 0,
+      "referralTransactions": []
     },
     "desiree-grower-administrative-assistant": {
       "id": "desiree-grower-administrative-assistant",
@@ -134,7 +152,10 @@
       "zillowConversion": null,
       "zillowCost": null,
       "showings": 0,
-      "capContributingTransactions": []
+      "capContributingTransactions": [],
+      "referrals": 0,
+      "referralVolume": 0,
+      "referralTransactions": []
     },
     "alyza-ramirez": {
       "id": "alyza-ramirez",
@@ -151,7 +172,10 @@
       "zillowConversion": null,
       "zillowCost": null,
       "showings": 0,
-      "capContributingTransactions": []
+      "capContributingTransactions": [],
+      "referrals": 0,
+      "referralVolume": 0,
+      "referralTransactions": []
     },
     "rechiel-ferrer": {
       "id": "rechiel-ferrer",
@@ -168,7 +192,10 @@
       "zillowConversion": null,
       "zillowCost": null,
       "showings": 0,
-      "capContributingTransactions": []
+      "capContributingTransactions": [],
+      "referrals": 0,
+      "referralVolume": 0,
+      "referralTransactions": []
     },
     "jeremiah-ferrer": {
       "id": "jeremiah-ferrer",
@@ -185,7 +212,10 @@
       "zillowConversion": null,
       "zillowCost": null,
       "showings": 0,
-      "capContributingTransactions": []
+      "capContributingTransactions": [],
+      "referrals": 0,
+      "referralVolume": 0,
+      "referralTransactions": []
     },
     "jeff-bell": {
       "id": "jeff-bell",
@@ -202,7 +232,10 @@
       "zillowConversion": null,
       "zillowCost": null,
       "showings": 0,
-      "capContributingTransactions": []
+      "capContributingTransactions": [],
+      "referrals": 0,
+      "referralVolume": 0,
+      "referralTransactions": []
     },
     "spokane-office-sar": {
       "id": "spokane-office-sar",
@@ -219,7 +252,10 @@
       "zillowConversion": null,
       "zillowCost": null,
       "showings": 0,
-      "capContributingTransactions": []
+      "capContributingTransactions": [],
+      "referrals": 0,
+      "referralVolume": 0,
+      "referralTransactions": []
     },
     "agent": {
       "id": "agent",
@@ -236,7 +272,10 @@
       "zillowConversion": null,
       "zillowCost": null,
       "showings": 0,
-      "capContributingTransactions": []
+      "capContributingTransactions": [],
+      "referrals": 0,
+      "referralVolume": 0,
+      "referralTransactions": []
     },
     "independent-agent": {
       "id": "independent-agent",
@@ -253,7 +292,10 @@
       "zillowConversion": null,
       "zillowCost": null,
       "showings": 0,
-      "capContributingTransactions": []
+      "capContributingTransactions": [],
+      "referrals": 0,
+      "referralVolume": 0,
+      "referralTransactions": []
     },
     "amy-sparrow": {
       "id": "amy-sparrow",
@@ -327,7 +369,10 @@
           "capContribution": 4374,
           "isSphere": true
         }
-      ]
+      ],
+      "referrals": 0,
+      "referralVolume": 0,
+      "referralTransactions": []
     },
     "andrey-morgunov": {
       "id": "andrey-morgunov",
@@ -344,7 +389,10 @@
       "zillowConversion": null,
       "zillowCost": null,
       "showings": 0,
-      "capContributingTransactions": []
+      "capContributingTransactions": [],
+      "referrals": 0,
+      "referralVolume": 0,
+      "referralTransactions": []
     },
     "andria-sanchez": {
       "id": "andria-sanchez",
@@ -361,7 +409,10 @@
       "zillowConversion": null,
       "zillowCost": null,
       "showings": 0,
-      "capContributingTransactions": []
+      "capContributingTransactions": [],
+      "referrals": 0,
+      "referralVolume": 0,
+      "referralTransactions": []
     },
     "brenden-kichton": {
       "id": "brenden-kichton",
@@ -378,7 +429,10 @@
       "zillowConversion": null,
       "zillowCost": null,
       "showings": 0,
-      "capContributingTransactions": []
+      "capContributingTransactions": [],
+      "referrals": 0,
+      "referralVolume": 0,
+      "referralTransactions": []
     },
     "celeste-jones": {
       "id": "celeste-jones",
@@ -395,7 +449,10 @@
       "zillowConversion": null,
       "zillowCost": null,
       "showings": 0,
-      "capContributingTransactions": []
+      "capContributingTransactions": [],
+      "referrals": 0,
+      "referralVolume": 0,
+      "referralTransactions": []
     },
     "christy-thomas": {
       "id": "christy-thomas",
@@ -412,7 +469,10 @@
       "zillowConversion": null,
       "zillowCost": null,
       "showings": 1,
-      "capContributingTransactions": []
+      "capContributingTransactions": [],
+      "referrals": 0,
+      "referralVolume": 0,
+      "referralTransactions": []
     },
     "corinthia-clary": {
       "id": "corinthia-clary",
@@ -429,7 +489,10 @@
       "zillowConversion": null,
       "zillowCost": null,
       "showings": 0,
-      "capContributingTransactions": []
+      "capContributingTransactions": [],
+      "referrals": 0,
+      "referralVolume": 0,
+      "referralTransactions": []
     },
     "craig-reasoner": {
       "id": "craig-reasoner",
@@ -441,12 +504,15 @@
       "gci": 0,
       "capProgress": 0,
       "activeListings": 1,
-      "cmasCompleted": 0,
+      "cmasCompleted": 1,
       "zillowLeads": 1,
       "zillowConversion": null,
       "zillowCost": null,
       "showings": 0,
-      "capContributingTransactions": []
+      "capContributingTransactions": [],
+      "referrals": 0,
+      "referralVolume": 0,
+      "referralTransactions": []
     },
     "dan-hall": {
       "id": "dan-hall",
@@ -463,7 +529,10 @@
       "zillowConversion": null,
       "zillowCost": null,
       "showings": 0,
-      "capContributingTransactions": []
+      "capContributingTransactions": [],
+      "referrals": 0,
+      "referralVolume": 0,
+      "referralTransactions": []
     },
     "denise-thrasher": {
       "id": "denise-thrasher",
@@ -480,7 +549,10 @@
       "zillowConversion": null,
       "zillowCost": null,
       "showings": 1,
-      "capContributingTransactions": []
+      "capContributingTransactions": [],
+      "referrals": 0,
+      "referralVolume": 0,
+      "referralTransactions": []
     },
     "dennis-isip": {
       "id": "dennis-isip",
@@ -497,7 +569,10 @@
       "zillowConversion": null,
       "zillowCost": null,
       "showings": 0,
-      "capContributingTransactions": []
+      "capContributingTransactions": [],
+      "referrals": 0,
+      "referralVolume": 0,
+      "referralTransactions": []
     },
     "didi-emtman": {
       "id": "didi-emtman",
@@ -529,7 +604,10 @@
           "capContribution": 2730,
           "isSphere": false
         }
-      ]
+      ],
+      "referrals": 0,
+      "referralVolume": 0,
+      "referralTransactions": []
     },
     "emily-polanco": {
       "id": "emily-polanco",
@@ -546,7 +624,10 @@
       "zillowConversion": null,
       "zillowCost": null,
       "showings": 0,
-      "capContributingTransactions": []
+      "capContributingTransactions": [],
+      "referrals": 0,
+      "referralVolume": 0,
+      "referralTransactions": []
     },
     "jazmond-ohmann": {
       "id": "jazmond-ohmann",
@@ -563,7 +644,10 @@
       "zillowConversion": null,
       "zillowCost": null,
       "showings": 0,
-      "capContributingTransactions": []
+      "capContributingTransactions": [],
+      "referrals": 0,
+      "referralVolume": 0,
+      "referralTransactions": []
     },
     "jeffery-kanally": {
       "id": "jeffery-kanally",
@@ -580,7 +664,10 @@
       "zillowConversion": null,
       "zillowCost": null,
       "showings": 0,
-      "capContributingTransactions": []
+      "capContributingTransactions": [],
+      "referrals": 0,
+      "referralVolume": 0,
+      "referralTransactions": []
     },
     "jennifer-riddel": {
       "id": "jennifer-riddel",
@@ -597,7 +684,10 @@
       "zillowConversion": null,
       "zillowCost": null,
       "showings": 0,
-      "capContributingTransactions": []
+      "capContributingTransactions": [],
+      "referrals": 0,
+      "referralVolume": 0,
+      "referralTransactions": []
     },
     "jesse-miller": {
       "id": "jesse-miller",
@@ -614,7 +704,10 @@
       "zillowConversion": null,
       "zillowCost": null,
       "showings": 0,
-      "capContributingTransactions": []
+      "capContributingTransactions": [],
+      "referrals": 0,
+      "referralVolume": 0,
+      "referralTransactions": []
     },
     "jessica-fry": {
       "id": "jessica-fry",
@@ -631,7 +724,10 @@
       "zillowConversion": null,
       "zillowCost": null,
       "showings": 0,
-      "capContributingTransactions": []
+      "capContributingTransactions": [],
+      "referrals": 0,
+      "referralVolume": 0,
+      "referralTransactions": []
     },
     "jessica-marcotte": {
       "id": "jessica-marcotte",
@@ -648,7 +744,10 @@
       "zillowConversion": null,
       "zillowCost": null,
       "showings": 0,
-      "capContributingTransactions": []
+      "capContributingTransactions": [],
+      "referrals": 0,
+      "referralVolume": 0,
+      "referralTransactions": []
     },
     "john-sloan": {
       "id": "john-sloan",
@@ -665,7 +764,10 @@
       "zillowConversion": null,
       "zillowCost": null,
       "showings": 0,
-      "capContributingTransactions": []
+      "capContributingTransactions": [],
+      "referrals": 0,
+      "referralVolume": 0,
+      "referralTransactions": []
     },
     "jose-alexander": {
       "id": "jose-alexander",
@@ -682,7 +784,10 @@
       "zillowConversion": null,
       "zillowCost": null,
       "showings": 0,
-      "capContributingTransactions": []
+      "capContributingTransactions": [],
+      "referrals": 0,
+      "referralVolume": 0,
+      "referralTransactions": []
     },
     "josh-bittner": {
       "id": "josh-bittner",
@@ -699,7 +804,10 @@
       "zillowConversion": null,
       "zillowCost": null,
       "showings": 0,
-      "capContributingTransactions": []
+      "capContributingTransactions": [],
+      "referrals": 0,
+      "referralVolume": 0,
+      "referralTransactions": []
     },
     "justin-smith": {
       "id": "justin-smith",
@@ -716,7 +824,10 @@
       "zillowConversion": null,
       "zillowCost": null,
       "showings": 0,
-      "capContributingTransactions": []
+      "capContributingTransactions": [],
+      "referrals": 0,
+      "referralVolume": 0,
+      "referralTransactions": []
     },
     "kellen-flanigan": {
       "id": "kellen-flanigan",
@@ -733,15 +844,18 @@
       "zillowConversion": null,
       "zillowCost": null,
       "showings": 0,
-      "capContributingTransactions": []
+      "capContributingTransactions": [],
+      "referrals": 0,
+      "referralVolume": 0,
+      "referralTransactions": []
     },
     "kiaya-henry": {
       "id": "kiaya-henry",
       "name": "Kiaya Henry",
       "closedTransactions": 3,
-      "pendingTransactions": 2,
+      "pendingTransactions": 1,
       "closedVolume": 1024250,
-      "pendingVolume": 743858,
+      "pendingVolume": 445000,
       "gci": 0,
       "capProgress": 0,
       "activeListings": 2,
@@ -750,7 +864,10 @@
       "zillowConversion": null,
       "zillowCost": null,
       "showings": 2,
-      "capContributingTransactions": []
+      "capContributingTransactions": [],
+      "referrals": 0,
+      "referralVolume": 0,
+      "referralTransactions": []
     },
     "kimberly-butler": {
       "id": "kimberly-butler",
@@ -767,15 +884,18 @@
       "zillowConversion": null,
       "zillowCost": null,
       "showings": 0,
-      "capContributingTransactions": []
+      "capContributingTransactions": [],
+      "referrals": 0,
+      "referralVolume": 0,
+      "referralTransactions": []
     },
     "kurt-antone-burgan": {
       "id": "kurt-antone-burgan",
       "name": "Kurt Antone Burgan",
       "closedTransactions": 7,
-      "pendingTransactions": 9,
+      "pendingTransactions": 8,
       "closedVolume": 4360945,
-      "pendingVolume": 5537940,
+      "pendingVolume": 4344940,
       "gci": 0,
       "capProgress": 0,
       "activeListings": 9,
@@ -784,7 +904,10 @@
       "zillowConversion": null,
       "zillowCost": null,
       "showings": 0,
-      "capContributingTransactions": []
+      "capContributingTransactions": [],
+      "referrals": 0,
+      "referralVolume": 0,
+      "referralTransactions": []
     },
     "leah-clawson": {
       "id": "leah-clawson",
@@ -801,7 +924,10 @@
       "zillowConversion": null,
       "zillowCost": null,
       "showings": 1,
-      "capContributingTransactions": []
+      "capContributingTransactions": [],
+      "referrals": 0,
+      "referralVolume": 0,
+      "referralTransactions": []
     },
     "lisa-hays": {
       "id": "lisa-hays",
@@ -818,24 +944,30 @@
       "zillowConversion": null,
       "zillowCost": null,
       "showings": 1,
-      "capContributingTransactions": []
+      "capContributingTransactions": [],
+      "referrals": 0,
+      "referralVolume": 0,
+      "referralTransactions": []
     },
     "lori-ruby": {
       "id": "lori-ruby",
       "name": "Lori Ruby",
       "closedTransactions": 0,
-      "pendingTransactions": 1,
+      "pendingTransactions": 2,
       "closedVolume": 0,
-      "pendingVolume": 625000,
+      "pendingVolume": 890000,
       "gci": 0,
       "capProgress": 0,
-      "activeListings": 1,
+      "activeListings": 2,
       "cmasCompleted": 0,
       "zillowLeads": 0,
       "zillowConversion": null,
       "zillowCost": null,
       "showings": 0,
-      "capContributingTransactions": []
+      "capContributingTransactions": [],
+      "referrals": 0,
+      "referralVolume": 0,
+      "referralTransactions": []
     },
     "lui-carrasco": {
       "id": "lui-carrasco",
@@ -852,7 +984,10 @@
       "zillowConversion": null,
       "zillowCost": null,
       "showings": 0,
-      "capContributingTransactions": []
+      "capContributingTransactions": [],
+      "referrals": 0,
+      "referralVolume": 0,
+      "referralTransactions": []
     },
     "maggie-fairbanks": {
       "id": "maggie-fairbanks",
@@ -869,7 +1004,10 @@
       "zillowConversion": null,
       "zillowCost": null,
       "showings": 0,
-      "capContributingTransactions": []
+      "capContributingTransactions": [],
+      "referrals": 0,
+      "referralVolume": 0,
+      "referralTransactions": []
     },
     "marcus-mathews": {
       "id": "marcus-mathews",
@@ -886,7 +1024,10 @@
       "zillowConversion": null,
       "zillowCost": null,
       "showings": 0,
-      "capContributingTransactions": []
+      "capContributingTransactions": [],
+      "referrals": 0,
+      "referralVolume": 0,
+      "referralTransactions": []
     },
     "matt-procter": {
       "id": "matt-procter",
@@ -960,7 +1101,10 @@
           "capContribution": 4374,
           "isSphere": true
         }
-      ]
+      ],
+      "referrals": 0,
+      "referralVolume": 0,
+      "referralTransactions": []
     },
     "natalya-romanov": {
       "id": "natalya-romanov",
@@ -977,7 +1121,10 @@
       "zillowConversion": null,
       "zillowCost": null,
       "showings": 1,
-      "capContributingTransactions": []
+      "capContributingTransactions": [],
+      "referrals": 0,
+      "referralVolume": 0,
+      "referralTransactions": []
     },
     "patrick-fry": {
       "id": "patrick-fry",
@@ -994,7 +1141,10 @@
       "zillowConversion": null,
       "zillowCost": null,
       "showings": 1,
-      "capContributingTransactions": []
+      "capContributingTransactions": [],
+      "referrals": 0,
+      "referralVolume": 0,
+      "referralTransactions": []
     },
     "paula-kamp": {
       "id": "paula-kamp",
@@ -1033,7 +1183,10 @@
           "capContribution": 4612.5,
           "isSphere": false
         }
-      ]
+      ],
+      "referrals": 0,
+      "referralVolume": 0,
+      "referralTransactions": []
     },
     "sage-wehrman": {
       "id": "sage-wehrman",
@@ -1050,14 +1203,17 @@
       "zillowConversion": null,
       "zillowCost": null,
       "showings": 0,
-      "capContributingTransactions": []
+      "capContributingTransactions": [],
+      "referrals": 0,
+      "referralVolume": 0,
+      "referralTransactions": []
     },
     "sandra-pagliaro": {
       "id": "sandra-pagliaro",
       "name": "**Sandra Pagliaro",
-      "closedTransactions": 0,
+      "closedTransactions": 1,
       "pendingTransactions": 0,
-      "closedVolume": 0,
+      "closedVolume": 1100000,
       "pendingVolume": 0,
       "gci": 0,
       "capProgress": 0,
@@ -1067,7 +1223,10 @@
       "zillowConversion": null,
       "zillowCost": null,
       "showings": 0,
-      "capContributingTransactions": []
+      "capContributingTransactions": [],
+      "referrals": 0,
+      "referralVolume": 0,
+      "referralTransactions": []
     },
     "sarah-heywood": {
       "id": "sarah-heywood",
@@ -1084,7 +1243,10 @@
       "zillowConversion": null,
       "zillowCost": null,
       "showings": 0,
-      "capContributingTransactions": []
+      "capContributingTransactions": [],
+      "referrals": 0,
+      "referralVolume": 0,
+      "referralTransactions": []
     },
     "shelby-tidd": {
       "id": "shelby-tidd",
@@ -1101,7 +1263,10 @@
       "zillowConversion": null,
       "zillowCost": null,
       "showings": 0,
-      "capContributingTransactions": []
+      "capContributingTransactions": [],
+      "referrals": 0,
+      "referralVolume": 0,
+      "referralTransactions": []
     },
     "stephanie-komar": {
       "id": "stephanie-komar",
@@ -1118,7 +1283,10 @@
       "zillowConversion": null,
       "zillowCost": null,
       "showings": 0,
-      "capContributingTransactions": []
+      "capContributingTransactions": [],
+      "referrals": 0,
+      "referralVolume": 0,
+      "referralTransactions": []
     },
     "steve-ruby": {
       "id": "steve-ruby",
@@ -1135,7 +1303,10 @@
       "zillowConversion": null,
       "zillowCost": null,
       "showings": 0,
-      "capContributingTransactions": []
+      "capContributingTransactions": [],
+      "referrals": 0,
+      "referralVolume": 0,
+      "referralTransactions": []
     },
     "tamarah-kokinda": {
       "id": "tamarah-kokinda",
@@ -1152,7 +1323,10 @@
       "zillowConversion": null,
       "zillowCost": null,
       "showings": 5,
-      "capContributingTransactions": []
+      "capContributingTransactions": [],
+      "referrals": 0,
+      "referralVolume": 0,
+      "referralTransactions": []
     },
     "terryl-johnson": {
       "id": "terryl-johnson",
@@ -1169,7 +1343,10 @@
       "zillowConversion": null,
       "zillowCost": null,
       "showings": 0,
-      "capContributingTransactions": []
+      "capContributingTransactions": [],
+      "referrals": 0,
+      "referralVolume": 0,
+      "referralTransactions": []
     },
     "trevor-hayden": {
       "id": "trevor-hayden",
@@ -1186,7 +1363,10 @@
       "zillowConversion": null,
       "zillowCost": null,
       "showings": 0,
-      "capContributingTransactions": []
+      "capContributingTransactions": [],
+      "referrals": 0,
+      "referralVolume": 0,
+      "referralTransactions": []
     },
     "cda-agents-car-418-e-lakeside-ave-ste-224-h-cda-83814-car-208-667-0664-epique-lic-co58764-mls-epq": {
       "id": "cda-agents-car-418-e-lakeside-ave-ste-224-h-cda-83814-car-208-667-0664-epique-lic-co58764-mls-epq",
@@ -1203,7 +1383,10 @@
       "zillowConversion": null,
       "zillowCost": null,
       "showings": 0,
-      "capContributingTransactions": []
+      "capContributingTransactions": [],
+      "referrals": 0,
+      "referralVolume": 0,
+      "referralTransactions": []
     },
     "id-epique-office": {
       "id": "id-epique-office",
@@ -1220,7 +1403,10 @@
       "zillowConversion": null,
       "zillowCost": null,
       "showings": 0,
-      "capContributingTransactions": []
+      "capContributingTransactions": [],
+      "referrals": 0,
+      "referralVolume": 0,
+      "referralTransactions": []
     },
     "kyle-flory": {
       "id": "kyle-flory",
@@ -1237,7 +1423,10 @@
       "zillowConversion": null,
       "zillowCost": null,
       "showings": 0,
-      "capContributingTransactions": []
+      "capContributingTransactions": [],
+      "referrals": 0,
+      "referralVolume": 0,
+      "referralTransactions": []
     },
     "monty-yeager": {
       "id": "monty-yeager",
@@ -1254,7 +1443,10 @@
       "zillowConversion": null,
       "zillowCost": null,
       "showings": 0,
-      "capContributingTransactions": []
+      "capContributingTransactions": [],
+      "referrals": 0,
+      "referralVolume": 0,
+      "referralTransactions": []
     },
     "sandpoint-agents-229-pine-st-sandpoint-id-83864-208-290-9380-epique-lic-co58764-mls-selkirk": {
       "id": "sandpoint-agents-229-pine-st-sandpoint-id-83864-208-290-9380-epique-lic-co58764-mls-selkirk",
@@ -1271,7 +1463,10 @@
       "zillowConversion": null,
       "zillowCost": null,
       "showings": 0,
-      "capContributingTransactions": []
+      "capContributingTransactions": [],
+      "referrals": 0,
+      "referralVolume": 0,
+      "referralTransactions": []
     },
     "jeff-howland": {
       "id": "jeff-howland",
@@ -1288,7 +1483,10 @@
       "zillowConversion": null,
       "zillowCost": null,
       "showings": 0,
-      "capContributingTransactions": []
+      "capContributingTransactions": [],
+      "referrals": 0,
+      "referralVolume": 0,
+      "referralTransactions": []
     },
     "lisa-hazan": {
       "id": "lisa-hazan",
@@ -1305,7 +1503,10 @@
       "zillowConversion": null,
       "zillowCost": null,
       "showings": 0,
-      "capContributingTransactions": []
+      "capContributingTransactions": [],
+      "referrals": 0,
+      "referralVolume": 0,
+      "referralTransactions": []
     }
   },
   "leaderboard": [
@@ -1317,7 +1518,9 @@
       "closedTransactions": 8,
       "pendingTransactions": 6,
       "gci": 0,
-      "capProgress": 0
+      "capProgress": 0,
+      "referrals": 0,
+      "referralVolume": 0
     },
     {
       "rank": 2,
@@ -1325,9 +1528,11 @@
       "agentName": "Kurt Antone Burgan",
       "closedVolume": 4360945,
       "closedTransactions": 7,
-      "pendingTransactions": 9,
+      "pendingTransactions": 8,
       "gci": 0,
-      "capProgress": 0
+      "capProgress": 0,
+      "referrals": 0,
+      "referralVolume": 0
     },
     {
       "rank": 3,
@@ -1337,7 +1542,9 @@
       "closedTransactions": 12,
       "pendingTransactions": 2,
       "gci": 0,
-      "capProgress": 0
+      "capProgress": 0,
+      "referrals": 0,
+      "referralVolume": 0
     },
     {
       "rank": 4,
@@ -1347,7 +1554,9 @@
       "closedTransactions": 11,
       "pendingTransactions": 2,
       "gci": 0,
-      "capProgress": 5378.75
+      "capProgress": 5378.75,
+      "referrals": 0,
+      "referralVolume": 0
     },
     {
       "rank": 5,
@@ -1357,7 +1566,9 @@
       "closedTransactions": 5,
       "pendingTransactions": 1,
       "gci": 0,
-      "capProgress": 0
+      "capProgress": 0,
+      "referrals": 0,
+      "referralVolume": 0
     },
     {
       "rank": 6,
@@ -1367,7 +1578,9 @@
       "closedTransactions": 6,
       "pendingTransactions": 2,
       "gci": 0,
-      "capProgress": 55009.7
+      "capProgress": 55009.7,
+      "referrals": 0,
+      "referralVolume": 0
     },
     {
       "rank": 7,
@@ -1377,7 +1590,9 @@
       "closedTransactions": 5,
       "pendingTransactions": 2,
       "gci": 0,
-      "capProgress": 10255.43
+      "capProgress": 10255.43,
+      "referrals": 0,
+      "referralVolume": 0
     },
     {
       "rank": 8,
@@ -1387,7 +1602,9 @@
       "closedTransactions": 4,
       "pendingTransactions": 1,
       "gci": 0,
-      "capProgress": 55009.7
+      "capProgress": 55009.7,
+      "referrals": 0,
+      "referralVolume": 0
     },
     {
       "rank": 9,
@@ -1397,7 +1614,9 @@
       "closedTransactions": 5,
       "pendingTransactions": 0,
       "gci": 0,
-      "capProgress": 0
+      "capProgress": 0,
+      "referrals": 0,
+      "referralVolume": 0
     },
     {
       "rank": 10,
@@ -1407,7 +1626,9 @@
       "closedTransactions": 3,
       "pendingTransactions": 2,
       "gci": 0,
-      "capProgress": 0
+      "capProgress": 0,
+      "referrals": 0,
+      "referralVolume": 0
     },
     {
       "rank": 11,
@@ -1417,7 +1638,9 @@
       "closedTransactions": 5,
       "pendingTransactions": 5,
       "gci": 0,
-      "capProgress": 0
+      "capProgress": 0,
+      "referrals": 0,
+      "referralVolume": 0
     },
     {
       "rank": 12,
@@ -1427,7 +1650,9 @@
       "closedTransactions": 4,
       "pendingTransactions": 0,
       "gci": 0,
-      "capProgress": 0
+      "capProgress": 0,
+      "referrals": 0,
+      "referralVolume": 0
     },
     {
       "rank": 13,
@@ -1437,7 +1662,9 @@
       "closedTransactions": 3,
       "pendingTransactions": 1,
       "gci": 0,
-      "capProgress": 0
+      "capProgress": 0,
+      "referrals": 0,
+      "referralVolume": 0
     },
     {
       "rank": 14,
@@ -1447,162 +1674,206 @@
       "closedTransactions": 4,
       "pendingTransactions": 2,
       "gci": 0,
-      "capProgress": 0
+      "capProgress": 0,
+      "referrals": 0,
+      "referralVolume": 0
     },
     {
       "rank": 15,
+      "agentId": "sandra-pagliaro",
+      "agentName": "**Sandra Pagliaro",
+      "closedVolume": 1100000,
+      "closedTransactions": 1,
+      "pendingTransactions": 0,
+      "gci": 0,
+      "capProgress": 0,
+      "referrals": 0,
+      "referralVolume": 0
+    },
+    {
+      "rank": 16,
       "agentId": "marcus-mathews",
       "agentName": "Marcus Mathews",
       "closedVolume": 1045000,
       "closedTransactions": 2,
       "pendingTransactions": 5,
       "gci": 0,
-      "capProgress": 0
+      "capProgress": 0,
+      "referrals": 0,
+      "referralVolume": 0
     },
     {
-      "rank": 16,
+      "rank": 17,
       "agentId": "kiaya-henry",
       "agentName": "Kiaya Henry",
       "closedVolume": 1024250,
       "closedTransactions": 3,
-      "pendingTransactions": 2,
+      "pendingTransactions": 1,
       "gci": 0,
-      "capProgress": 0
+      "capProgress": 0,
+      "referrals": 0,
+      "referralVolume": 0
     },
     {
-      "rank": 17,
+      "rank": 18,
       "agentId": "sarah-heywood",
       "agentName": "Sarah Heywood",
       "closedVolume": 985000,
       "closedTransactions": 2,
       "pendingTransactions": 1,
       "gci": 0,
-      "capProgress": 0
+      "capProgress": 0,
+      "referrals": 0,
+      "referralVolume": 0
     },
     {
-      "rank": 18,
+      "rank": 19,
       "agentId": "denise-thrasher",
       "agentName": "Denise Thrasher",
       "closedVolume": 976900,
       "closedTransactions": 3,
       "pendingTransactions": 1,
       "gci": 0,
-      "capProgress": 0
+      "capProgress": 0,
+      "referrals": 0,
+      "referralVolume": 0
     },
     {
-      "rank": 19,
+      "rank": 20,
       "agentId": "kellen-flanigan",
       "agentName": "Kellen Flanigan",
       "closedVolume": 565000,
       "closedTransactions": 1,
       "pendingTransactions": 1,
       "gci": 0,
-      "capProgress": 0
+      "capProgress": 0,
+      "referrals": 0,
+      "referralVolume": 0
     },
     {
-      "rank": 20,
+      "rank": 21,
       "agentId": "jose-alexander",
       "agentName": "Jose Alexander",
       "closedVolume": 419000,
       "closedTransactions": 2,
       "pendingTransactions": 3,
       "gci": 0,
-      "capProgress": 0
+      "capProgress": 0,
+      "referrals": 0,
+      "referralVolume": 0
     },
     {
-      "rank": 21,
+      "rank": 22,
       "agentId": "justin-smith",
       "agentName": "Justin Smith",
       "closedVolume": 329000,
       "closedTransactions": 1,
       "pendingTransactions": 4,
       "gci": 0,
-      "capProgress": 0
+      "capProgress": 0,
+      "referrals": 0,
+      "referralVolume": 0
     },
     {
-      "rank": 22,
+      "rank": 23,
       "agentId": "patrick-fry",
       "agentName": "Patrick Fry",
       "closedVolume": 299900,
       "closedTransactions": 1,
       "pendingTransactions": 1,
       "gci": 0,
-      "capProgress": 0
+      "capProgress": 0,
+      "referrals": 0,
+      "referralVolume": 0
     },
     {
-      "rank": 23,
+      "rank": 24,
       "agentId": "craig-reasoner",
       "agentName": "Craig Reasoner",
       "closedVolume": 0,
       "closedTransactions": 0,
       "pendingTransactions": 1,
       "gci": 0,
-      "capProgress": 0
+      "capProgress": 0,
+      "referrals": 0,
+      "referralVolume": 0
     },
     {
-      "rank": 24,
+      "rank": 25,
       "agentId": "jazmond-ohmann",
       "agentName": "Jazmond Ohmann",
       "closedVolume": 0,
       "closedTransactions": 0,
       "pendingTransactions": 1,
       "gci": 0,
-      "capProgress": 0
+      "capProgress": 0,
+      "referrals": 0,
+      "referralVolume": 0
     },
     {
-      "rank": 25,
+      "rank": 26,
       "agentId": "jessica-fry",
       "agentName": "Jessica Fry",
       "closedVolume": 0,
       "closedTransactions": 0,
       "pendingTransactions": 1,
       "gci": 0,
-      "capProgress": 0
+      "capProgress": 0,
+      "referrals": 0,
+      "referralVolume": 0
     },
     {
-      "rank": 26,
+      "rank": 27,
       "agentId": "lori-ruby",
       "agentName": "Lori Ruby",
       "closedVolume": 0,
       "closedTransactions": 0,
-      "pendingTransactions": 1,
+      "pendingTransactions": 2,
       "gci": 0,
-      "capProgress": 0
+      "capProgress": 0,
+      "referrals": 0,
+      "referralVolume": 0
     },
     {
-      "rank": 27,
+      "rank": 28,
       "agentId": "shelby-tidd",
       "agentName": "Shelby Tidd",
       "closedVolume": 0,
       "closedTransactions": 0,
       "pendingTransactions": 2,
       "gci": 0,
-      "capProgress": 0
+      "capProgress": 0,
+      "referrals": 0,
+      "referralVolume": 0
     },
     {
-      "rank": 28,
+      "rank": 29,
       "agentId": "monty-yeager",
       "agentName": "Monty Yeager",
       "closedVolume": 0,
       "closedTransactions": 0,
       "pendingTransactions": 1,
       "gci": 0,
-      "capProgress": 0
+      "capProgress": 0,
+      "referrals": 0,
+      "referralVolume": 0
     }
   ],
   "teamStats": {
     "totalAgents": 67,
-    "totalClosedTransactions": 97,
-    "totalClosedVolume": 41172197,
-    "totalPendingTransactions": 60,
-    "totalPendingVolume": 31092636,
-    "totalActiveListings": 62,
-    "totalCmasCompleted": 38,
+    "totalClosedTransactions": 98,
+    "totalClosedVolume": 42272197,
+    "totalPendingTransactions": 59,
+    "totalPendingVolume": 29865778,
+    "totalActiveListings": 63,
+    "totalCmasCompleted": 39,
     "totalShowings": 17,
     "avgZillowConversion": 0,
     "totalZillowLeads": 81,
     "totalZillowCost": 0,
     "totalCapContributions": 125653.57999999999,
-    "totalGCI": 0
+    "totalGCI": 0,
+    "totalReferrals": 0,
+    "totalReferralVolume": 0
   }
 }

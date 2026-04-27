@@ -251,7 +251,10 @@ async function loadClosedTransactions(roster) {
     if (!rosterAgentId) continue;
     
     // Use correct column names from Master Closed 2026 sheet
-    const price = parseCurrency(row['Team Purchase Price'] || row['PRICE'] || row['price']);
+    // Check BOTH Team Purchase Price and Independent Purchase Price columns
+    const teamPrice = parseCurrency(row['Team Purchase Price']);
+    const independentPrice = parseCurrency(row['Independent Purchase Price']);
+    const price = teamPrice || independentPrice || parseCurrency(row['PRICE']) || parseCurrency(row['price']);
     if (!price) continue;
     
     const address = row['Address'] || row['ADDRESS'] || row['address'] || 'Unknown';
@@ -526,6 +529,9 @@ function createEmptyAgent(name, id) {
     zillowCost: null,
     showings: 0,
     capContributingTransactions: [],
+    referrals: 0,
+    referralVolume: 0,
+    referralTransactions: [],
   };
 }
 
@@ -542,6 +548,8 @@ function buildLeaderboard(agents) {
       pendingTransactions: agent.pendingTransactions,
       gci: agent.gci,
       capProgress: agent.capProgress,
+      referrals: agent.referrals,
+      referralVolume: agent.referralVolume,
     }));
 }
 
@@ -561,6 +569,8 @@ function calculateTeamStats(agents) {
     totalZillowCost: 0,
     totalCapContributions: values.reduce((sum, a) => sum + a.capProgress, 0),
     totalGCI: values.reduce((sum, a) => sum + a.gci, 0),
+    totalReferrals: values.reduce((sum, a) => sum + (a.referrals || 0), 0),
+    totalReferralVolume: values.reduce((sum, a) => sum + (a.referralVolume || 0), 0),
   };
 }
 
@@ -613,6 +623,24 @@ async function main() {
       agent.pendingVolume += txn.price;
     }
     if (txn.isZillow) agent.zillowLeads += 1;
+    
+    // Track referrals (closed transactions only)
+    if (txn.status === 'closed' && txn.isReferral) {
+      agent.referrals = (agent.referrals || 0) + 1;
+      agent.referralVolume = (agent.referralVolume || 0) + txn.price;
+      if (!agent.referralTransactions) agent.referralTransactions = [];
+      agent.referralTransactions.push({
+        transactionId: txn.id,
+        address: txn.address,
+        closedDate: txn.closedDate,
+        purchasePrice: txn.price,
+        referralFee: txn.referralFee,
+        referralSource: txn.referralSource || 'Unknown',
+        isZillowFlex: txn.isZillowFlex,
+        isRedfin: txn.isRedfin,
+        isSphere: txn.isSphere,
+      });
+    }
   }
   
   for (const [agentId, count] of Object.entries(listingsByAgent)) {

@@ -42,6 +42,9 @@ export interface AgentSnapshot {
   gci: number;
   capProgress: number;
   capContributingTransactions?: CapContribution[];
+  referrals?: number;
+  referralVolume?: number;
+  referralTransactions?: ReferralTransaction[];
 }
 
 export interface CapContribution {
@@ -53,6 +56,18 @@ export interface CapContribution {
   capContribution: number;
   isSphere: boolean;
   notes?: string;
+}
+
+export interface ReferralTransaction {
+  transactionId: string;
+  address: string;
+  closedDate?: string;
+  purchasePrice: number;
+  referralFee?: number;
+  referralSource: string;
+  isZillowFlex?: boolean;
+  isRedfin?: boolean;
+  isSphere?: boolean;
 }
 
 export interface TransactionRecord {
@@ -70,6 +85,12 @@ export interface TransactionRecord {
   capContribution?: number;
   agentId: string;
   agentName: string;
+  // Referral tracking
+  isReferral?: boolean;
+  referralSource?: string;
+  referralFee?: number;
+  isZillowFlex?: boolean;
+  isRedfin?: boolean;
 }
 
 export interface LeaderboardEntry {
@@ -81,6 +102,8 @@ export interface LeaderboardEntry {
   pendingTransactions: number;
   gci: number;
   capProgress: number;
+  referrals?: number;
+  referralVolume?: number;
 }
 
 export interface TeamStats {
@@ -96,6 +119,8 @@ export interface TeamStats {
   totalZillowCost: number;
   totalCapContributions: number;
   totalGCI?: number;
+  totalReferrals?: number;
+  totalReferralVolume?: number;
 }
 
 const SNAPSHOTS_DIR = path.join(process.cwd(), 'data', 'snapshots');

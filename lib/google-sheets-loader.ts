@@ -21,10 +21,12 @@ import {
   TransactionRecord,
   SnapshotMetadata,
   CapContribution,
+  ReferralTransaction,
   generateSnapshotId,
   getWeekDates,
   CAP_MAX,
 } from './snapshot';
+import { parseReferralIndicators, createReferralTransaction } from './referral-utils';
 
 export interface TimeWindowStats {
   weekly: MetricRollup;
@@ -298,6 +300,9 @@ async function loadClosedTransactions(roster: Map<string, string>): Promise<Tran
     const leadSource = (row['Lead Generated'] || row['lead source'] || row['Lead Source'] || '') as string;
     const havenIncome = parseCurrency(row['Haven Income'] || row['GCI'] || row['gci']) || 0;
     
+    // Parse referral indicators
+    const referralIndicators = parseReferralIndicators(row);
+    
     const dedupeKey = `${normalizedAddress}|${matchKey}|${price}|${closingDate.toISOString().split('T')[0]}`;
     
     if (seenTransactions.has(dedupeKey)) continue;
@@ -315,6 +320,12 @@ async function loadClosedTransactions(roster: Map<string, string>): Promise<Tran
       gci: havenIncome,
       leadSource,
       isZillow: leadSource.toLowerCase().includes('zillow'),
+      isReferral: referralIndicators.isReferral,
+      referralSource: referralIndicators.referralSource,
+      referralFee: referralIndicators.referralFee,
+      isZillowFlex: referralIndicators.isZillowFlex,
+      isRedfin: referralIndicators.isRedfin,
+      isSphere: referralIndicators.isSphere,
     };
     
     seenTransactions.set(dedupeKey, transaction);
@@ -378,6 +389,9 @@ async function loadPendingTransactions(roster: Map<string, string>, closedTransa
     const leadSource = (row['Lead Generated'] || row['lead source'] || row['Lead Source'] || '') as string;
     const havenIncome = parseCurrency(row['Haven Income'] || row['GCI'] || row['gci']) || 0;
     
+    // Parse referral indicators
+    const referralIndicators = parseReferralIndicators(row);
+    
     const pendingDedupeKey = `${normalizedAddress}|${matchKey}|${price}`;
     if (seenTransactions.has(pendingDedupeKey)) continue;
     if (closedSignatures.has(pendingDedupeKey)) continue;
@@ -398,6 +412,12 @@ async function loadPendingTransactions(roster: Map<string, string>, closedTransa
       gci: havenIncome,
       leadSource,
       isZillow: leadSource.toLowerCase().includes('zillow'),
+      isReferral: referralIndicators.isReferral,
+      referralSource: referralIndicators.referralSource,
+      referralFee: referralIndicators.referralFee,
+      isZillowFlex: referralIndicators.isZillowFlex,
+      isRedfin: referralIndicators.isRedfin,
+      isSphere: referralIndicators.isSphere,
     };
     
     seenTransactions.add(pendingDedupeKey);
@@ -519,6 +539,27 @@ export async function loadFromGoogleSheets(): Promise<LoadResult> {
       
       if (txn.isZillow) {
         agent.zillowLeads += 1;
+      }
+      
+      // Track referrals (closed transactions only)
+      if (txn.status === 'closed' && txn.isReferral) {
+        agent.referrals = (agent.referrals || 0) + 1;
+        agent.referralVolume = (agent.referralVolume || 0) + txn.price;
+        if (!agent.referralTransactions) agent.referralTransactions = [];
+        agent.referralTransactions.push(createReferralTransaction(
+          txn.id,
+          txn.address,
+          txn.closedDate,
+          txn.price,
+          {
+            isReferral: txn.isReferral || false,
+            referralSource: txn.referralSource || 'Unknown',
+            referralFee: txn.referralFee,
+            isZillowFlex: txn.isZillowFlex || false,
+            isRedfin: txn.isRedfin || false,
+            isSphere: txn.isSphere || false,
+          }
+        ));
       }
     }
     
@@ -683,6 +724,9 @@ function createEmptyAgent(name: string, id?: string): AgentSnapshot {
     zillowConversion: null,
     zillowCost: null,
     capContributingTransactions: [],
+    referrals: 0,
+    referralVolume: 0,
+    referralTransactions: [],
   };
 }
 
@@ -699,6 +743,8 @@ function buildLeaderboard(agents: Record<string, AgentSnapshot>): LeaderboardEnt
       pendingTransactions: agent.pendingTransactions,
       gci: agent.gci,
       capProgress: agent.capProgress,
+      referrals: agent.referrals,
+      referralVolume: agent.referralVolume,
     }));
 }
 
@@ -717,7 +763,9 @@ function calculateTeamStats(agents: Record<string, AgentSnapshot>): TeamStats {
     totalZillowCost: values.reduce((sum, a) => sum + (a.zillowCost || 0), 0),
     totalCapContributions: values.reduce((sum, a) => sum + a.capProgress, 0),
     totalGCI: values.reduce((sum, a) => sum + a.gci, 0),
-  } as TeamStats & { totalGCI: number };
+    totalReferrals: values.reduce((sum, a) => sum + (a.referrals || 0), 0),
+    totalReferralVolume: values.reduce((sum, a) => sum + (a.referralVolume || 0), 0),
+  } as TeamStats & { totalGCI: number; totalReferrals: number; totalReferralVolume: number };
 }
 
 function isValidAgentName(name: string): boolean {
