@@ -256,7 +256,7 @@ export default function AgentDashboard() {
             <section className="mb-8 grid gap-6 xl:grid-cols-[1fr_380px]">
               <div className="rounded-[2rem] border border-white/70 bg-white/85 p-6 shadow-[0_30px_80px_-35px_rgba(15,23,42,0.24)] backdrop-blur">
                 <div className="mb-6">
-                  <p className="text-sm font-semibold uppercase tracking-[0.24em] text-slate-500">Team race</p>
+                  <p className="text-sm font-semibold uppercase tracking-[0.24em] text-slate-500">Leaderboard</p>
                   <h2 className="mt-2 text-2xl font-semibold text-slate-950">Leaderboard - Closed Transactions</h2>
                   <p className="mt-2 text-sm text-slate-600">You see your position highlighted. Other positions are anonymous to protect privacy.</p>
                 </div>

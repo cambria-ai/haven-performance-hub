@@ -1,7 +1,7 @@
 {
   "metadata": {
-    "id": "snapshot-2026-04-27-13-43",
-    "createdAt": "2026-04-27T20:43:09.773Z",
+    "id": "snapshot-2026-04-27-14-6",
+    "createdAt": "2026-04-27T21:06:00.954Z",
     "uploadedBy": "clean-room-rebuild",
     "sourceFiles": [
       "Haven Transactions 2026",
@@ -436,20 +436,9 @@
       "zillowCost": null,
       "showings": 0,
       "capContributingTransactions": [],
-      "referrals": 9,
-      "referralVolume": 2667400,
+      "referrals": 8,
+      "referralVolume": 2271400,
       "referralTransactions": [
-        {
-          "transactionId": "closed-andrey-morgunov-13510-w-farwell-rd-2026-01-20T08:00:00.000Z",
-          "address": "13510 W Farwell Rd",
-          "closedDate": "2026-01-20T08:00:00.000Z",
-          "purchasePrice": 396000,
-          "referralFee": 3465,
-          "referralSource": "Zillow Flex Referral",
-          "isZillowFlex": true,
-          "isRedfin": false,
-          "isSphere": false
-        },
         {
           "transactionId": "closed-andrey-morgunov-40920-hillside-dr-2026-02-03T08:00:00.000Z",
           "address": "40920 Hillside Dr",
@@ -756,43 +745,9 @@
       "zillowCost": null,
       "showings": 1,
       "capContributingTransactions": [],
-      "referrals": 3,
-      "referralVolume": 976900,
-      "referralTransactions": [
-        {
-          "transactionId": "closed-denise-thrasher-11818-e-26th-ave-2026-01-07T08:00:00.000Z",
-          "address": "11818 E 26th Ave",
-          "closedDate": "2026-01-07T08:00:00.000Z",
-          "purchasePrice": 515000,
-          "referralFee": 6180,
-          "referralSource": "Zillow Flex Referral",
-          "isZillowFlex": true,
-          "isRedfin": false,
-          "isSphere": false
-        },
-        {
-          "transactionId": "closed-denise-thrasher-0-paradise-point-rd-2026-02-20T08:00:00.000Z",
-          "address": "0 Paradise Point Rd",
-          "closedDate": "2026-02-20T08:00:00.000Z",
-          "purchasePrice": 19900,
-          "referralFee": 149.25,
-          "referralSource": "Zillow Flex Referral",
-          "isZillowFlex": true,
-          "isRedfin": false,
-          "isSphere": false
-        },
-        {
-          "transactionId": "closed-denise-thrasher-10820-e-22nd-ave-2026-04-03T07:00:00.000Z",
-          "address": "10820 E 22nd Ave",
-          "closedDate": "2026-04-03T07:00:00.000Z",
-          "purchasePrice": 442000,
-          "referralFee": 3536,
-          "referralSource": "Zillow Flex Referral",
-          "isZillowFlex": true,
-          "isRedfin": false,
-          "isSphere": false
-        }
-      ],
+      "referrals": 0,
+      "referralVolume": 0,
+      "referralTransactions": [],
       "pendingTransactionsDetail": [
         {
           "transactionId": "pend-denise-thrasher-2830-w-westover-rd-2026-04-03T07:00:00.000Z",
@@ -865,8 +820,8 @@
           "isSphere": false
         }
       ],
-      "referrals": 11,
-      "referralVolume": 3831250,
+      "referrals": 5,
+      "referralVolume": 1653500,
       "referralTransactions": [
         {
           "transactionId": "closed-didi-emtman-4217-n-normandie-st-2026-01-15T08:00:00.000Z",
@@ -891,17 +846,6 @@
           "isSphere": true
         },
         {
-          "transactionId": "closed-didi-emtman-11610-e-rivercrest-dr-2026-02-20T08:00:00.000Z",
-          "address": "11610 E Rivercrest Dr",
-          "closedDate": "2026-02-20T08:00:00.000Z",
-          "purchasePrice": 478750,
-          "referralFee": 4787.5,
-          "referralSource": "Zillow Flex Referral",
-          "isZillowFlex": true,
-          "isRedfin": false,
-          "isSphere": false
-        },
-        {
           "transactionId": "closed-didi-emtman-18307-w-barker-rd-2026-02-24T08:00:00.000Z",
           "address": "18307 W Barker Rd",
           "closedDate": "2026-02-24T08:00:00.000Z",
@@ -913,28 +857,6 @@
           "isSphere": false
         },
         {
-          "transactionId": "closed-didi-emtman-13405-e-sprague-avenueue,-2026-02-24T08:00:00.000Z",
-          "address": "13405 E Sprague Ave, #B103",
-          "closedDate": "2026-02-24T08:00:00.000Z",
-          "purchasePrice": 275000,
-          "referralFee": 2062.5,
-          "referralSource": "Zillow Flex Referral",
-          "isZillowFlex": true,
-          "isRedfin": false,
-          "isSphere": false
-        },
-        {
-          "transactionId": "closed-didi-emtman-3730-w-rosamond-ave-2026-02-25T08:00:00.000Z",
-          "address": "3730 W Rosamond Ave",
-          "closedDate": "2026-02-25T08:00:00.000Z",
-          "purchasePrice": 431500,
-          "referralFee": 5178,
-          "referralSource": "Zillow Flex Referral",
-          "isZillowFlex": true,
-          "isRedfin": false,
-          "isSphere": false
-        },
-        {
           "transactionId": "closed-didi-emtman-1xx-tennant-rd-2026-03-20T07:00:00.000Z",
           "address": "1xx Tennant Rd",
           "closedDate": "2026-03-20T07:00:00.000Z",
@@ -942,39 +864,6 @@
           "referralFee": 0,
           "referralSource": "Personal Referral",
           "isZillowFlex": false,
-          "isRedfin": false,
-          "isSphere": false
-        },
-        {
-          "transactionId": "closed-didi-emtman-1314-e-joseph-ave-2026-03-24T07:00:00.000Z",
-          "address": "1314 E Joseph Ave",
-          "closedDate": "2026-03-24T07:00:00.000Z",
-          "purchasePrice": 235000,
-          "referralFee": 2115,
-          "referralSource": "Zillow Flex Referral",
-          "isZillowFlex": true,
-          "isRedfin": false,
-          "isSphere": false
-        },
-        {
-          "transactionId": "closed-didi-emtman-512-s-thierman-rd-2026-04-17T07:00:00.000Z",
-          "address": "512 S Thierman Rd",
-          "closedDate": "2026-04-17T07:00:00.000Z",
-          "purchasePrice": 350000,
-          "referralFee": 3675,
-          "referralSource": "Zillow Flex Referral",
-          "isZillowFlex": true,
-          "isRedfin": false,
-          "isSphere": false
-        },
-        {
-          "transactionId": "closed-didi-emtman-1110-w-queen-ave-2026-04-17T07:00:00.000Z",
-          "address": "1110 W Queen Ave",
-          "closedDate": "2026-04-17T07:00:00.000Z",
-          "purchasePrice": 407500,
-          "referralFee": 4075,
-          "referralSource": "Zillow Flex Referral",
-          "isZillowFlex": true,
           "isRedfin": false,
           "isSphere": false
         },
@@ -1043,42 +932,9 @@
       "zillowCost": null,
       "showings": 0,
       "capContributingTransactions": [],
-      "referrals": 7,
-      "referralVolume": 4024900,
+      "referrals": 4,
+      "referralVolume": 1734900,
       "referralTransactions": [
-        {
-          "transactionId": "closed-emily-polanco-5045-w-cougar-gulch-rd-2026-01-02T08:00:00.000Z",
-          "address": "5045 W Cougar Gulch Rd",
-          "closedDate": "2026-01-02T08:00:00.000Z",
-          "purchasePrice": 1445000,
-          "referralFee": 14450,
-          "referralSource": "Zillow Flex Referral",
-          "isZillowFlex": true,
-          "isRedfin": false,
-          "isSphere": false
-        },
-        {
-          "transactionId": "closed-emily-polanco-2542-rocky-gorge-rd-2026-02-04T08:00:00.000Z",
-          "address": "2542 Rocky Gorge Rd",
-          "closedDate": "2026-02-04T08:00:00.000Z",
-          "purchasePrice": 460000,
-          "referralFee": 5520,
-          "referralSource": "Zillow Flex Referral",
-          "isZillowFlex": true,
-          "isRedfin": false,
-          "isSphere": false
-        },
-        {
-          "transactionId": "closed-emily-polanco-108-n-clinton-rd-2026-02-25T08:00:00.000Z",
-          "address": "108 N Clinton Rd",
-          "closedDate": "2026-02-25T08:00:00.000Z",
-          "purchasePrice": 385000,
-          "referralFee": 3368.75,
-          "referralSource": "Zillow Flex Referral",
-          "isZillowFlex": true,
-          "isRedfin": false,
-          "isSphere": false
-        },
         {
           "transactionId": "closed-emily-polanco-2818-e-33rd-ave-2026-03-13T07:00:00.000Z",
           "address": "2818 E 33rd Ave",
@@ -1305,43 +1161,9 @@
       "zillowCost": null,
       "showings": 0,
       "capContributingTransactions": [],
-      "referrals": 3,
-      "referralVolume": 1434900,
-      "referralTransactions": [
-        {
-          "transactionId": "closed-jennifer-riddel-6571-kate-dr-2026-02-06T08:00:00.000Z",
-          "address": "6571 Kate Dr",
-          "closedDate": "2026-02-06T08:00:00.000Z",
-          "purchasePrice": 649900,
-          "referralFee": 7798.8,
-          "referralSource": "Zillow Flex Referral",
-          "isZillowFlex": true,
-          "isRedfin": false,
-          "isSphere": false
-        },
-        {
-          "transactionId": "closed-jennifer-riddel-18103-n-colton-st-2026-02-06T08:00:00.000Z",
-          "address": "18103 N Colton St",
-          "closedDate": "2026-02-06T08:00:00.000Z",
-          "purchasePrice": 400000,
-          "referralFee": 4800,
-          "referralSource": "Zillow Flex Referral",
-          "isZillowFlex": true,
-          "isRedfin": false,
-          "isSphere": false
-        },
-        {
-          "transactionId": "closed-jennifer-riddel-13013-e-22nd-ave-2026-04-23T07:00:00.000Z",
-          "address": "13013 E 22nd Ave",
-          "closedDate": "2026-04-23T07:00:00.000Z",
-          "purchasePrice": 385000,
-          "referralFee": 4042.5,
-          "referralSource": "Zillow Flex Referral",
-          "isZillowFlex": true,
-          "isRedfin": false,
-          "isSphere": false
-        }
-      ],
+      "referrals": 0,
+      "referralVolume": 0,
+      "referralTransactions": [],
       "pendingTransactionsDetail": [
         {
           "transactionId": "pend-jennifer-riddel-5566-w-mckenzie-woolard-rd-2026-04-12T07:00:00.000Z",
@@ -1378,20 +1200,9 @@
       "zillowCost": null,
       "showings": 0,
       "capContributingTransactions": [],
-      "referrals": 2,
-      "referralVolume": 777900,
+      "referrals": 1,
+      "referralVolume": 699900,
       "referralTransactions": [
-        {
-          "transactionId": "closed-jesse-miller-3547-n-baron-ct-2026-01-08T08:00:00.000Z",
-          "address": "3547 N Baron Ct",
-          "closedDate": "2026-01-08T08:00:00.000Z",
-          "purchasePrice": 78000,
-          "referralFee": 338.4,
-          "referralSource": "Zillow Flex Referral",
-          "isZillowFlex": true,
-          "isRedfin": false,
-          "isSphere": false
-        },
         {
           "transactionId": "closed-jesse-miller-16511-w-rolling-hills-ln-2026-02-19T08:00:00.000Z",
           "address": "16511 W Rolling Hills Ln",
@@ -1589,8 +1400,8 @@
       "zillowCost": null,
       "showings": 0,
       "capContributingTransactions": [],
-      "referrals": 2,
-      "referralVolume": 419000,
+      "referrals": 1,
+      "referralVolume": 189000,
       "referralTransactions": [
         {
           "transactionId": "closed-jose-alexander-8911-n-rustle-rd-2026-01-20T08:00:00.000Z",
@@ -1602,17 +1413,6 @@
           "isZillowFlex": false,
           "isRedfin": false,
           "isSphere": true
-        },
-        {
-          "transactionId": "closed-jose-alexander-921-e-lacrosse-ave-2026-04-06T07:00:00.000Z",
-          "address": "921 E Lacrosse Ave",
-          "closedDate": "2026-04-06T07:00:00.000Z",
-          "purchasePrice": 230000,
-          "referralFee": 2070,
-          "referralSource": "Zillow Flex Referral",
-          "isZillowFlex": true,
-          "isRedfin": false,
-          "isSphere": false
         }
       ],
       "pendingTransactionsDetail": [
@@ -1796,21 +1596,9 @@
       "zillowCost": null,
       "showings": 0,
       "capContributingTransactions": [],
-      "referrals": 1,
-      "referralVolume": 565000,
-      "referralTransactions": [
-        {
-          "transactionId": "closed-kellen-flanigan-15308-n-edencrest-dr-2026-03-12T07:00:00.000Z",
-          "address": "15308 N Edencrest Dr",
-          "closedDate": "2026-03-12T07:00:00.000Z",
-          "purchasePrice": 565000,
-          "referralFee": 6780,
-          "referralSource": "Zillow Flex Referral",
-          "isZillowFlex": true,
-          "isRedfin": false,
-          "isSphere": false
-        }
-      ],
+      "referrals": 0,
+      "referralVolume": 0,
+      "referralTransactions": [],
       "pendingTransactionsDetail": [
         {
           "transactionId": "pend-kellen-flanigan-10110-n-moss-ln-2026-04-03T07:00:00.000Z",
@@ -1847,20 +1635,9 @@
       "zillowCost": null,
       "showings": 2,
       "capContributingTransactions": [],
-      "referrals": 3,
-      "referralVolume": 1024250,
+      "referrals": 1,
+      "referralVolume": 272500,
       "referralTransactions": [
-        {
-          "transactionId": "closed-kiaya-henry-1106-e-13th-ave-2026-02-24T08:00:00.000Z",
-          "address": "1106 E 13th Ave",
-          "closedDate": "2026-02-24T08:00:00.000Z",
-          "purchasePrice": 325000,
-          "referralFee": 3412.5,
-          "referralSource": "Zillow Flex Referral",
-          "isZillowFlex": true,
-          "isRedfin": false,
-          "isSphere": false
-        },
         {
           "transactionId": "closed-kiaya-henry-427-e-glass-ave-2026-03-27T07:00:00.000Z",
           "address": "427 E Glass Ave",
@@ -1869,17 +1646,6 @@
           "referralFee": 1635,
           "referralSource": "Referral",
           "isZillowFlex": false,
-          "isRedfin": false,
-          "isSphere": false
-        },
-        {
-          "transactionId": "closed-kiaya-henry-4809-n-calvin-rd-2026-04-23T07:00:00.000Z",
-          "address": "4809 N Calvin Rd",
-          "closedDate": "2026-04-23T07:00:00.000Z",
-          "purchasePrice": 426750,
-          "referralFee": 5121,
-          "referralSource": "Zillow Flex Referral",
-          "isZillowFlex": true,
           "isRedfin": false,
           "isSphere": false
         }
@@ -1941,8 +1707,8 @@
       "zillowCost": null,
       "showings": 0,
       "capContributingTransactions": [],
-      "referrals": 6,
-      "referralVolume": 3740945,
+      "referrals": 5,
+      "referralVolume": 3367445,
       "referralTransactions": [
         {
           "transactionId": "closed-kurt-antone-burgan-59-s-parkview-ct-2026-01-23T08:00:00.000Z",
@@ -1996,17 +1762,6 @@
           "referralFee": 7755.94,
           "referralSource": "Referral",
           "isZillowFlex": false,
-          "isRedfin": false,
-          "isSphere": false
-        },
-        {
-          "transactionId": "closed-kurt-antone-burgan-2211-w-wabash-ave-2026-03-27T07:00:00.000Z",
-          "address": "2211 W Wabash Ave",
-          "closedDate": "2026-03-27T07:00:00.000Z",
-          "purchasePrice": 373500,
-          "referralFee": 3921.75,
-          "referralSource": "Zillow Flex Referral",
-          "isZillowFlex": true,
           "isRedfin": false,
           "isSphere": false
         }
@@ -2264,43 +2019,9 @@
       "zillowCost": null,
       "showings": 0,
       "capContributingTransactions": [],
-      "referrals": 3,
-      "referralVolume": 1310995,
-      "referralTransactions": [
-        {
-          "transactionId": "closed-lui-carrasco-3928-s-keller-ln-2026-02-12T08:00:00.000Z",
-          "address": "3928 S Keller Ln",
-          "closedDate": "2026-02-12T08:00:00.000Z",
-          "purchasePrice": 444995,
-          "referralFee": 5339.94,
-          "referralSource": "Zillow Flex Referral",
-          "isZillowFlex": true,
-          "isRedfin": false,
-          "isSphere": false
-        },
-        {
-          "transactionId": "closed-lui-carrasco-1804-e-63rd-ave-2026-03-13T07:00:00.000Z",
-          "address": "1804 E 63rd Ave",
-          "closedDate": "2026-03-13T07:00:00.000Z",
-          "purchasePrice": 531000,
-          "referralFee": 5575.5,
-          "referralSource": "Zillow Flex Referral",
-          "isZillowFlex": true,
-          "isRedfin": false,
-          "isSphere": false
-        },
-        {
-          "transactionId": "closed-lui-carrasco-1624-e-liberty-ave-2026-03-18T07:00:00.000Z",
-          "address": "1624 E Liberty Ave",
-          "closedDate": "2026-03-18T07:00:00.000Z",
-          "purchasePrice": 335000,
-          "referralFee": 3517.5,
-          "referralSource": "Zillow Flex Referral",
-          "isZillowFlex": true,
-          "isRedfin": false,
-          "isSphere": false
-        }
-      ],
+      "referrals": 0,
+      "referralVolume": 0,
+      "referralTransactions": [],
       "pendingTransactionsDetail": [
         {
           "transactionId": "pend-lui-carrasco-7918-e-glass-ave-2026-04-19T07:00:00.000Z",
@@ -2357,32 +2078,9 @@
       "zillowCost": null,
       "showings": 0,
       "capContributingTransactions": [],
-      "referrals": 2,
-      "referralVolume": 1045000,
-      "referralTransactions": [
-        {
-          "transactionId": "closed-marcus-mathews-1608-n-napa-st-2026-01-05T08:00:00.000Z",
-          "address": "1608 N Napa St",
-          "closedDate": "2026-01-05T08:00:00.000Z",
-          "purchasePrice": 340000,
-          "referralFee": 2913.75,
-          "referralSource": "Zillow Flex Referral",
-          "isZillowFlex": true,
-          "isRedfin": false,
-          "isSphere": false
-        },
-        {
-          "transactionId": "closed-marcus-mathews-1607-e-63rd-ave-2026-02-26T08:00:00.000Z",
-          "address": "1607 E 63rd Ave",
-          "closedDate": "2026-02-26T08:00:00.000Z",
-          "purchasePrice": 705000,
-          "referralFee": 7000,
-          "referralSource": "Zillow Flex Referral",
-          "isZillowFlex": true,
-          "isRedfin": false,
-          "isSphere": false
-        }
-      ],
+      "referrals": 0,
+      "referralVolume": 0,
+      "referralTransactions": [],
       "pendingTransactionsDetail": [
         {
           "transactionId": "pend-marcus-mathews-409-pend-oreille-blvd-2026-04-03T07:00:00.000Z",
@@ -2487,20 +2185,9 @@
       "zillowCost": null,
       "showings": 0,
       "capContributingTransactions": [],
-      "referrals": 3,
-      "referralVolume": 1390000,
+      "referrals": 1,
+      "referralVolume": 445000,
       "referralTransactions": [
-        {
-          "transactionId": "closed-matt-procter-7204-e-4th-ave-2026-04-08T07:00:00.000Z",
-          "address": "7204 E 4th Ave",
-          "closedDate": "2026-04-08T07:00:00.000Z",
-          "purchasePrice": 355000,
-          "referralFee": 3106.25,
-          "referralSource": "Zillow Flex Referral",
-          "isZillowFlex": true,
-          "isRedfin": false,
-          "isSphere": false
-        },
         {
           "transactionId": "closed-matt-procter-1853-n-salmon-river-ln-2026-04-15T07:00:00.000Z",
           "address": "1853 N Salmon River Ln",
@@ -2511,17 +2198,6 @@
           "isZillowFlex": false,
           "isRedfin": false,
           "isSphere": true
-        },
-        {
-          "transactionId": "closed-matt-procter-3519-s-mcdonald-ln-2026-04-17T07:00:00.000Z",
-          "address": "3519 S McDonald Ln",
-          "closedDate": "2026-04-17T07:00:00.000Z",
-          "purchasePrice": 590000,
-          "referralFee": 5900,
-          "referralSource": "Zillow Flex Referral",
-          "isZillowFlex": true,
-          "isRedfin": false,
-          "isSphere": false
         }
       ],
       "pendingTransactionsDetail": [
@@ -2681,53 +2357,9 @@
           "isSphere": false
         }
       ],
-      "referrals": 5,
-      "referralVolume": 2262642,
+      "referrals": 1,
+      "referralVolume": 200000,
       "referralTransactions": [
-        {
-          "transactionId": "closed-paula-kamp-24321-e-hauser-lake-rd-2026-02-18T08:00:00.000Z",
-          "address": "24321 E Hauser Lake Rd",
-          "closedDate": "2026-02-18T08:00:00.000Z",
-          "purchasePrice": 175000,
-          "referralFee": 1312.5,
-          "referralSource": "Zillow Flex Referral",
-          "isZillowFlex": true,
-          "isRedfin": false,
-          "isSphere": false
-        },
-        {
-          "transactionId": "closed-paula-kamp-2306-w-rainier-ct-2026-03-19T07:00:00.000Z",
-          "address": "2306 W Rainier Ct",
-          "closedDate": "2026-03-19T07:00:00.000Z",
-          "purchasePrice": 849900,
-          "referralFee": 10198.8,
-          "referralSource": "Zillow Flex Referral",
-          "isZillowFlex": true,
-          "isRedfin": false,
-          "isSphere": false
-        },
-        {
-          "transactionId": "closed-paula-kamp-1800-e-johnson-ln-2026-04-09T07:00:00.000Z",
-          "address": "1800 E Johnson Ln",
-          "closedDate": "2026-04-09T07:00:00.000Z",
-          "purchasePrice": 408242,
-          "referralFee": 4898.9,
-          "referralSource": "Zillow Flex Referral",
-          "isZillowFlex": true,
-          "isRedfin": false,
-          "isSphere": false
-        },
-        {
-          "transactionId": "closed-paula-kamp-27509-n-bear-lake-rd-2026-04-10T07:00:00.000Z",
-          "address": "27509 N Bear Lake Rd",
-          "closedDate": "2026-04-10T07:00:00.000Z",
-          "purchasePrice": 629500,
-          "referralFee": 6295,
-          "referralSource": "Zillow Flex Referral",
-          "isZillowFlex": true,
-          "isRedfin": false,
-          "isSphere": false
-        },
         {
           "transactionId": "closed-paula-kamp-nka-talache-rd-2026-04-20T07:00:00.000Z",
           "address": "NKA Talache Rd",
@@ -2952,54 +2584,9 @@
       "zillowCost": null,
       "showings": 0,
       "capContributingTransactions": [],
-      "referrals": 4,
-      "referralVolume": 1570000,
-      "referralTransactions": [
-        {
-          "transactionId": "closed-stephanie-komar-13206-e-tall-tree-rd-2026-01-07T08:00:00.000Z",
-          "address": "13206 E Tall Tree Rd",
-          "closedDate": "2026-01-07T08:00:00.000Z",
-          "purchasePrice": 392500,
-          "referralFee": 4121.25,
-          "referralSource": "Zillow Flex Referral",
-          "isZillowFlex": true,
-          "isRedfin": false,
-          "isSphere": false
-        },
-        {
-          "transactionId": "closed-stephanie-komar-4017-w-heroy-ave-2026-01-09T08:00:00.000Z",
-          "address": "4017 W Heroy Ave",
-          "closedDate": "2026-01-09T08:00:00.000Z",
-          "purchasePrice": 340000,
-          "referralFee": 3570,
-          "referralSource": "Zillow Flex Referral",
-          "isZillowFlex": true,
-          "isRedfin": false,
-          "isSphere": false
-        },
-        {
-          "transactionId": "closed-stephanie-komar-9817-e-hoffman-ct-2026-02-06T08:00:00.000Z",
-          "address": "9817 E Hoffman Ct",
-          "closedDate": "2026-02-06T08:00:00.000Z",
-          "purchasePrice": 500000,
-          "referralFee": 6000,
-          "referralSource": "Zillow Flex Referral",
-          "isZillowFlex": true,
-          "isRedfin": false,
-          "isSphere": false
-        },
-        {
-          "transactionId": "closed-stephanie-komar-13710-w-12th-ave-2026-03-11T07:00:00.000Z",
-          "address": "13710 W 12th Ave",
-          "closedDate": "2026-03-11T07:00:00.000Z",
-          "purchasePrice": 337500,
-          "referralFee": 3543.75,
-          "referralSource": "Zillow Flex Referral",
-          "isZillowFlex": true,
-          "isRedfin": false,
-          "isSphere": false
-        }
-      ],
+      "referrals": 0,
+      "referralVolume": 0,
+      "referralTransactions": [],
       "pendingTransactionsDetail": []
     },
     "steve-ruby": {
@@ -3039,20 +2626,9 @@
       "zillowCost": null,
       "showings": 5,
       "capContributingTransactions": [],
-      "referrals": 4,
-      "referralVolume": 1615400,
+      "referrals": 2,
+      "referralVolume": 710500,
       "referralTransactions": [
-        {
-          "transactionId": "closed-tamarah-kokinda-41210-n-white-tail-ln-2026-01-09T08:00:00.000Z",
-          "address": "41210 N White Tail Ln",
-          "closedDate": "2026-01-09T08:00:00.000Z",
-          "purchasePrice": 365000,
-          "referralFee": 3193.75,
-          "referralSource": "Zillow Flex Referral",
-          "isZillowFlex": true,
-          "isRedfin": false,
-          "isSphere": false
-        },
         {
           "transactionId": "closed-tamarah-kokinda-722-w-gordon-ave-2026-02-02T08:00:00.000Z",
           "address": "722 W Gordon Ave",
@@ -3074,17 +2650,6 @@
           "isZillowFlex": false,
           "isRedfin": false,
           "isSphere": true
-        },
-        {
-          "transactionId": "closed-tamarah-kokinda-7002-e-columbia-dr-2026-04-17T07:00:00.000Z",
-          "address": "7002 E Columbia Dr",
-          "closedDate": "2026-04-17T07:00:00.000Z",
-          "purchasePrice": 539900,
-          "referralFee": 6478.8,
-          "referralSource": "Zillow Flex Referral",
-          "isZillowFlex": true,
-          "isRedfin": false,
-          "isSphere": false
         }
       ],
       "pendingTransactionsDetail": []
@@ -3126,54 +2691,9 @@
       "zillowCost": null,
       "showings": 0,
       "capContributingTransactions": [],
-      "referrals": 4,
-      "referralVolume": 1401450,
-      "referralTransactions": [
-        {
-          "transactionId": "closed-trevor-hayden-9706-w-72nd-ave-2026-02-20T08:00:00.000Z",
-          "address": "9706 W 72nd Ave",
-          "closedDate": "2026-02-20T08:00:00.000Z",
-          "purchasePrice": 421380,
-          "referralFee": 4213.8,
-          "referralSource": "Zillow Flex Referral",
-          "isZillowFlex": true,
-          "isRedfin": false,
-          "isSphere": false
-        },
-        {
-          "transactionId": "closed-trevor-hayden-1643-e-wellesley-ave-2026-03-03T08:00:00.000Z",
-          "address": "1643 E Wellesley Ave",
-          "closedDate": "2026-03-03T08:00:00.000Z",
-          "purchasePrice": 225000,
-          "referralFee": 2025,
-          "referralSource": "Zillow Flex Referral",
-          "isZillowFlex": true,
-          "isRedfin": false,
-          "isSphere": false
-        },
-        {
-          "transactionId": "closed-trevor-hayden-1324-e-joseph-ave-2026-03-13T07:00:00.000Z",
-          "address": "1324 E Joseph Ave",
-          "closedDate": "2026-03-13T07:00:00.000Z",
-          "purchasePrice": 290170,
-          "referralFee": 2611.53,
-          "referralSource": "Zillow Flex Referral",
-          "isZillowFlex": true,
-          "isRedfin": false,
-          "isSphere": false
-        },
-        {
-          "transactionId": "closed-trevor-hayden-16418-n-saddlewood-rd-2026-04-06T07:00:00.000Z",
-          "address": "16418 N Saddlewood Rd",
-          "closedDate": "2026-04-06T07:00:00.000Z",
-          "purchasePrice": 464900,
-          "referralFee": 4649,
-          "referralSource": "Zillow Flex Referral",
-          "isZillowFlex": true,
-          "isRedfin": false,
-          "isSphere": false
-        }
-      ],
+      "referrals": 0,
+      "referralVolume": 0,
+      "referralTransactions": [],
       "pendingTransactionsDetail": [
         {
           "transactionId": "pend-trevor-hayden-2911-e-fairview-ave-2026-03-21T07:00:00.000Z",
@@ -3387,8 +2907,8 @@
       "pendingTransactions": 6,
       "gci": 0,
       "capProgress": 0,
-      "referrals": 7,
-      "referralVolume": 4024900
+      "referrals": 4,
+      "referralVolume": 1734900
     },
     {
       "rank": 2,
@@ -3399,8 +2919,8 @@
       "pendingTransactions": 8,
       "gci": 0,
       "capProgress": 0,
-      "referrals": 6,
-      "referralVolume": 3740945
+      "referrals": 5,
+      "referralVolume": 3367445
     },
     {
       "rank": 3,
@@ -3411,8 +2931,8 @@
       "pendingTransactions": 2,
       "gci": 0,
       "capProgress": 0,
-      "referrals": 9,
-      "referralVolume": 2667400
+      "referrals": 8,
+      "referralVolume": 2271400
     },
     {
       "rank": 4,
@@ -3423,8 +2943,8 @@
       "pendingTransactions": 2,
       "gci": 0,
       "capProgress": 5378.75,
-      "referrals": 11,
-      "referralVolume": 3831250
+      "referrals": 5,
+      "referralVolume": 1653500
     },
     {
       "rank": 5,
@@ -3435,8 +2955,8 @@
       "pendingTransactions": 1,
       "gci": 0,
       "capProgress": 0,
-      "referrals": 3,
-      "referralVolume": 1310995
+      "referrals": 0,
+      "referralVolume": 0
     },
     {
       "rank": 6,
@@ -3447,8 +2967,8 @@
       "pendingTransactions": 3,
       "gci": 0,
       "capProgress": 0,
-      "referrals": 3,
-      "referralVolume": 1390000
+      "referrals": 1,
+      "referralVolume": 445000
     },
     {
       "rank": 7,
@@ -3459,8 +2979,8 @@
       "pendingTransactions": 2,
       "gci": 0,
       "capProgress": 8286.68,
-      "referrals": 5,
-      "referralVolume": 2262642
+      "referrals": 1,
+      "referralVolume": 200000
     },
     {
       "rank": 8,
@@ -3483,8 +3003,8 @@
       "pendingTransactions": 0,
       "gci": 0,
       "capProgress": 0,
-      "referrals": 4,
-      "referralVolume": 1615400
+      "referrals": 2,
+      "referralVolume": 710500
     },
     {
       "rank": 10,
@@ -3507,8 +3027,8 @@
       "pendingTransactions": 5,
       "gci": 0,
       "capProgress": 0,
-      "referrals": 2,
-      "referralVolume": 777900
+      "referrals": 1,
+      "referralVolume": 699900
     },
     {
       "rank": 12,
@@ -3519,8 +3039,8 @@
       "pendingTransactions": 0,
       "gci": 0,
       "capProgress": 0,
-      "referrals": 4,
-      "referralVolume": 1570000
+      "referrals": 0,
+      "referralVolume": 0
     },
     {
       "rank": 13,
@@ -3531,8 +3051,8 @@
       "pendingTransactions": 1,
       "gci": 0,
       "capProgress": 0,
-      "referrals": 3,
-      "referralVolume": 1434900
+      "referrals": 0,
+      "referralVolume": 0
     },
     {
       "rank": 14,
@@ -3543,8 +3063,8 @@
       "pendingTransactions": 2,
       "gci": 0,
       "capProgress": 0,
-      "referrals": 4,
-      "referralVolume": 1401450
+      "referrals": 0,
+      "referralVolume": 0
     },
     {
       "rank": 15,
@@ -3567,8 +3087,8 @@
       "pendingTransactions": 5,
       "gci": 0,
       "capProgress": 0,
-      "referrals": 2,
-      "referralVolume": 1045000
+      "referrals": 0,
+      "referralVolume": 0
     },
     {
       "rank": 17,
@@ -3579,8 +3099,8 @@
       "pendingTransactions": 1,
       "gci": 0,
       "capProgress": 0,
-      "referrals": 3,
-      "referralVolume": 1024250
+      "referrals": 1,
+      "referralVolume": 272500
     },
     {
       "rank": 18,
@@ -3603,8 +3123,8 @@
       "pendingTransactions": 1,
       "gci": 0,
       "capProgress": 0,
-      "referrals": 3,
-      "referralVolume": 976900
+      "referrals": 0,
+      "referralVolume": 0
     },
     {
       "rank": 20,
@@ -3615,8 +3135,8 @@
       "pendingTransactions": 1,
       "gci": 0,
       "capProgress": 0,
-      "referrals": 1,
-      "referralVolume": 565000
+      "referrals": 0,
+      "referralVolume": 0
     },
     {
       "rank": 21,
@@ -3627,8 +3147,8 @@
       "pendingTransactions": 3,
       "gci": 0,
       "capProgress": 0,
-      "referrals": 2,
-      "referralVolume": 419000
+      "referrals": 1,
+      "referralVolume": 189000
     },
     {
       "rank": 22,
@@ -3741,7 +3261,7 @@
     "totalZillowCost": 0,
     "totalCapContributions": 13665.43,
     "totalGCI": 0,
-    "totalReferrals": 78,
-    "totalReferralVolume": 33275832
+    "totalReferrals": 35,
+    "totalReferralVolume": 14762045
   }
 }
