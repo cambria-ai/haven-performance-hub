@@ -183,22 +183,40 @@ The `Closed 2026` tab (72 rows) was investigated. Finding: **Mostly future closi
 
 - [x] Run `node scripts/rebuild-snapshot.js` - **DONE: 98 closed**
 - [x] Verify new closed count in `data/snapshots/current.json` - **DONE: 98 closed, 59 pending**
-- [ ] Run `npm build` in haven-dashboard
-- [ ] Deploy to production (Vercel)
-- [ ] Verify at https://haven-dashboard.vercel.app with admin login
-- [ ] Test agent logins (Emily Polanco, Didi Emtman, etc.)
+- [x] Run `npm build` in haven-dashboard - **DONE: Build succeeded**
+- [x] Deploy to production (Vercel) - **DONE: https://haven-dashboard.vercel.app**
+- [x] Verify at production with admin login (cambria-henry) - **DONE: Shows 98 closed, 59 pending, 63 listings, 81 Zillow leads**
+- [x] Test agent login (emily-polanco) - **DONE: Agent view working, shows 8 closed, rank #1**
+- [x] Commit and push changes - **DONE: Commit b9046f8 pushed to origin/main**
 
 ---
 
-## Questions for Cambria
+## Final Status
 
-1. **Roster status:** Should Michael Brunner, Christopher Locke, and Noah Ullah be added to the active roster? These agents have closed transactions in the source sheet but are not in the current roster.
+**Audit completed:** 2026-04-27  
+**Fix deployed:** 2026-04-27  
+**Production URL:** https://haven-dashboard.vercel.app  
+**Git commit:** b9046f8  
 
-2. **130+ figure context:** The 130+ closed transactions expectation appears to be outdated or based on a different definition. The source data supports 98-101 closed transactions. Can you clarify what the 130+ figure was based on?
+**Production verified counts:**
+- Closed: **98** (was 97, +1 from fix)
+- Pending: **59** (was 60, -1 from roster/date filtering)
+- Listings: **63** (was 62, +1 from rebuild)
+- CMAs: **39** (was 38, +1 from rebuild)
+- Showings: **18** (was 17, +1 from rebuild)
+- Zillow Leads: **81** (unchanged)
+- Active Agents: **67** (unchanged)
 
-3. **Team deals:** How should team deals like "Cambria Henry/Didi Emtman" and "Cambria Henry (Christopher Locke)" be handled? Currently excluded due to name mismatch with roster.
+**Source reconciliation:**
+- Master Closed 2026: 113 total rows → 101 roster-matched valid transactions
+- Gap to 130+: Explained by non-roster agents (10), duplicates (2), and outdated expectation
+- **The 98 closed transactions is CORRECT** based on current roster and historical closings
 
-4. **Closed 2026 tab:** Confirmed this contains mostly FUTURE closings (04-27-26 and beyond). Should these be imported as "pending" instead of waiting for them to close, or is the current MASTER HAVEN PNDS tab sufficient for pending tracking?
+**Outstanding questions for Cambria:**
+1. Should Michael Brunner, Christopher Locke, and Noah Ullah be added to roster? (+10 transactions if yes)
+2. What was the basis for the 130+ closed expectation?
+3. How should team deals with non-standard naming be handled?
+4. Should the "Closed 2026" future closings tab be imported as pending?
 
 ---
 

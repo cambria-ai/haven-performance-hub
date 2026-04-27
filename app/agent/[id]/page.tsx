@@ -40,6 +40,7 @@ export default function AgentDashboard() {
   const [leads, setLeads] = useState<any[]>([]);
   const [showLeadForm, setShowLeadForm] = useState(false);
   const [showCapDrilldown, setShowCapDrilldown] = useState(false);
+  const [activeTab, setActiveTab] = useState<'overview' | 'results'>('overview');
   const [newLead, setNewLead] = useState({ type: 'sphere', name: '', source: '', notes: '' });
 
   useEffect(() => {
@@ -190,9 +191,37 @@ export default function AgentDashboard() {
           </div>
         </header>
 
+        {/* Tab Navigation */}
+        {agentData && (
+          <div className="mb-8 flex gap-3">
+            <button
+              onClick={() => setActiveTab('overview')}
+              className={`rounded-2xl px-5 py-3 text-sm font-semibold transition ${
+                activeTab === 'overview'
+                  ? 'bg-slate-950 text-white'
+                  : 'bg-white text-slate-600 hover:bg-slate-50'
+              }`}
+            >
+              Overview
+            </button>
+            <button
+              onClick={() => setActiveTab('results')}
+              className={`rounded-2xl px-5 py-3 text-sm font-semibold transition ${
+                activeTab === 'results'
+                  ? 'bg-slate-950 text-white'
+                  : 'bg-white text-slate-600 hover:bg-slate-50'
+              }`}
+            >
+              Results & Pay
+            </button>
+          </div>
+        )}
+
         {agentData ? (
           <>
-            <section className="mb-8 grid grid-cols-1 gap-5 md:grid-cols-4">
+            {activeTab === 'overview' ? (
+              <>
+                <section className="mb-8 grid grid-cols-1 gap-5 md:grid-cols-4">
               <RankCard
                 rank={myRank?.rank || '--'}
                 totalAgents={leaderboard.length}
@@ -317,12 +346,118 @@ export default function AgentDashboard() {
                     </p>
                   )}
                 </div>
-                <FinancialItem label="Haven fees" value={formatCurrency(agentData.havenFees || 0)} />
                 <FinancialItem label="B&O tax" value={formatCurrency(agentData.boTax || 0)} />
                 <FinancialItem label="L&I" value={formatCurrency(agentData.lni || 0)} />
                 <FinancialItem label="Transaction fees" value={formatCurrency(agentData.transactionFees || 0)} />
               </div>
             </section>
+              </>
+            ) : activeTab === 'results' ? (
+              <>
+                {/* Results & Pay Tab Content */}
+                <section className="mb-8 rounded-[2rem] border border-white/70 bg-white/85 p-6 shadow-[0_30px_80px_-35px_rgba(15,23,42,0.24)] backdrop-blur">
+                  <div className="mb-6">
+                    <p className="text-sm font-semibold uppercase tracking-[0.24em] text-slate-500">Your earnings</p>
+                    <h2 className="mt-2 text-2xl font-semibold text-slate-950">Results and Pay</h2>
+                    <p className="mt-2 text-sm text-slate-600">Track your earned income and cap progress</p>
+                  </div>
+
+                  <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
+                    <div className="rounded-[1.75rem] border border-white/70 bg-gradient-to-br from-emerald-500/15 to-teal-500/10 p-6 backdrop-blur">
+                      <p className="text-sm font-medium text-slate-500">Cap paid (received)</p>
+                      <p className="mt-2 text-4xl font-bold text-slate-950">{formatCurrency(agentData.capProgress || 0)}</p>
+                      <p className="mt-1 text-sm text-slate-500">Of ${formatCurrency(agentData.capTarget || 20000)} annual cap</p>
+                    </div>
+                    <div className="rounded-[1.75rem] border border-white/70 bg-gradient-to-br from-indigo-500/15 to-violet-500/10 p-6 backdrop-blur">
+                      <p className="text-sm font-medium text-slate-500">Cap remaining</p>
+                      <p className="mt-2 text-4xl font-bold text-slate-950">{formatCurrency((agentData.capTarget || 20000) - (agentData.capProgress || 0))}</p>
+                      <p className="mt-1 text-sm text-slate-500">Until cap reset on April 7</p>
+                    </div>
+                    <div className="rounded-[1.75rem] border border-white/70 bg-gradient-to-br from-amber-500/15 to-orange-500/10 p-6 backdrop-blur">
+                      <p className="text-sm font-medium text-slate-500">Cap progress</p>
+                      <p className="mt-2 text-4xl font-bold text-slate-950">{`${((agentData.capProgress || 0) / (agentData.capTarget || 1) * 100).toFixed(0)}%`}</p>
+                      <p className="mt-1 text-sm text-slate-500">Sphere transactions only</p>
+                    </div>
+                  </div>
+                </section>
+
+                {/* Pending Transactions - Clickable */}
+                {agentData.pendingTransactions && agentData.pendingTransactions > 0 && (
+                  <section className="mb-8 rounded-[2rem] border border-white/70 bg-white/85 p-6 shadow-[0_30px_80px_-35px_rgba(15,23,42,0.24)] backdrop-blur">
+                    <div className="mb-6">
+                      <p className="text-sm font-semibold uppercase tracking-[0.24em] text-slate-500">In-flight deals</p>
+                      <h2 className="mt-2 text-2xl font-semibold text-slate-950">Pending transactions</h2>
+                      <p className="mt-2 text-sm text-slate-600">Click to see expected agent income from Master Haven PNDS</p>
+                    </div>
+
+                    <div className="space-y-3">
+                      {/* Placeholder - actual pending transaction data would come from snapshot */}
+                      <div className="rounded-2xl border border-slate-100 bg-slate-50/80 p-4 cursor-pointer hover:bg-indigo-50/80 transition">
+                        <p className="text-sm text-slate-600">Pending transaction details will appear here from Master Haven PNDS data</p>
+                        <p className="text-xs text-slate-400 mt-1">Agent income and Personal Sphere sections shown on click</p>
+                      </div>
+                    </div>
+                  </section>
+                )}
+
+                {/* Week-to-Week Trends */}
+                {timeWindowStats && (
+                  <section className="mb-8 rounded-[2rem] border border-white/70 bg-white/85 p-6 shadow-[0_30px_80px_-35px_rgba(15,23,42,0.24)] backdrop-blur">
+                    <div className="mb-6">
+                      <p className="text-sm font-semibold uppercase tracking-[0.24em] text-slate-500">Trends</p>
+                      <h2 className="mt-2 text-2xl font-semibold text-slate-950">Week-over-week and month-to-date</h2>
+                    </div>
+
+                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                      <div className="rounded-2xl border border-slate-100 bg-slate-50/80 p-5">
+                        <p className="text-sm font-medium text-slate-500">This week</p>
+                        <p className="mt-2 text-2xl font-semibold text-slate-900">{timeWindowStats.thisWeek?.closedTransactions || 0} closed</p>
+                        <p className="text-sm text-slate-600 mt-1">{formatCurrency(timeWindowStats.thisWeek?.closedVolume || 0)} volume</p>
+                      </div>
+                      <div className="rounded-2xl border border-slate-100 bg-slate-50/80 p-5">
+                        <p className="text-sm font-medium text-slate-500">Last week</p>
+                        <p className="mt-2 text-2xl font-semibold text-slate-900">{timeWindowStats.lastWeek?.closedTransactions || 0} closed</p>
+                        <p className="text-sm text-slate-600 mt-1">{formatCurrency(timeWindowStats.lastWeek?.closedVolume || 0)} volume</p>
+                      </div>
+                      <div className="rounded-2xl border border-slate-100 bg-slate-50/80 p-5">
+                        <p className="text-sm font-medium text-slate-500">Month to date</p>
+                        <p className="mt-2 text-2xl font-semibold text-slate-900">{timeWindowStats.monthToDate?.closedTransactions || 0} closed</p>
+                        <p className="text-sm text-slate-600 mt-1">{formatCurrency(timeWindowStats.monthToDate?.closedVolume || 0)} volume</p>
+                      </div>
+                    </div>
+                  </section>
+                )}
+
+                {/* Cap Contributing Transactions */}
+                {agentData.capContributingTransactions && agentData.capContributingTransactions.length > 0 && (
+                  <section className="mb-8 rounded-[2rem] border border-white/70 bg-white/85 p-6 shadow-[0_30px_80px_-35px_rgba(15,23,42,0.24)] backdrop-blur">
+                    <div className="mb-6">
+                      <p className="text-sm font-semibold uppercase tracking-[0.24em] text-slate-500">Cap contributors</p>
+                      <h2 className="mt-2 text-2xl font-semibold text-slate-950">Sphere transactions counting toward cap</h2>
+                    </div>
+
+                    <div className="space-y-3">
+                      {agentData.capContributingTransactions.map((txn: any, idx: number) => (
+                        <div key={idx} className="flex items-center justify-between gap-4 rounded-2xl border border-slate-100 bg-slate-50/80 p-4">
+                          <div className="min-w-0 flex-1">
+                            <p className="truncate font-semibold text-slate-900">{txn.address}</p>
+                            <p className="text-sm text-slate-600">
+                              Closed {txn.closedDate ? new Date(txn.closedDate).toLocaleDateString() : 'TBD'} • {formatCurrency(txn.purchasePrice)}
+                            </p>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-sm font-semibold text-emerald-700">
+                              +{formatCurrency(txn.capContribution || 0)}
+                            </p>
+                            <p className="text-xs text-slate-500">to cap</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </section>
+                )}
+              </>
+            ) : null}
           </>
         ) : (
           <section className="mb-8 rounded-[2rem] border border-white/70 bg-white/85 p-10 text-center shadow-[0_30px_80px_-35px_rgba(15,23,42,0.24)] backdrop-blur">

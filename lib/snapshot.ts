@@ -7,6 +7,40 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 export const CAP_MAX = 20000; // Maximum cap contribution per agent
+export const CAP_YEAR_START_MONTH = 3; // April (0-indexed)
+export const CAP_YEAR_START_DAY = 7; // April 7th
+
+/**
+ * Get the current cap year start date based on April 7th reset.
+ * Cap year runs from April 7 of year Y to April 6 of year Y+1.
+ * If today is before April 7, we're in the cap year that started last year.
+ */
+export function getCurrentCapYearStart(): Date {
+  const now = new Date();
+  const currentYear = now.getFullYear();
+  
+  // Check if we're past April 7th this year
+  const april7ThisYear = new Date(currentYear, CAP_YEAR_START_MONTH, CAP_YEAR_START_DAY);
+  
+  if (now >= april7ThisYear) {
+    // We're in the cap year starting April 7, currentYear
+    return april7ThisYear;
+  } else {
+    // We're before April 7, so we're in the cap year that started last year
+    return new Date(currentYear - 1, CAP_YEAR_START_MONTH, CAP_YEAR_START_DAY);
+  }
+}
+
+/**
+ * Check if a transaction date falls within the current cap year.
+ */
+export function isInCurrentCapYear(date: Date): boolean {
+  const capYearStart = getCurrentCapYearStart();
+  const capYearEnd = new Date(capYearStart);
+  capYearEnd.setFullYear(capYearEnd.getFullYear() + 1);
+  
+  return date >= capYearStart && date < capYearEnd;
+}
 
 export interface SnapshotMetadata {
   id: string;

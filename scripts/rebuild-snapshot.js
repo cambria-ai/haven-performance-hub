@@ -160,6 +160,25 @@ function parseDate(value) {
   return isNaN(date.getTime()) ? null : date;
 }
 
+/**
+ * Check if a date falls within the current cap year (April 7 - April 6).
+ */
+function isInCurrentCapYear(date) {
+  const now = new Date();
+  const currentYear = now.getFullYear();
+  const capYearStart = new Date(currentYear, 3, 7); // April is month 3 (0-indexed)
+  
+  // If we're before April 7, cap year started last year
+  if (now < capYearStart) {
+    capYearStart.setFullYear(currentYear - 1);
+  }
+  
+  const capYearEnd = new Date(capYearStart);
+  capYearEnd.setFullYear(capYearEnd.getFullYear() + 1);
+  
+  return date >= capYearStart && date < capYearEnd;
+}
+
 function normalizeAddress(address) {
   if (!address) return '';
   let normalized = address.toLowerCase().trim();
@@ -520,11 +539,14 @@ async function loadCapContributions(roster) {
         
         if (capEligibleField) {
           const capAmount = parseCurrency(capEligibleField);
-          if (capAmount && capAmount > 0) {
+          const closedDate = parseDate(row['Closing Date'] || row['Settlement Date']);
+          
+          // Only count cap contributions from current cap year (April 7 - April 6)
+          if (capAmount && capAmount > 0 && closedDate && isInCurrentCapYear(closedDate)) {
             totalCap += capAmount;
             capTxns.push({
               address: row['Address'] || 'Unknown',
-              closedDate: row['Closing Date'] || undefined,
+              closedDate: row['Closing Date'] || row['Settlement Date'] || undefined,
               purchasePrice: parseCurrency(row[' Purchase Price ']) || 0,
               capContribution: capAmount,
               isSphere: (row['Lead Source'] || '').toLowerCase().includes('personal') || (row['Lead Source'] || '').toLowerCase().includes('sphere'),
