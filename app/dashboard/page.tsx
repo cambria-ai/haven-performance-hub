@@ -301,6 +301,56 @@ export default function TeamLeaderDashboard() {
           </div>
 
           <div className="rounded-[2rem] border border-white/70 bg-white/85 p-6 shadow-[0_30px_80px_-35px_rgba(15,23,42,0.24)] backdrop-blur">
+            <div className="mb-5 flex items-center justify-between gap-4">
+              <div>
+                <p className="text-sm font-semibold uppercase tracking-[0.24em] text-slate-500">Referral leaders</p>
+                <h3 className="mt-2 text-2xl font-semibold text-slate-950">Top referral producers</h3>
+                <p className="mt-2 text-sm text-slate-600">Ranked by referral transaction count and volume.</p>
+              </div>
+              <div className="rounded-full bg-slate-100 px-3 py-1 text-sm font-medium text-slate-600">
+                {data?.leaderboard?.filter((e: any) => e.referrals && e.referrals > 0).length || 0} agents
+              </div>
+            </div>
+
+            {data?.leaderboard?.some((e: any) => e.referrals && e.referrals > 0) ? (
+              <div className="space-y-3">
+                {[...data.leaderboard]
+                  .filter((e: any) => e.referrals && e.referrals > 0)
+                  .sort((a: any, b: any) => (b.referrals || 0) - (a.referrals || 0) || (b.referralVolume || 0) - (a.referralVolume || 0))
+                  .slice(0, 10)
+                  .map((entry: any, idx: number) => (
+                    <div
+                      key={entry.agentId}
+                      className="flex cursor-pointer items-center justify-between gap-4 rounded-2xl border border-slate-100 bg-white p-4 transition-colors hover:bg-slate-50"
+                      onClick={() => handleViewAgent(entry.agentId)}
+                    >
+                      <div className="flex items-center gap-4">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-100 text-emerald-700">
+                          <span className="text-sm font-bold">{idx + 1}</span>
+                        </div>
+                        <div>
+                          <p className="font-semibold text-slate-900">{entry.agentName}</p>
+                          <p className="text-sm text-slate-600">
+                            {entry.referrals} referral{entry.referrals !== 1 ? 's' : ''} • {formatCurrency(entry.referralVolume || 0)}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2 text-slate-400">
+                        <span className="text-sm">View details</span>
+                        <ArrowUpRight className="h-4 w-4" />
+                      </div>
+                    </div>
+                  ))}
+              </div>
+            ) : (
+              <EmptyCard
+                title="No referral data available"
+                description="Referral tracking will appear here once source data is mapped."
+              />
+            )}
+          </div>
+
+          <div className="rounded-[2rem] border border-white/70 bg-white/85 p-6 shadow-[0_30px_80px_-35px_rgba(15,23,42,0.24)] backdrop-blur">
             <div className="mb-5">
               <p className="text-sm font-semibold uppercase tracking-[0.24em] text-slate-500">Team totals</p>
               <h3 className="mt-2 text-2xl font-semibold text-slate-950">What leadership should see at a glance</h3>
@@ -311,6 +361,10 @@ export default function TeamLeaderDashboard() {
               <FocusCard title="Pending volume" description={`${formatCurrency(data?.teamStats?.totalPendingVolume || 0)} in pending transaction volume.`} />
               <FocusCard title="Active listings" description={`${data?.teamStats?.totalActiveListings || 0} listings are currently represented in the live snapshot.`} />
               <FocusCard title="Zillow lead volume" description={`${data?.teamStats?.totalZillowLeads || 0} Zillow leads tracked with conversion health visible below.`} />
+              <FocusCard 
+                title="Referral transactions" 
+                description={`${data?.teamStats?.totalReferrals || 0} closed referrals totaling ${formatCurrency(data?.teamStats?.totalReferralVolume || 0)}.`} 
+              />
             </div>
           </div>
         </section>

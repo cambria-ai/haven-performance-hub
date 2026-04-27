@@ -268,6 +268,30 @@ async function loadClosedTransactions(roster) {
     const leadSource = row['Lead Generated'] || row['Lead Source'] || '';
     const havenIncome = parseCurrency(row['Haven Income'] || row['GCI']) || 0;
     
+    // Identify referrals from Referral column or Lead Generated source
+    const referralAmount = parseCurrency(row['Referral'] || row['referral']);
+    const zillowFlexReferral = parseCurrency(row['Zillow Flex Referral'] || row['zillow flex referral']);
+    const redfinReferral = parseCurrency(row['Redfin Referral'] || row['redfin referral']);
+    const personalSphere = parseCurrency(row['Personal Sphere'] || row['personal sphere']);
+    const isReferral = referralAmount > 0 || 
+                       zillowFlexReferral > 0 || 
+                       redfinReferral > 0 || 
+                       personalSphere > 0 ||
+                       leadSource.toLowerCase().includes('referral') ||
+                       leadSource.toLowerCase().includes('sphere') ||
+                       leadSource.toLowerCase().includes('soi');
+    
+    let referralSource = null;
+    let referralFee = referralAmount || zillowFlexReferral || redfinReferral || personalSphere || 0;
+    
+    if (referralAmount > 0) referralSource = 'Referral';
+    else if (zillowFlexReferral > 0) referralSource = 'Zillow Flex Referral';
+    else if (redfinReferral > 0) referralSource = 'Redfin Referral';
+    else if (personalSphere > 0) referralSource = 'Personal Sphere';
+    else if (leadSource.toLowerCase().includes('referral')) referralSource = leadSource;
+    else if (leadSource.toLowerCase().includes('sphere')) referralSource = leadSource;
+    else if (leadSource.toLowerCase().includes('soi')) referralSource = leadSource;
+    
     const dedupeKey = `${normalizedAddress}|${matchKey}|${price}|${closingDate.toISOString().split('T')[0]}`;
     if (seenTransactions.has(dedupeKey)) continue;
     
@@ -284,6 +308,12 @@ async function loadClosedTransactions(roster) {
       gci: havenIncome,
       leadSource,
       isZillow: leadSource.toLowerCase().includes('zillow'),
+      isReferral,
+      referralFee,
+      referralSource,
+      isZillowFlex: zillowFlexReferral > 0,
+      isRedfin: redfinReferral > 0,
+      isSphere: personalSphere > 0 || leadSource.toLowerCase().includes('sphere'),
     });
     
     seenTransactions.set(dedupeKey, true);
@@ -336,6 +366,30 @@ async function loadPendingTransactions(roster, closedTransactions) {
     const leadSource = row['Lead Generated'] || row['Lead Source'] || '';
     const havenIncome = parseCurrency(row['Haven Income'] || row['GCI']) || 0;
     
+    // Identify referrals from Referral column or Lead Generated source
+    const referralAmount = parseCurrency(row['Referral'] || row['referral']);
+    const zillowFlexReferral = parseCurrency(row['Zillow Flex Referral'] || row['zillow flex referral']);
+    const redfinReferral = parseCurrency(row['Redfin Referral'] || row['redfin referral']);
+    const personalSphere = parseCurrency(row['Personal Sphere'] || row['personal sphere']);
+    const isReferral = referralAmount > 0 || 
+                       zillowFlexReferral > 0 || 
+                       redfinReferral > 0 || 
+                       personalSphere > 0 ||
+                       leadSource.toLowerCase().includes('referral') ||
+                       leadSource.toLowerCase().includes('sphere') ||
+                       leadSource.toLowerCase().includes('soi');
+    
+    let referralSource = null;
+    let referralFee = referralAmount || zillowFlexReferral || redfinReferral || personalSphere || 0;
+    
+    if (referralAmount > 0) referralSource = 'Referral';
+    else if (zillowFlexReferral > 0) referralSource = 'Zillow Flex Referral';
+    else if (redfinReferral > 0) referralSource = 'Redfin Referral';
+    else if (personalSphere > 0) referralSource = 'Personal Sphere';
+    else if (leadSource.toLowerCase().includes('referral')) referralSource = leadSource;
+    else if (leadSource.toLowerCase().includes('sphere')) referralSource = leadSource;
+    else if (leadSource.toLowerCase().includes('soi')) referralSource = leadSource;
+    
     const pendingDedupeKey = `${normalizedAddress}|${matchKey}|${price}`;
     if (seenTransactions.has(pendingDedupeKey)) continue;
     if (closedSignatures.has(pendingDedupeKey)) continue;
@@ -356,6 +410,12 @@ async function loadPendingTransactions(roster, closedTransactions) {
       gci: havenIncome,
       leadSource,
       isZillow: leadSource.toLowerCase().includes('zillow'),
+      isReferral,
+      referralFee,
+      referralSource,
+      isZillowFlex: zillowFlexReferral > 0,
+      isRedfin: redfinReferral > 0,
+      isSphere: personalSphere > 0 || leadSource.toLowerCase().includes('sphere'),
     });
     
     seenTransactions.add(pendingDedupeKey);

@@ -345,6 +345,45 @@ export default function AgentDashboard() {
           />
         ) : null}
 
+        {agentData?.referrals && agentData.referrals > 0 ? (
+          <section className="rounded-[2rem] border border-white/70 bg-white/85 p-6 shadow-[0_30px_80px_-35px_rgba(15,23,42,0.24)] backdrop-blur">
+            <div className="mb-5 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p className="text-sm font-semibold uppercase tracking-[0.24em] text-slate-500">Your referrals</p>
+                <h2 className="mt-2 text-2xl font-semibold text-slate-950">Referral transactions</h2>
+                <p className="mt-2 text-sm text-slate-600">
+                  {agentData.referrals} referral{agentData.referrals !== 1 ? 's' : ''} totaling {formatCurrency(agentData.referralVolume || 0)}
+                </p>
+              </div>
+            </div>
+
+            {agentData.referralTransactions && agentData.referralTransactions.length > 0 ? (
+              <div className="space-y-3">
+                {agentData.referralTransactions.map((txn: any, idx: number) => (
+                  <div key={idx} className="flex items-center justify-between gap-4 rounded-2xl border border-slate-100 bg-slate-50/80 p-4">
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate font-semibold text-slate-900">{txn.address}</p>
+                      <p className="text-sm text-slate-600">
+                        {txn.referralSource || 'Referral'} • Closed {new Date(txn.closedDate).toLocaleDateString()} • {formatCurrency(txn.purchasePrice)}
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm font-semibold text-emerald-700">
+                        {txn.referralFee ? formatCurrency(txn.referralFee) : 'Referral'}
+                      </p>
+                      {txn.isZillowFlex && <p className="text-xs text-slate-500">Zillow Flex</p>}
+                      {txn.isRedfin && <p className="text-xs text-slate-500">Redfin</p>}
+                      {txn.isSphere && <p className="text-xs text-slate-500">Personal Sphere</p>}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-slate-600">Referral details will appear here as data is imported.</p>
+            )}
+          </section>
+        ) : null}
+
         <section className="rounded-[2rem] border border-white/70 bg-white/85 p-6 shadow-[0_30px_80px_-35px_rgba(15,23,42,0.24)] backdrop-blur">
           <div className="mb-5 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
