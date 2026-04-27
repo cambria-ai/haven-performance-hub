@@ -121,6 +121,10 @@ export default function TeamLeaderDashboard() {
     router.push(`/agent/${agentId}`);
   }
 
+  function handleViewPendings() {
+    router.push('/admin/pendings');
+  }
+
   const uploads = data?.history || [];
   const totalAgents = data?.snapshot?.metadata?.agentCount || 0;
   const totalTransactions = data?.snapshot?.metadata?.transactionCount || 0;
@@ -268,8 +272,9 @@ export default function TeamLeaderDashboard() {
             icon={<TrendingUp className="h-5 w-5" />}
             label="Pending deals"
             value={data?.teamStats?.totalPendingTransactions || 0}
-            helper={data?.teamStats?.totalPendingTransactions ? 'In-flight across team' : 'Waiting for first import'}
+            helper={data?.teamStats?.totalPendingTransactions ? 'Click to review all pending income' : 'Waiting for first import'}
             accent="amber"
+            onClick={data?.teamStats?.totalPendingTransactions ? handleViewPendings : undefined}
           />
         </section>
 
@@ -277,7 +282,7 @@ export default function TeamLeaderDashboard() {
           <div className="rounded-[2rem] border border-white/70 bg-white/85 p-6 shadow-[0_30px_80px_-35px_rgba(15,23,42,0.24)] backdrop-blur">
             <div className="mb-5 flex items-center justify-between gap-4">
               <div>
-                <p className="text-sm font-semibold uppercase tracking-[0.24em] text-slate-500">Team race</p>
+                <p className="text-sm font-semibold uppercase tracking-[0.24em] text-slate-500">Leaderboard</p>
                 <h3 className="mt-2 text-2xl font-semibold text-slate-950">Agent leaderboard</h3>
                 <p className="mt-2 text-sm text-slate-600">Ranked by closed transactions, with volume and pending deals breaking ties.</p>
               </div>
@@ -464,12 +469,14 @@ function StatCard({
   value,
   helper,
   accent,
+  onClick,
 }: {
   icon: React.ReactNode;
   label: string;
   value: string | number;
   helper: string;
   accent: 'indigo' | 'emerald' | 'amber' | 'cyan';
+  onClick?: () => void;
 }) {
   const accents = {
     indigo: 'from-indigo-500/15 to-violet-500/10 text-indigo-700',
@@ -479,7 +486,10 @@ function StatCard({
   };
 
   return (
-    <div className="rounded-[1.75rem] border border-white/70 bg-white/85 p-6 shadow-[0_28px_80px_-40px_rgba(15,23,42,0.28)] backdrop-blur">
+    <div
+      className={`rounded-[1.75rem] border border-white/70 bg-white/85 p-6 shadow-[0_28px_80px_-40px_rgba(15,23,42,0.28)] backdrop-blur ${onClick ? 'cursor-pointer transition hover:-translate-y-0.5 hover:border-indigo-200 hover:shadow-[0_32px_90px_-40px_rgba(79,70,229,0.42)]' : ''}`}
+      onClick={onClick}
+    >
       <div className="mb-5 flex items-center justify-between gap-3">
         <div className={`flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br ${accents[accent]}`}>
           {icon}

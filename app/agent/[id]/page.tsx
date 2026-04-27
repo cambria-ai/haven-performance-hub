@@ -40,8 +40,6 @@ export default function AgentDashboard() {
   const [leads, setLeads] = useState<any[]>([]);
   const [showLeadForm, setShowLeadForm] = useState(false);
   const [showCapDrilldown, setShowCapDrilldown] = useState(false);
-  const [showPendingDrilldown, setShowPendingDrilldown] = useState(false);
-  const [pendingTransactions, setPendingTransactions] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState<'overview' | 'results'>('overview');
   const [newLead, setNewLead] = useState({ type: 'sphere', name: '', source: '', notes: '' });
 
@@ -252,10 +250,7 @@ export default function AgentDashboard() {
                 accent="emerald"
                 clickable={agentData.pendingTransactions && agentData.pendingTransactions > 0}
                 onClick={() => {
-                  if (agentData.pendingTransactionsDetail && agentData.pendingTransactionsDetail.length > 0) {
-                    setPendingTransactions(agentData.pendingTransactionsDetail);
-                    setShowPendingDrilldown(true);
-                  }
+                  router.push(`/agent/${agentData.id}/pendings`);
                 }}
               />
             </section>
@@ -360,9 +355,7 @@ export default function AgentDashboard() {
                     </p>
                   )}
                 </div>
-                <FinancialItem label="B&O tax" value={formatCurrency(agentData.boTax || 0)} />
-                <FinancialItem label="L&I" value={formatCurrency(agentData.lni || 0)} />
-                <FinancialItem label="Transaction fees" value={formatCurrency(agentData.transactionFees || 0)} />
+
               </div>
             </section>
               </>
@@ -411,8 +404,7 @@ export default function AgentDashboard() {
                             key={txn.transactionId}
                             className="cursor-pointer rounded-2xl border border-slate-100 bg-slate-50/80 p-4 transition hover:bg-indigo-50/80"
                             onClick={() => {
-                              setPendingTransactions(agentData.pendingTransactionsDetail);
-                              setShowPendingDrilldown(true);
+                              router.push(`/agent/${agentData.id}/pendings`);
                             }}
                           >
                             <div className="flex items-center justify-between">
@@ -515,16 +507,6 @@ export default function AgentDashboard() {
             capProgress={agentData.capProgress}
             capTarget={agentData.capTarget || 20000}
             onClose={() => setShowCapDrilldown(false)}
-          />
-        ) : null}
-
-        {showPendingDrilldown && pendingTransactions.length > 0 ? (
-          <PendingDrilldownModal
-            transactions={pendingTransactions}
-            onClose={() => {
-              setShowPendingDrilldown(false);
-              setPendingTransactions([]);
-            }}
           />
         ) : null}
 
@@ -913,131 +895,6 @@ function CapDrilldownModal({
               <p className="mt-1 text-sm text-slate-500">Sphere deals will appear here once they close.</p>
             </div>
           )}
-        </div>
-
-        <div className="mt-6 flex justify-end">
-          <button
-            onClick={onClose}
-            className="rounded-2xl bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800">
-            Close
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function PendingDrilldownModal({
-  transactions,
-  onClose,
-}: {
-  transactions: any[];
-  onClose: () => void;
-}) {
-  const totalExpectedIncome = transactions.reduce((sum, txn) => sum + (txn.expectedAgentIncome || 0), 0);
-  const totalPurchasePrice = transactions.reduce((sum, txn) => sum + (txn.purchasePrice || 0), 0);
-  
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
-      <div className="w-full max-w-3xl rounded-[2rem] border border-white/70 bg-white p-6 shadow-2xl">
-        <div className="mb-6 flex items-start justify-between">
-          <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.24em] text-slate-500">Pending deals ({transactions.length})</p>
-            <h2 className="mt-2 text-2xl font-semibold text-slate-950">All pending transactions</h2>
-            <p className="mt-2 text-sm text-slate-600">Expected income breakdown from Master Haven PNDS</p>
-          </div>
-          <button
-            onClick={onClose}
-            className="rounded-full p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-600"
-          >
-            <X className="h-5 w-5" />
-          </button>
-        </div>
-
-        <div className="mb-6 grid grid-cols-2 gap-4">
-          <div className="rounded-2xl bg-emerald-50 p-5">
-            <p className="text-sm font-medium text-emerald-900">Total expected agent income</p>
-            <p className="mt-2 text-3xl font-bold text-emerald-700">{formatCurrency(totalExpectedIncome)}</p>
-            <p className="mt-1 text-xs text-emerald-600">Across {transactions.length} deal{transactions.length !== 1 ? 's' : ''}</p>
-          </div>
-          <div className="rounded-2xl bg-slate-50 p-5">
-            <p className="text-sm font-medium text-slate-600">Total purchase price</p>
-            <p className="mt-2 text-3xl font-bold text-slate-900">{formatCurrency(totalPurchasePrice)}</p>
-          </div>
-        </div>
-
-        <div className="max-h-[60vh] overflow-y-auto space-y-4">
-          {transactions.map((txn, idx) => (
-            <div key={txn.transactionId || idx} className="rounded-2xl border border-slate-200 bg-slate-50/50 p-5">
-              <div className="mb-4 flex items-start justify-between">
-                <div className="min-w-0 flex-1">
-                  <p className="text-lg font-semibold text-slate-900">{txn.address}</p>
-                  <p className="text-sm text-slate-600">
-                    {txn.contractDate ? `Contract: ${formatDate(txn.contractDate)}` : 'Contract date TBD'}
-                    {txn.expectedClosingDate ? ` • Expected closing: ${formatDate(txn.expectedClosingDate)}` : ''}
-                  </p>
-                </div>
-                <div className="text-right">
-                  <p className="text-xl font-bold text-emerald-700">{formatCurrency(txn.expectedAgentIncome || 0)}</p>
-                  <p className="text-xs text-slate-500">Expected agent income</p>
-                </div>
-              </div>
-
-              <div className="rounded-xl border border-slate-200 bg-white p-4">
-                <h4 className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Income breakdown</h4>
-                <div className="space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-slate-600">Agent Income (commission split)</span>
-                    <span className="font-medium text-slate-900">{formatCurrency(txn.incomeBreakdown?.agentIncome || 0)}</span>
-                  </div>
-                  {txn.incomeBreakdown?.personalSphere && txn.incomeBreakdown.personalSphere > 0 && (
-                    <div className="flex justify-between">
-                      <span className="text-slate-600">Personal Sphere</span>
-                      <span className="font-medium text-emerald-700">{formatCurrency(txn.incomeBreakdown.personalSphere)}</span>
-                    </div>
-                  )}
-                  {txn.incomeBreakdown?.havenIncome && txn.incomeBreakdown.havenIncome > 0 && (
-                    <div className="flex justify-between">
-                      <span className="text-slate-600">Haven Income (GCI)</span>
-                      <span className="font-medium text-slate-900">{formatCurrency(txn.incomeBreakdown.havenIncome)}</span>
-                    </div>
-                  )}
-                  {txn.boTax !== undefined && txn.boTax > 0 && (
-                    <div className="flex justify-between">
-                      <span className="text-slate-600">B&O State Tax</span>
-                      <span className="font-medium text-slate-900">{formatCurrency(txn.boTax)}</span>
-                    </div>
-                  )}
-                  {txn.transactionFee !== undefined && txn.transactionFee > 0 && (
-                    <div className="flex justify-between">
-                      <span className="text-slate-600">Transaction Fee</span>
-                      <span className="font-medium text-slate-900">{formatCurrency(txn.transactionFee)}</span>
-                    </div>
-                  )}
-                  {/* Show zero values with different styling for clarity */}
-                  {txn.incomeBreakdown?.agentIncome === 0 && txn.incomeBreakdown?.personalSphere === 0 && txn.incomeBreakdown?.havenIncome === 0 && (
-                    <div className="mt-2 rounded-lg bg-amber-50 p-2 text-xs text-amber-700">
-                      <p className="font-medium">Income data not available in source</p>
-                      <p className="mt-0.5 text-amber-600">This transaction is tracked but income breakdown has not been entered in Master Haven PNDS yet.</p>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
-                <div>
-                  <p className="text-slate-500">Lead source</p>
-                  <p className="font-medium text-slate-900">{txn.leadSource || 'Unknown'}</p>
-                </div>
-                <div>
-                  <p className="text-slate-500">Deal type</p>
-                  <p className="font-medium text-slate-900">
-                    {txn.isSphere ? 'Personal Sphere' : txn.isZillow ? 'Zillow' : 'Other'}
-                  </p>
-                </div>
-              </div>
-            </div>
-          ))}
         </div>
 
         <div className="mt-6 flex justify-end">

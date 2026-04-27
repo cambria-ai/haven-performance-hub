@@ -73,6 +73,13 @@ export async function GET(request: NextRequest) {
       });
     }
 
+    if (requestedAgentId && requestedAgentId !== auth.agentId) {
+      return NextResponse.json(
+        { error: 'You can only view your own dashboard' },
+        { status: 403 }
+      );
+    }
+
     const scopedData = getScopedSnapshotData(snapshot, auth);
     
     if (!scopedData.snapshot && scopedData.error) {

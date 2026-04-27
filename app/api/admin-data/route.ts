@@ -11,17 +11,17 @@ import * as path from 'path';
 export async function GET(request: NextRequest) {
   try {
     const auth = getAuthFromRequest(request);
-    
+
     if (!auth || auth.role !== 'admin') {
       return NextResponse.json(
         { error: 'Admin access required' },
         { status: 403 }
       );
     }
-    
+
     const snapshot = loadCurrentSnapshot();
     const history = getSnapshotHistory();
-    
+
     // Calculate import health
     const importHealth: {
       lastImport: string | null;
@@ -36,7 +36,7 @@ export async function GET(request: NextRequest) {
       sourceFiles: snapshot?.metadata.sourceFiles || [],
       warnings: [],
     };
-    
+
     // Check for stale data (older than 7 days)
     if (snapshot?.metadata.createdAt) {
       const lastImport = new Date(snapshot.metadata.createdAt);
@@ -47,7 +47,7 @@ export async function GET(request: NextRequest) {
     } else {
       importHealth.warnings.push('No snapshot data available. Run your first import to populate dashboards.');
     }
-    
+
     // Load time-window stats if available
     let timeWindowStats: Record<string, any> | null = null;
     try {
@@ -58,7 +58,44 @@ export async function GET(request: NextRequest) {
     } catch {
       // Time-window stats not available yet
     }
-    
+
+    // Aggregate all pending transactions with full details
+    const allPendingTransactions: any[] = [];
+    let totalHavenReceivables = 0;
+    let totalAgentReceivables = 0;
+    let totalPurchasePrice = 0;
+
+    if (snapshot?.agents) {
+      for (const agent of Object.values(snapshot.agents)) {
+        if (agent.pendingTransactionsDetail && agent.pendingTransactionsDetail.length > 0) {
+          for (const txn of agent.pendingTransactionsDetail) {
+            allPendingTransactions.push({
+              transactionId: txn.transactionId,
+              agentId: agent.id,
+              agentName: agent.name,
+              address: txn.address,
+              contractDate: txn.contractDate,
+              expectedClosingDate: txn.expectedClosingDate,
+              purchasePrice: txn.purchasePrice || 0,
+              expectedAgentIncome: txn.expectedAgentIncome || 0,
+              havenIncome: txn.incomeBreakdown?.havenIncome || 0,
+              boTax: txn.boTax || 0,
+              transactionFee: txn.transactionFee || 0,
+              leadSource: txn.leadSource || 'Unknown',
+              isSphere: txn.isSphere || false,
+              isZillow: txn.isZillow || false,
+
+              incomeBreakdown: txn.incomeBreakdown,
+            });
+
+            totalHavenReceivables += txn.incomeBreakdown?.havenIncome || 0;
+            totalAgentReceivables += txn.expectedAgentIncome || 0;
+            totalPurchasePrice += txn.purchasePrice || 0;
+          }
+        }
+      }
+    }
+
     return NextResponse.json({
       snapshot,
       history,
@@ -66,10 +103,15 @@ export async function GET(request: NextRequest) {
       teamStats: snapshot?.teamStats || null,
       leaderboard: snapshot?.leaderboard || [],
       timeWindowStats,
+      allPendingTransactions,
+      totalHavenReceivables,
+      totalAgentReceivables,
+      totalPurchasePrice,
+      transactionCount: allPendingTransactions.length,
     });
   } catch (error) {
     console.error('Admin data error:', error);
-    return NextResponse.json({ 
+    return NextResponse.json({
       error: 'Failed to load admin data',
       snapshot: null,
       history: [],

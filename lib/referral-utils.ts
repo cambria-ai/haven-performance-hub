@@ -23,14 +23,14 @@ export function parseReferralIndicators(row: Record<string, any>): ReferralIndic
   const zillowFlexReferral = (row['Zillow Flex Referral'] || '') as string;
   const redfinReferral = (row['Redfin Referral'] || '') as string;
   const personalSphere = (row['Personal Sphere'] || '') as string;
-  
+
   const isReferral = identifyReferral(leadSource, referralText, zillowFlexReferral, redfinReferral);
   const referralSource = identifyReferralSource(leadSource, zillowFlexReferral, redfinReferral, personalSphere);
   const referralFee = parseCurrency(referralText) || undefined;
   const isZillowFlex: boolean = Boolean(zillowFlexReferral && zillowFlexReferral.trim() !== '' && zillowFlexReferral.trim() !== '$0.00');
   const isRedfin: boolean = Boolean(redfinReferral && redfinReferral.trim() !== '' && redfinReferral.trim() !== '$0.00');
   const isSphere: boolean = Boolean(personalSphere && personalSphere.trim() !== '');
-  
+
   return {
     isReferral,
     referralSource,
@@ -66,6 +66,7 @@ export function createReferralTransaction(
 
 /**
  * Identify if a transaction is a referral based on multiple indicators.
+ * CRITICAL: Zillow and Redfin transactions are NEVER referrals per Cambria's rule.
  */
 function identifyReferral(
   leadSource: string,
@@ -74,27 +75,37 @@ function identifyReferral(
   redfinReferral: string
 ): boolean {
   const leadSourceLower = leadSource.toLowerCase();
-  
+
+  // Check if source is Zillow or Redfin - these should NEVER count as referrals
+  const isZillowSource = leadSourceLower.includes('zillow');
+  const isRedfinSource = leadSourceLower.includes('redfin');
+
+  // Zillow and Redfin are NOT referrals regardless of other indicators
+  if (isZillowSource || isRedfinSource) return false;
+
   // Check Lead Generated column for referral keywords
   const referralKeywords = ['referral', 'soi', 'sphere', 'past client', 'lender referral', 'personal referral'];
   for (const keyword of referralKeywords) {
     if (leadSourceLower.includes(keyword)) return true;
   }
-  
+
   // Check if Referral column has a dollar amount
   if (referralText && referralText.trim() !== '' && referralText.trim() !== '$0.00') return true;
-  
-  // Check Zillow Flex Referral column
+
+  // Check Zillow Flex Referral column - but this is already excluded by isZillowSource check above
+  // Kept for completeness but won't trigger for Zillow sources
   if (zillowFlexReferral && zillowFlexReferral.trim() !== '' && zillowFlexReferral.trim() !== '$0.00') return true;
-  
-  // Check Redfin Referral column
+
+  // Check Redfin Referral column - but this is already excluded by isRedfinSource check above
+  // Kept for completeness but won't trigger for Redfin sources
   if (redfinReferral && redfinReferral.trim() !== '' && redfinReferral.trim() !== '$0.00') return true;
-  
+
   return false;
 }
 
 /**
  * Identify the referral source type.
+ * CRITICAL: Zillow and Redfin are explicitly excluded from referral sources.
  */
 function identifyReferralSource(
   leadSource: string,
@@ -103,35 +114,44 @@ function identifyReferralSource(
   personalSphere: string
 ): string {
   const leadSourceLower = leadSource.toLowerCase();
-  
+
+  // Check for Zillow/Redfin first - these are NOT referrals
+  if (leadSourceLower.includes('zillow')) {
+    return 'Zillow';
+  }
+
+  if (leadSourceLower.includes('redfin')) {
+    return 'Redfin';
+  }
+
   if (zillowFlexReferral && zillowFlexReferral.trim() !== '' && zillowFlexReferral.trim() !== '$0.00') {
     return 'Zillow Flex';
   }
-  
+
   if (redfinReferral && redfinReferral.trim() !== '' && redfinReferral.trim() !== '$0.00') {
     return 'Redfin';
   }
-  
+
   if (leadSourceLower.includes('soi')) {
     return 'SOI';
   }
-  
+
   if (leadSourceLower.includes('sphere') || (personalSphere && personalSphere.trim() !== '')) {
     return 'Sphere';
   }
-  
+
   if (leadSourceLower.includes('past client')) {
     return 'Past Client';
   }
-  
+
   if (leadSourceLower.includes('lender')) {
     return 'Lender';
   }
-  
+
   if (leadSourceLower.includes('prolinc')) {
     return 'PROLINC';
   }
-  
+
   return 'Other';
 }
 
