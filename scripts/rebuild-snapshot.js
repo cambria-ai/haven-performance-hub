@@ -288,28 +288,45 @@ async function loadClosedTransactions(roster) {
     const havenIncome = parseCurrency(row['Haven Income'] || row['GCI']) || 0;
     
     // Identify referrals from Referral column or Lead Generated source
+    // EXCLUDE Zillow and Redfin - they are NOT referrals per Cambria's rule
     const referralAmount = parseCurrency(row['Referral'] || row['referral']);
     const zillowFlexReferral = parseCurrency(row['Zillow Flex Referral'] || row['zillow flex referral']);
     const redfinReferral = parseCurrency(row['Redfin Referral'] || row['redfin referral']);
     const personalSphere = parseCurrency(row['Personal Sphere'] || row['personal sphere']);
-    const isReferral = referralAmount > 0 || 
-                       zillowFlexReferral > 0 || 
-                       redfinReferral > 0 || 
-                       personalSphere > 0 ||
-                       leadSource.toLowerCase().includes('referral') ||
-                       leadSource.toLowerCase().includes('sphere') ||
-                       leadSource.toLowerCase().includes('soi');
+    
+    // Check if source is Zillow or Redfin - these should NEVER count as referrals
+    const isZillowSource = leadSource.toLowerCase().includes('zillow');
+    const isRedfinSource = leadSource.toLowerCase().includes('redfin');
+    
+    // A transaction is a referral ONLY if it has referral money from non-Zillow/Redfin sources
+    // OR if the lead source contains 'referral', 'sphere', or 'soi' (but not Zillow/Redfin)
+    const isReferral = (referralAmount > 0 && !isZillowSource && !isRedfinSource) ||
+                       (personalSphere > 0 && !isZillowSource && !isRedfinSource) ||
+                       (!isZillowSource && !isRedfinSource && (
+                         leadSource.toLowerCase().includes('referral') ||
+                         leadSource.toLowerCase().includes('sphere') ||
+                         leadSource.toLowerCase().includes('soi')
+                       ));
     
     let referralSource = null;
-    let referralFee = referralAmount || zillowFlexReferral || redfinReferral || personalSphere || 0;
+    let referralFee = 0;
     
-    if (referralAmount > 0) referralSource = 'Referral';
-    else if (zillowFlexReferral > 0) referralSource = 'Zillow Flex Referral';
-    else if (redfinReferral > 0) referralSource = 'Redfin Referral';
-    else if (personalSphere > 0) referralSource = 'Personal Sphere';
-    else if (leadSource.toLowerCase().includes('referral')) referralSource = leadSource;
-    else if (leadSource.toLowerCase().includes('sphere')) referralSource = leadSource;
-    else if (leadSource.toLowerCase().includes('soi')) referralSource = leadSource;
+    // Only set referral fee and source for non-Zillow/Redfin referrals
+    if (!isZillowSource && !isRedfinSource) {
+      if (referralAmount > 0) {
+        referralFee = referralAmount;
+        referralSource = 'Referral';
+      } else if (personalSphere > 0) {
+        referralFee = personalSphere;
+        referralSource = 'Personal Sphere';
+      } else if (leadSource.toLowerCase().includes('referral')) {
+        referralSource = leadSource;
+      } else if (leadSource.toLowerCase().includes('sphere')) {
+        referralSource = leadSource;
+      } else if (leadSource.toLowerCase().includes('soi')) {
+        referralSource = leadSource;
+      }
+    }
     
     const dedupeKey = `${normalizedAddress}|${matchKey}|${price}|${closingDate.toISOString().split('T')[0]}`;
     if (seenTransactions.has(dedupeKey)) continue;
@@ -407,28 +424,45 @@ async function loadPendingTransactions(roster, closedTransactions) {
     }
     
     // Identify referrals from Referral column or Lead Generated source
+    // EXCLUDE Zillow and Redfin - they are NOT referrals per Cambria's rule
     const referralAmount = parseCurrency(row['Referral'] || row['referral']);
     const zillowFlexReferral = parseCurrency(row['Zillow Flex Referral'] || row['zillow flex referral']);
     const redfinReferral = parseCurrency(row['Redfin Referral'] || row['redfin referral']);
     const personalSphere = parseCurrency(row['Personal Sphere'] || row['personal sphere']);
-    const isReferral = referralAmount > 0 || 
-                       zillowFlexReferral > 0 || 
-                       redfinReferral > 0 || 
-                       personalSphere > 0 ||
-                       leadSource.toLowerCase().includes('referral') ||
-                       leadSource.toLowerCase().includes('sphere') ||
-                       leadSource.toLowerCase().includes('soi');
+    
+    // Check if source is Zillow or Redfin - these should NEVER count as referrals
+    const isZillowSource = leadSource.toLowerCase().includes('zillow');
+    const isRedfinSource = leadSource.toLowerCase().includes('redfin');
+    
+    // A transaction is a referral ONLY if it has referral money from non-Zillow/Redfin sources
+    // OR if the lead source contains 'referral', 'sphere', or 'soi' (but not Zillow/Redfin)
+    const isReferral = (referralAmount > 0 && !isZillowSource && !isRedfinSource) ||
+                       (personalSphere > 0 && !isZillowSource && !isRedfinSource) ||
+                       (!isZillowSource && !isRedfinSource && (
+                         leadSource.toLowerCase().includes('referral') ||
+                         leadSource.toLowerCase().includes('sphere') ||
+                         leadSource.toLowerCase().includes('soi')
+                       ));
     
     let referralSource = null;
-    let referralFee = referralAmount || zillowFlexReferral || redfinReferral || personalSphere || 0;
+    let referralFee = 0;
     
-    if (referralAmount > 0) referralSource = 'Referral';
-    else if (zillowFlexReferral > 0) referralSource = 'Zillow Flex Referral';
-    else if (redfinReferral > 0) referralSource = 'Redfin Referral';
-    else if (personalSphere > 0) referralSource = 'Personal Sphere';
-    else if (leadSource.toLowerCase().includes('referral')) referralSource = leadSource;
-    else if (leadSource.toLowerCase().includes('sphere')) referralSource = leadSource;
-    else if (leadSource.toLowerCase().includes('soi')) referralSource = leadSource;
+    // Only set referral fee and source for non-Zillow/Redfin referrals
+    if (!isZillowSource && !isRedfinSource) {
+      if (referralAmount > 0) {
+        referralFee = referralAmount;
+        referralSource = 'Referral';
+      } else if (personalSphere > 0) {
+        referralFee = personalSphere;
+        referralSource = 'Personal Sphere';
+      } else if (leadSource.toLowerCase().includes('referral')) {
+        referralSource = leadSource;
+      } else if (leadSource.toLowerCase().includes('sphere')) {
+        referralSource = leadSource;
+      } else if (leadSource.toLowerCase().includes('soi')) {
+        referralSource = leadSource;
+      }
+    }
     
     const pendingDedupeKey = `${normalizedAddress}|${matchKey}|${price}`;
     if (seenTransactions.has(pendingDedupeKey)) continue;
