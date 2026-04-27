@@ -250,6 +250,13 @@ export default function AgentDashboard() {
                 value={agentData.pendingTransactions || 0}
                 helper="In-flight transactions"
                 accent="emerald"
+                clickable={agentData.pendingTransactions && agentData.pendingTransactions > 0}
+                onClick={() => {
+                  if (agentData.pendingTransactionsDetail && agentData.pendingTransactionsDetail.length > 0) {
+                    setSelectedPendingTxn(agentData.pendingTransactionsDetail[0]);
+                    setShowPendingDrilldown(true);
+                  }
+                }}
               />
             </section>
 
@@ -651,12 +658,16 @@ function StatCard({
   value,
   helper,
   accent,
+  clickable,
+  onClick,
 }: {
   icon: React.ReactNode;
   label: string;
   value: string | number;
   helper: string;
   accent: 'indigo' | 'emerald' | 'amber';
+  clickable?: boolean;
+  onClick?: () => void;
 }) {
   const accents = {
     indigo: 'from-indigo-500/15 to-violet-500/10 text-indigo-700',
@@ -665,7 +676,10 @@ function StatCard({
   };
 
   return (
-    <div className="rounded-[1.75rem] border border-white/70 bg-white/85 p-6 shadow-[0_28px_80px_-40px_rgba(15,23,42,0.24)] backdrop-blur">
+    <div 
+      className={`rounded-[1.75rem] border border-white/70 bg-white/85 p-6 shadow-[0_28px_80px_-40px_rgba(15,23,42,0.24)] backdrop-blur${clickable ? ' cursor-pointer transition hover:border-indigo-200 hover:bg-indigo-50/80' : ''}`}
+      onClick={clickable ? onClick : undefined}
+    >
       <div className={`inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br ${accents[accent]}`}>
         {icon}
       </div>
