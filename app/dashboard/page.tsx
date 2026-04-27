@@ -303,49 +303,21 @@ export default function TeamLeaderDashboard() {
           <div className="rounded-[2rem] border border-white/70 bg-white/85 p-6 shadow-[0_30px_80px_-35px_rgba(15,23,42,0.24)] backdrop-blur">
             <div className="mb-5 flex items-center justify-between gap-4">
               <div>
-                <p className="text-sm font-semibold uppercase tracking-[0.24em] text-slate-500">Referral leaders</p>
-                <h3 className="mt-2 text-2xl font-semibold text-slate-950">Top referral producers</h3>
-                <p className="mt-2 text-sm text-slate-600">Ranked by referral transaction count and volume.</p>
+                <p className="text-sm font-semibold uppercase tracking-[0.24em] text-slate-500">Full roster</p>
+                <h3 className="mt-2 text-2xl font-semibold text-slate-950">All active agents</h3>
+                <p className="mt-2 text-sm text-slate-600">Complete roster including agents with zero current activity.</p>
               </div>
               <div className="rounded-full bg-slate-100 px-3 py-1 text-sm font-medium text-slate-600">
-                {data?.leaderboard?.filter((e: any) => e.referrals && e.referrals > 0).length || 0} agents
+                {Object.keys(data?.snapshot?.agents || {}).length} agents
               </div>
             </div>
 
-            {data?.leaderboard?.some((e: any) => e.referrals && e.referrals > 0) ? (
-              <div className="space-y-3">
-                {[...data.leaderboard]
-                  .filter((e: any) => e.referrals && e.referrals > 0)
-                  .sort((a: any, b: any) => (b.referrals || 0) - (a.referrals || 0) || (b.referralVolume || 0) - (a.referralVolume || 0))
-                  .slice(0, 10)
-                  .map((entry: any, idx: number) => (
-                    <div
-                      key={entry.agentId}
-                      className="flex cursor-pointer items-center justify-between gap-4 rounded-2xl border border-slate-100 bg-white p-4 transition-colors hover:bg-slate-50"
-                      onClick={() => handleViewAgent(entry.agentId)}
-                    >
-                      <div className="flex items-center gap-4">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-100 text-emerald-700">
-                          <span className="text-sm font-bold">{idx + 1}</span>
-                        </div>
-                        <div>
-                          <p className="font-semibold text-slate-900">{entry.agentName}</p>
-                          <p className="text-sm text-slate-600">
-                            {entry.referrals} referral{entry.referrals !== 1 ? 's' : ''} • {formatCurrency(entry.referralVolume || 0)}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2 text-slate-400">
-                        <span className="text-sm">View details</span>
-                        <ArrowUpRight className="h-4 w-4" />
-                      </div>
-                    </div>
-                  ))}
-              </div>
+            {data?.snapshot?.agents ? (
+              <FullRosterTable agents={data.snapshot.agents} onViewAgent={handleViewAgent} />
             ) : (
               <EmptyCard
-                title="No referral data available"
-                description="Referral tracking will appear here once source data is mapped."
+                title="No roster data available"
+                description="Agent roster will appear here once source data is loaded."
               />
             )}
           </div>
@@ -614,6 +586,92 @@ function AdminLeaderboardRow({ entry, onViewAgent }: { entry: any; onViewAgent: 
           <p className="text-lg font-bold text-slate-950">{entry.closedTransactions}</p>
           <p className="text-xs text-slate-500">closed</p>
         </div>
+        <ArrowUpRight className="h-4 w-4 text-slate-400" />
+      </div>
+    </div>
+  );
+}
+
+function FullRosterTable({ agents, onViewAgent }: { agents: Record<string, any>; onViewAgent: (agentId: string) => void }) {
+  const [searchQuery, setSearchQuery] = useState('');
+  
+  const agentList = Object.values(agents).sort((a, b) => a.name.localeCompare(b.name));
+  
+  const filteredAgents = agentList.filter(agent => 
+    agent.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    agent.id.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+  
+  const agentsWithActivity = filteredAgents.filter(a => a.closedTransactions > 0 || a.pendingTransactions > 0);
+  const agentsWithoutActivity = filteredAgents.filter(a => a.closedTransactions === 0 && a.pendingTransactions === 0);
+  
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center gap-3">
+        <input
+          type="text"
+          placeholder="Search agents..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="flex-1 rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+        />
+        <div className="rounded-2xl bg-slate-100 px-3 py-2 text-xs font-medium text-slate-600">
+          {filteredAgents.length} shown
+        </div>
+      </div>
+      
+      {agentsWithActivity.length > 0 && (
+        <div>
+          <h4 className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Active this week ({agentsWithActivity.length})</h4>
+          <div className="space-y-2">
+            {agentsWithActivity.map((agent) => (
+              <RosterRow key={agent.id} agent={agent} onViewAgent={onViewAgent} />
+            ))}
+          </div>
+        </div>
+      )}
+      
+      {agentsWithoutActivity.length > 0 && (
+        <div>
+          <h4 className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">No current activity ({agentsWithoutActivity.length})</h4>
+          <div className="space-y-2">
+            {agentsWithoutActivity.map((agent) => (
+              <RosterRow key={agent.id} agent={agent} onViewAgent={onViewAgent} />
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function RosterRow({ agent, onViewAgent }: { agent: any; onViewAgent: (agentId: string) => void }) {
+  const hasActivity = agent.closedTransactions > 0 || agent.pendingTransactions > 0;
+  
+  return (
+    <div 
+      className="flex cursor-pointer items-center justify-between gap-4 rounded-2xl border border-slate-100 bg-white p-3 transition-colors hover:bg-slate-50"
+      onClick={() => onViewAgent(agent.id)}
+    >
+      <div className="min-w-0 flex-1">
+        <p className="truncate text-sm font-medium text-slate-900">{agent.name}</p>
+        {hasActivity && (
+          <p className="mt-0.5 text-xs text-slate-500">
+            {agent.closedTransactions} closed • {agent.pendingTransactions} pending • {formatCurrency(agent.closedVolume || 0)}
+          </p>
+        )}
+      </div>
+      <div className="flex items-center gap-3">
+        {hasActivity ? (
+          <div className="text-right">
+            <p className="text-sm font-semibold text-slate-950">{agent.closedTransactions + agent.pendingTransactions}</p>
+            <p className="text-xs text-slate-500">transactions</p>
+          </div>
+        ) : (
+          <div className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-500">
+            No activity
+          </div>
+        )}
         <ArrowUpRight className="h-4 w-4 text-slate-400" />
       </div>
     </div>
