@@ -1,7 +1,7 @@
 {
   "metadata": {
-    "id": "snapshot-2026-04-27-13-35",
-    "createdAt": "2026-04-27T20:35:26.911Z",
+    "id": "snapshot-2026-04-27-13-43",
+    "createdAt": "2026-04-27T20:43:09.773Z",
     "uploadedBy": "clean-room-rebuild",
     "sourceFiles": [
       "Haven Transactions 2026",
@@ -35,7 +35,8 @@
       "capContributingTransactions": [],
       "referrals": 0,
       "referralVolume": 0,
-      "referralTransactions": []
+      "referralTransactions": [],
+      "pendingTransactionsDetail": []
     },
     "sar-509-326-9222-office-mls-id-1311-ubi-603417621-dol-19892": {
       "id": "sar-509-326-9222-office-mls-id-1311-ubi-603417621-dol-19892",
@@ -55,7 +56,8 @@
       "capContributingTransactions": [],
       "referrals": 0,
       "referralVolume": 0,
-      "referralTransactions": []
+      "referralTransactions": [],
+      "pendingTransactionsDetail": []
     },
     "epique-realty-id-license-58764-wa-license-23015112-ein-85-2153910-hud-11826-pqrlty3912": {
       "id": "epique-realty-id-license-58764-wa-license-23015112-ein-85-2153910-hud-11826-pqrlty3912",
@@ -75,7 +77,8 @@
       "capContributingTransactions": [],
       "referrals": 0,
       "referralVolume": 0,
-      "referralTransactions": []
+      "referralTransactions": [],
+      "pendingTransactionsDetail": []
     },
     "cambria-henry": {
       "id": "cambria-henry",
@@ -118,6 +121,42 @@
           "isRedfin": false,
           "isSphere": true
         }
+      ],
+      "pendingTransactionsDetail": [
+        {
+          "transactionId": "pend-cambria-henry-2630-s-fairmont-estates-ct-2026-03-29T07:00:00.000Z",
+          "address": "2630 S Fairmont Estates Ct",
+          "contractDate": "2026-03-29T07:00:00.000Z",
+          "expectedClosingDate": "2026-05-07T07:00:00.000Z",
+          "purchasePrice": 640000,
+          "expectedAgentIncome": 12361.75,
+          "sourceIncomeField": "Haven Income",
+          "incomeBreakdown": {
+            "agentIncome": 0,
+            "personalSphere": 0,
+            "havenIncome": 12361.75
+          },
+          "leadSource": "Sphere",
+          "isSphere": true,
+          "isZillow": false
+        },
+        {
+          "transactionId": "pend-cambria-henry-6760-w-portrush-dr-2026-04-10T07:00:00.000Z",
+          "address": "6760 W Portrush Dr",
+          "contractDate": "2026-04-10T07:00:00.000Z",
+          "expectedClosingDate": "2026-06-08T07:00:00.000Z",
+          "purchasePrice": 665000,
+          "expectedAgentIncome": 0,
+          "sourceIncomeField": "Haven Income",
+          "incomeBreakdown": {
+            "agentIncome": 0,
+            "personalSphere": 0,
+            "havenIncome": 0
+          },
+          "leadSource": "Sphere",
+          "isSphere": true,
+          "isZillow": false
+        }
       ]
     },
     "robert-henry": {
@@ -138,7 +177,8 @@
       "capContributingTransactions": [],
       "referrals": 0,
       "referralVolume": 0,
-      "referralTransactions": []
+      "referralTransactions": [],
+      "pendingTransactionsDetail": []
     },
     "jennifer-tiffany": {
       "id": "jennifer-tiffany",
@@ -158,7 +198,8 @@
       "capContributingTransactions": [],
       "referrals": 0,
       "referralVolume": 0,
-      "referralTransactions": []
+      "referralTransactions": [],
+      "pendingTransactionsDetail": []
     },
     "desiree-grower-administrative-assistant": {
       "id": "desiree-grower-administrative-assistant",
@@ -178,7 +219,8 @@
       "capContributingTransactions": [],
       "referrals": 0,
       "referralVolume": 0,
-      "referralTransactions": []
+      "referralTransactions": [],
+      "pendingTransactionsDetail": []
     },
     "alyza-ramirez": {
       "id": "alyza-ramirez",
@@ -198,7 +240,8 @@
       "capContributingTransactions": [],
       "referrals": 0,
       "referralVolume": 0,
-      "referralTransactions": []
+      "referralTransactions": [],
+      "pendingTransactionsDetail": []
     },
     "rechiel-ferrer": {
       "id": "rechiel-ferrer",
@@ -218,7 +261,8 @@
       "capContributingTransactions": [],
       "referrals": 0,
       "referralVolume": 0,
-      "referralTransactions": []
+      "referralTransactions": [],
+      "pendingTransactionsDetail": []
     },
     "jeremiah-ferrer": {
       "id": "jeremiah-ferrer",
@@ -238,7 +282,8 @@
       "capContributingTransactions": [],
       "referrals": 0,
       "referralVolume": 0,
-      "referralTransactions": []
+      "referralTransactions": [],
+      "pendingTransactionsDetail": []
     },
     "jeff-bell": {
       "id": "jeff-bell",
@@ -258,7 +303,8 @@
       "capContributingTransactions": [],
       "referrals": 0,
       "referralVolume": 0,
-      "referralTransactions": []
+      "referralTransactions": [],
+      "pendingTransactionsDetail": []
     },
     "spokane-office-sar": {
       "id": "spokane-office-sar",
@@ -278,7 +324,8 @@
       "capContributingTransactions": [],
       "referrals": 0,
       "referralVolume": 0,
-      "referralTransactions": []
+      "referralTransactions": [],
+      "pendingTransactionsDetail": []
     },
     "agent": {
       "id": "agent",
@@ -298,7 +345,8 @@
       "capContributingTransactions": [],
       "referrals": 0,
       "referralVolume": 0,
-      "referralTransactions": []
+      "referralTransactions": [],
+      "pendingTransactionsDetail": []
     },
     "independent-agent": {
       "id": "independent-agent",
@@ -318,7 +366,8 @@
       "capContributingTransactions": [],
       "referrals": 0,
       "referralVolume": 0,
-      "referralTransactions": []
+      "referralTransactions": [],
+      "pendingTransactionsDetail": []
     },
     "amy-sparrow": {
       "id": "amy-sparrow",
@@ -349,6 +398,25 @@
           "isZillowFlex": false,
           "isRedfin": false,
           "isSphere": true
+        }
+      ],
+      "pendingTransactionsDetail": [
+        {
+          "transactionId": "pend-amy-sparrow-525-w-bolan-ave-2026-04-22T07:00:00.000Z",
+          "address": "525 W Bolan Ave",
+          "contractDate": "2026-04-22T07:00:00.000Z",
+          "expectedClosingDate": "2026-06-15T07:00:00.000Z",
+          "purchasePrice": 650000,
+          "expectedAgentIncome": 0,
+          "sourceIncomeField": "Haven Income",
+          "incomeBreakdown": {
+            "agentIncome": 0,
+            "personalSphere": 0,
+            "havenIncome": 0
+          },
+          "leadSource": "Zillow Flex",
+          "isSphere": false,
+          "isZillow": true
         }
       ]
     },
@@ -470,6 +538,41 @@
           "isRedfin": false,
           "isSphere": false
         }
+      ],
+      "pendingTransactionsDetail": [
+        {
+          "transactionId": "pend-andrey-morgunov-801-s-adam-st-2026-02-20T08:00:00.000Z",
+          "address": "801 S Adam St",
+          "contractDate": "2026-02-20T08:00:00.000Z",
+          "expectedClosingDate": "2026-04-30T07:00:00.000Z",
+          "purchasePrice": 1780000,
+          "expectedAgentIncome": 26811.68,
+          "sourceIncomeField": "Agent Income",
+          "incomeBreakdown": {
+            "agentIncome": 26811.68,
+            "personalSphere": 0,
+            "havenIncome": 14075.65
+          },
+          "leadSource": "Sphere",
+          "isSphere": true,
+          "isZillow": false
+        },
+        {
+          "transactionId": "pend-andrey-morgunov-2117-2119-e-euclid-ave-2026-03-09T07:00:00.000Z",
+          "address": "2117-2119 E Euclid Ave",
+          "contractDate": "2026-03-09T07:00:00.000Z",
+          "purchasePrice": 340000,
+          "expectedAgentIncome": 0,
+          "sourceIncomeField": "Haven Income",
+          "incomeBreakdown": {
+            "agentIncome": 0,
+            "personalSphere": 0,
+            "havenIncome": 0
+          },
+          "leadSource": "TBD (confirming if it's a zillow lead)",
+          "isSphere": false,
+          "isZillow": true
+        }
       ]
     },
     "andria-sanchez": {
@@ -490,7 +593,8 @@
       "capContributingTransactions": [],
       "referrals": 0,
       "referralVolume": 0,
-      "referralTransactions": []
+      "referralTransactions": [],
+      "pendingTransactionsDetail": []
     },
     "brenden-kichton": {
       "id": "brenden-kichton",
@@ -510,7 +614,8 @@
       "capContributingTransactions": [],
       "referrals": 0,
       "referralVolume": 0,
-      "referralTransactions": []
+      "referralTransactions": [],
+      "pendingTransactionsDetail": []
     },
     "celeste-jones": {
       "id": "celeste-jones",
@@ -530,7 +635,8 @@
       "capContributingTransactions": [],
       "referrals": 0,
       "referralVolume": 0,
-      "referralTransactions": []
+      "referralTransactions": [],
+      "pendingTransactionsDetail": []
     },
     "christy-thomas": {
       "id": "christy-thomas",
@@ -550,7 +656,8 @@
       "capContributingTransactions": [],
       "referrals": 0,
       "referralVolume": 0,
-      "referralTransactions": []
+      "referralTransactions": [],
+      "pendingTransactionsDetail": []
     },
     "corinthia-clary": {
       "id": "corinthia-clary",
@@ -570,7 +677,8 @@
       "capContributingTransactions": [],
       "referrals": 0,
       "referralVolume": 0,
-      "referralTransactions": []
+      "referralTransactions": [],
+      "pendingTransactionsDetail": []
     },
     "craig-reasoner": {
       "id": "craig-reasoner",
@@ -590,7 +698,26 @@
       "capContributingTransactions": [],
       "referrals": 0,
       "referralVolume": 0,
-      "referralTransactions": []
+      "referralTransactions": [],
+      "pendingTransactionsDetail": [
+        {
+          "transactionId": "pend-craig-reasoner-xxx-e-slaton-rd-2026-04-01T07:00:00.000Z",
+          "address": "XXX E Slaton Rd",
+          "contractDate": "2026-04-01T07:00:00.000Z",
+          "expectedClosingDate": "2026-04-30T07:00:00.000Z",
+          "purchasePrice": 164999,
+          "expectedAgentIncome": 1307.88,
+          "sourceIncomeField": "Agent Income",
+          "incomeBreakdown": {
+            "agentIncome": 1307.88,
+            "personalSphere": 0,
+            "havenIncome": 1926.9
+          },
+          "leadSource": "Zillow Flex",
+          "isSphere": false,
+          "isZillow": true
+        }
+      ]
     },
     "dan-hall": {
       "id": "dan-hall",
@@ -610,7 +737,8 @@
       "capContributingTransactions": [],
       "referrals": 0,
       "referralVolume": 0,
-      "referralTransactions": []
+      "referralTransactions": [],
+      "pendingTransactionsDetail": []
     },
     "denise-thrasher": {
       "id": "denise-thrasher",
@@ -664,6 +792,25 @@
           "isRedfin": false,
           "isSphere": false
         }
+      ],
+      "pendingTransactionsDetail": [
+        {
+          "transactionId": "pend-denise-thrasher-2830-w-westover-rd-2026-04-03T07:00:00.000Z",
+          "address": "2830 W Westover Rd",
+          "contractDate": "2026-04-03T07:00:00.000Z",
+          "expectedClosingDate": "2026-04-29T07:00:00.000Z",
+          "purchasePrice": 495000,
+          "expectedAgentIncome": 3814.41,
+          "sourceIncomeField": "Agent Income",
+          "incomeBreakdown": {
+            "agentIncome": 3814.41,
+            "personalSphere": 0,
+            "havenIncome": 4974.25
+          },
+          "leadSource": "Zillow (Non Flex)",
+          "isSphere": false,
+          "isZillow": true
+        }
       ]
     },
     "dennis-isip": {
@@ -684,7 +831,8 @@
       "capContributingTransactions": [],
       "referrals": 0,
       "referralVolume": 0,
-      "referralTransactions": []
+      "referralTransactions": [],
+      "pendingTransactionsDetail": []
     },
     "didi-emtman": {
       "id": "didi-emtman",
@@ -841,6 +989,42 @@
           "isRedfin": false,
           "isSphere": true
         }
+      ],
+      "pendingTransactionsDetail": [
+        {
+          "transactionId": "pend-didi-emtman-4923-n-cook-st-2026-04-03T07:00:00.000Z",
+          "address": "4923 N Cook St",
+          "contractDate": "2026-04-03T07:00:00.000Z",
+          "expectedClosingDate": "2026-04-29T07:00:00.000Z",
+          "purchasePrice": 245000,
+          "expectedAgentIncome": 2071.26,
+          "sourceIncomeField": "Agent Income",
+          "incomeBreakdown": {
+            "agentIncome": 2071.26,
+            "personalSphere": 0,
+            "havenIncome": 2076.38
+          },
+          "leadSource": "Zillow Flex",
+          "isSphere": false,
+          "isZillow": true
+        },
+        {
+          "transactionId": "pend-didi-emtman-1117-s-dover-rd-2026-04-09T07:00:00.000Z",
+          "address": "1117 S Dover Rd",
+          "contractDate": "2026-04-09T07:00:00.000Z",
+          "expectedClosingDate": "2026-06-22T07:00:00.000Z",
+          "purchasePrice": 110000,
+          "expectedAgentIncome": 0,
+          "sourceIncomeField": "Haven Income",
+          "incomeBreakdown": {
+            "agentIncome": 0,
+            "personalSphere": 0,
+            "havenIncome": 0
+          },
+          "leadSource": "Zillow Flex",
+          "isSphere": false,
+          "isZillow": true
+        }
       ]
     },
     "emily-polanco": {
@@ -939,6 +1123,110 @@
           "isRedfin": false,
           "isSphere": true
         }
+      ],
+      "pendingTransactionsDetail": [
+        {
+          "transactionId": "pend-emily-polanco-9307-e-morgan-rd-2026-03-26T07:00:00.000Z",
+          "address": "9307 E Morgan Rd",
+          "contractDate": "2026-03-26T07:00:00.000Z",
+          "expectedClosingDate": "2026-04-28T07:00:00.000Z",
+          "purchasePrice": 740000,
+          "expectedAgentIncome": 9005.36,
+          "sourceIncomeField": "Agent Income",
+          "incomeBreakdown": {
+            "agentIncome": 9005.36,
+            "personalSphere": 0,
+            "havenIncome": 7084.08
+          },
+          "leadSource": "Sphere",
+          "isSphere": true,
+          "isZillow": false
+        },
+        {
+          "transactionId": "pend-emily-polanco-416-s-leta-rd-2026-03-29T07:00:00.000Z",
+          "address": "416 S Leta Rd",
+          "contractDate": "2026-03-29T07:00:00.000Z",
+          "expectedClosingDate": "2026-04-28T07:00:00.000Z",
+          "purchasePrice": 399000,
+          "expectedAgentIncome": 3620.42,
+          "sourceIncomeField": "Agent Income",
+          "incomeBreakdown": {
+            "agentIncome": 3620.42,
+            "personalSphere": 0,
+            "havenIncome": 3114.77
+          },
+          "leadSource": "Zillow Flex",
+          "isSphere": false,
+          "isZillow": true
+        },
+        {
+          "transactionId": "pend-emily-polanco-1135-forest-park-park-2026-04-14T07:00:00.000Z",
+          "address": "1135 Forest Park Park",
+          "contractDate": "2026-04-14T07:00:00.000Z",
+          "expectedClosingDate": "2026-05-12T07:00:00.000Z",
+          "purchasePrice": 450000,
+          "expectedAgentIncome": 0,
+          "sourceIncomeField": "Haven Income",
+          "incomeBreakdown": {
+            "agentIncome": 0,
+            "personalSphere": 0,
+            "havenIncome": 0
+          },
+          "leadSource": "Sphere",
+          "isSphere": true,
+          "isZillow": false
+        },
+        {
+          "transactionId": "pend-emily-polanco-3807-w-pandion-dr-2026-03-17T07:00:00.000Z",
+          "address": "3807 W Pandion Dr",
+          "contractDate": "2026-03-17T07:00:00.000Z",
+          "expectedClosingDate": "2026-05-13T07:00:00.000Z",
+          "purchasePrice": 414000,
+          "expectedAgentIncome": 4986,
+          "sourceIncomeField": "Agent Income",
+          "incomeBreakdown": {
+            "agentIncome": 4986,
+            "personalSphere": 0,
+            "havenIncome": 6260
+          },
+          "leadSource": "Google Inquiry",
+          "isSphere": false,
+          "isZillow": false
+        },
+        {
+          "transactionId": "pend-emily-polanco-5241-f-hattery-owens-rd-2026-04-19T07:00:00.000Z",
+          "address": "5241 F Hattery-Owens Rd",
+          "contractDate": "2026-04-19T07:00:00.000Z",
+          "expectedClosingDate": "2026-06-05T07:00:00.000Z",
+          "purchasePrice": 799000,
+          "expectedAgentIncome": 0,
+          "sourceIncomeField": "Haven Income",
+          "incomeBreakdown": {
+            "agentIncome": 0,
+            "personalSphere": 0,
+            "havenIncome": 0
+          },
+          "leadSource": "Sphere",
+          "isSphere": true,
+          "isZillow": false
+        },
+        {
+          "transactionId": "pend-emily-polanco-8511-w-silver-st-2026-04-14T07:00:00.000Z",
+          "address": "8511 W Silver St",
+          "contractDate": "2026-04-14T07:00:00.000Z",
+          "expectedClosingDate": "2026-07-31T07:00:00.000Z",
+          "purchasePrice": 485000,
+          "expectedAgentIncome": 0,
+          "sourceIncomeField": "Haven Income",
+          "incomeBreakdown": {
+            "agentIncome": 0,
+            "personalSphere": 0,
+            "havenIncome": 0
+          },
+          "leadSource": "Zillow Flex",
+          "isSphere": false,
+          "isZillow": true
+        }
       ]
     },
     "jazmond-ohmann": {
@@ -959,7 +1247,26 @@
       "capContributingTransactions": [],
       "referrals": 0,
       "referralVolume": 0,
-      "referralTransactions": []
+      "referralTransactions": [],
+      "pendingTransactionsDetail": [
+        {
+          "transactionId": "pend-jazmond-ohmann-2989-leslie-creek-rd-2026-04-15T07:00:00.000Z",
+          "address": "2989 Leslie Creek Rd",
+          "contractDate": "2026-04-15T07:00:00.000Z",
+          "expectedClosingDate": "2026-05-07T07:00:00.000Z",
+          "purchasePrice": 459000,
+          "expectedAgentIncome": 0,
+          "sourceIncomeField": "Haven Income",
+          "incomeBreakdown": {
+            "agentIncome": 0,
+            "personalSphere": 0,
+            "havenIncome": 0
+          },
+          "leadSource": "Zillow Flex",
+          "isSphere": false,
+          "isZillow": true
+        }
+      ]
     },
     "jeffery-kanally": {
       "id": "jeffery-kanally",
@@ -979,7 +1286,8 @@
       "capContributingTransactions": [],
       "referrals": 0,
       "referralVolume": 0,
-      "referralTransactions": []
+      "referralTransactions": [],
+      "pendingTransactionsDetail": []
     },
     "jennifer-riddel": {
       "id": "jennifer-riddel",
@@ -1033,6 +1341,25 @@
           "isRedfin": false,
           "isSphere": false
         }
+      ],
+      "pendingTransactionsDetail": [
+        {
+          "transactionId": "pend-jennifer-riddel-5566-w-mckenzie-woolard-rd-2026-04-12T07:00:00.000Z",
+          "address": "5566 W McKenzie Woolard Rd",
+          "contractDate": "2026-04-12T07:00:00.000Z",
+          "expectedClosingDate": "2026-05-21T07:00:00.000Z",
+          "purchasePrice": 969000,
+          "expectedAgentIncome": 0,
+          "sourceIncomeField": "Haven Income",
+          "incomeBreakdown": {
+            "agentIncome": 0,
+            "personalSphere": 0,
+            "havenIncome": 0
+          },
+          "leadSource": "Direct Call in",
+          "isSphere": false,
+          "isZillow": false
+        }
       ]
     },
     "jesse-miller": {
@@ -1076,6 +1403,93 @@
           "isRedfin": false,
           "isSphere": true
         }
+      ],
+      "pendingTransactionsDetail": [
+        {
+          "transactionId": "pend-jesse-miller-754-paradise-ln-2026-03-29T07:00:00.000Z",
+          "address": "754 Paradise Ln",
+          "contractDate": "2026-03-29T07:00:00.000Z",
+          "expectedClosingDate": "2026-05-14T07:00:00.000Z",
+          "purchasePrice": 120000,
+          "expectedAgentIncome": 0,
+          "sourceIncomeField": "Haven Income",
+          "incomeBreakdown": {
+            "agentIncome": 0,
+            "personalSphere": 0,
+            "havenIncome": 0
+          },
+          "leadSource": "Zillow (Over 2 Years & 2 Closed Transactions)",
+          "isSphere": false,
+          "isZillow": true
+        },
+        {
+          "transactionId": "pend-jesse-miller-14004-s-finney-st-2026-04-20T07:00:00.000Z",
+          "address": "14004 S Finney St",
+          "contractDate": "2026-04-20T07:00:00.000Z",
+          "expectedClosingDate": "2026-05-19T07:00:00.000Z",
+          "purchasePrice": 625000,
+          "expectedAgentIncome": 0,
+          "sourceIncomeField": "Haven Income",
+          "incomeBreakdown": {
+            "agentIncome": 0,
+            "personalSphere": 0,
+            "havenIncome": 0
+          },
+          "leadSource": "SOI",
+          "isSphere": false,
+          "isZillow": false
+        },
+        {
+          "transactionId": "pend-jesse-miller-4609-n-lincoln-st-2026-04-24T07:00:00.000Z",
+          "address": "4609 N Lincoln St",
+          "contractDate": "2026-04-24T07:00:00.000Z",
+          "expectedClosingDate": "2026-05-26T07:00:00.000Z",
+          "purchasePrice": 370000,
+          "expectedAgentIncome": 0,
+          "sourceIncomeField": "Haven Income",
+          "incomeBreakdown": {
+            "agentIncome": 0,
+            "personalSphere": 0,
+            "havenIncome": 0
+          },
+          "leadSource": "Zillow Flex | Referral form Agent (Monty)",
+          "isSphere": false,
+          "isZillow": true
+        },
+        {
+          "transactionId": "pend-jesse-miller-1526/1528-n-wilhelm-way-2026-02-16T08:00:00.000Z",
+          "address": "1526/1528 N Wilhelm Way",
+          "contractDate": "2026-02-16T08:00:00.000Z",
+          "expectedClosingDate": "2026-07-17T07:00:00.000Z",
+          "purchasePrice": 786905,
+          "expectedAgentIncome": 0,
+          "sourceIncomeField": "Haven Income",
+          "incomeBreakdown": {
+            "agentIncome": 0,
+            "personalSphere": 0,
+            "havenIncome": 0
+          },
+          "leadSource": "Sphere",
+          "isSphere": true,
+          "isZillow": false
+        },
+        {
+          "transactionId": "pend-jesse-miller-407-s-treeline-st-2026-04-08T07:00:00.000Z",
+          "address": "407 S Treeline St",
+          "contractDate": "2026-04-08T07:00:00.000Z",
+          "expectedClosingDate": "2026-08-17T07:00:00.000Z",
+          "purchasePrice": 428784,
+          "expectedAgentIncome": 0,
+          "sourceIncomeField": "Haven Income",
+          "incomeBreakdown": {
+            "agentIncome": 0,
+            "personalSphere": 0,
+            "havenIncome": 0
+          },
+          "leadSource": "Sphere",
+          "isSphere": true,
+          "isZillow": false
+        }
       ]
     },
     "jessica-fry": {
@@ -1096,7 +1510,26 @@
       "capContributingTransactions": [],
       "referrals": 0,
       "referralVolume": 0,
-      "referralTransactions": []
+      "referralTransactions": [],
+      "pendingTransactionsDetail": [
+        {
+          "transactionId": "pend-jessica-fry-7684-adams-driveve-way-2026-03-30T07:00:00.000Z",
+          "address": "7684 Adams Drive Way",
+          "contractDate": "2026-03-30T07:00:00.000Z",
+          "expectedClosingDate": "2026-05-20T07:00:00.000Z",
+          "purchasePrice": 452500,
+          "expectedAgentIncome": 0,
+          "sourceIncomeField": "Haven Income",
+          "incomeBreakdown": {
+            "agentIncome": 0,
+            "personalSphere": 0,
+            "havenIncome": 0
+          },
+          "leadSource": "Zillow Flex",
+          "isSphere": false,
+          "isZillow": true
+        }
+      ]
     },
     "jessica-marcotte": {
       "id": "jessica-marcotte",
@@ -1116,7 +1549,8 @@
       "capContributingTransactions": [],
       "referrals": 0,
       "referralVolume": 0,
-      "referralTransactions": []
+      "referralTransactions": [],
+      "pendingTransactionsDetail": []
     },
     "john-sloan": {
       "id": "john-sloan",
@@ -1136,7 +1570,8 @@
       "capContributingTransactions": [],
       "referrals": 0,
       "referralVolume": 0,
-      "referralTransactions": []
+      "referralTransactions": [],
+      "pendingTransactionsDetail": []
     },
     "jose-alexander": {
       "id": "jose-alexander",
@@ -1179,6 +1614,59 @@
           "isRedfin": false,
           "isSphere": false
         }
+      ],
+      "pendingTransactionsDetail": [
+        {
+          "transactionId": "pend-jose-alexander-1737-n-smith-st-2026-04-18T07:00:00.000Z",
+          "address": "1737 N Smith St",
+          "contractDate": "2026-04-18T07:00:00.000Z",
+          "expectedClosingDate": "2026-05-20T07:00:00.000Z",
+          "purchasePrice": 220000,
+          "expectedAgentIncome": 0,
+          "sourceIncomeField": "Haven Income",
+          "incomeBreakdown": {
+            "agentIncome": 0,
+            "personalSphere": 0,
+            "havenIncome": 0
+          },
+          "leadSource": "Zillow Flex",
+          "isSphere": false,
+          "isZillow": true
+        },
+        {
+          "transactionId": "pend-jose-alexander-3649-s-mccabe-ln-2026-04-17T07:00:00.000Z",
+          "address": "3649 S McCabe Ln",
+          "contractDate": "2026-04-17T07:00:00.000Z",
+          "expectedClosingDate": "2026-05-27T07:00:00.000Z",
+          "purchasePrice": 529995,
+          "expectedAgentIncome": 0,
+          "sourceIncomeField": "Haven Income",
+          "incomeBreakdown": {
+            "agentIncome": 0,
+            "personalSphere": 0,
+            "havenIncome": 0
+          },
+          "leadSource": "Zillow Flex",
+          "isSphere": false,
+          "isZillow": true
+        },
+        {
+          "transactionId": "pend-jose-alexander-5271-e-mckinnon-ln-2026-03-23T07:00:00.000Z",
+          "address": "5271 E McKinnon Ln",
+          "contractDate": "2026-03-23T07:00:00.000Z",
+          "expectedClosingDate": "2026-05-29T07:00:00.000Z",
+          "purchasePrice": 509995,
+          "expectedAgentIncome": 0,
+          "sourceIncomeField": "Haven Income",
+          "incomeBreakdown": {
+            "agentIncome": 0,
+            "personalSphere": 0,
+            "havenIncome": 0
+          },
+          "leadSource": "Zillow Flex",
+          "isSphere": false,
+          "isZillow": true
+        }
       ]
     },
     "josh-bittner": {
@@ -1199,7 +1687,8 @@
       "capContributingTransactions": [],
       "referrals": 0,
       "referralVolume": 0,
-      "referralTransactions": []
+      "referralTransactions": [],
+      "pendingTransactionsDetail": []
     },
     "justin-smith": {
       "id": "justin-smith",
@@ -1219,7 +1708,77 @@
       "capContributingTransactions": [],
       "referrals": 0,
       "referralVolume": 0,
-      "referralTransactions": []
+      "referralTransactions": [],
+      "pendingTransactionsDetail": [
+        {
+          "transactionId": "pend-justin-smith-7907-e-nora-ave-2026-03-25T07:00:00.000Z",
+          "address": "7907 E Nora Ave",
+          "contractDate": "2026-03-25T07:00:00.000Z",
+          "expectedClosingDate": "2026-04-28T07:00:00.000Z",
+          "purchasePrice": 195650,
+          "expectedAgentIncome": 875.75,
+          "sourceIncomeField": "Agent Income",
+          "incomeBreakdown": {
+            "agentIncome": 875.75,
+            "personalSphere": 0,
+            "havenIncome": 1519.24
+          },
+          "leadSource": "Zillow (Over 2 yrs)",
+          "isSphere": false,
+          "isZillow": true
+        },
+        {
+          "transactionId": "pend-justin-smith-4318-n-upland-ct-2026-03-22T07:00:00.000Z",
+          "address": "4318 N Upland Ct",
+          "contractDate": "2026-03-22T07:00:00.000Z",
+          "expectedClosingDate": "2026-04-30T07:00:00.000Z",
+          "purchasePrice": 500000,
+          "expectedAgentIncome": 5316.78,
+          "sourceIncomeField": "Agent Income",
+          "incomeBreakdown": {
+            "agentIncome": 5316.78,
+            "personalSphere": 0,
+            "havenIncome": 7387.5
+          },
+          "leadSource": "Zillow Non-flex",
+          "isSphere": false,
+          "isZillow": true
+        },
+        {
+          "transactionId": "pend-justin-smith-605-s-streetnley-ct-2026-04-25T07:00:00.000Z",
+          "address": "605 S Stanley Ct",
+          "contractDate": "2026-04-25T07:00:00.000Z",
+          "expectedClosingDate": "2026-05-28T07:00:00.000Z",
+          "purchasePrice": 425000,
+          "expectedAgentIncome": 0,
+          "sourceIncomeField": "Haven Income",
+          "incomeBreakdown": {
+            "agentIncome": 0,
+            "personalSphere": 0,
+            "havenIncome": 0
+          },
+          "leadSource": "Zillow Flex",
+          "isSphere": false,
+          "isZillow": true
+        },
+        {
+          "transactionId": "pend-justin-smith-5118-n-pinegrove-dr-2026-04-21T07:00:00.000Z",
+          "address": "5118 N Pinegrove Dr",
+          "contractDate": "2026-04-21T07:00:00.000Z",
+          "expectedClosingDate": "2026-06-25T07:00:00.000Z",
+          "purchasePrice": 590000,
+          "expectedAgentIncome": 0,
+          "sourceIncomeField": "Haven Income",
+          "incomeBreakdown": {
+            "agentIncome": 0,
+            "personalSphere": 0,
+            "havenIncome": 0
+          },
+          "leadSource": "Zillow Flex",
+          "isSphere": false,
+          "isZillow": true
+        }
+      ]
     },
     "kellen-flanigan": {
       "id": "kellen-flanigan",
@@ -1250,6 +1809,25 @@
           "isZillowFlex": true,
           "isRedfin": false,
           "isSphere": false
+        }
+      ],
+      "pendingTransactionsDetail": [
+        {
+          "transactionId": "pend-kellen-flanigan-10110-n-moss-ln-2026-04-03T07:00:00.000Z",
+          "address": "10110 N Moss Ln",
+          "contractDate": "2026-04-03T07:00:00.000Z",
+          "expectedClosingDate": "2026-05-08T07:00:00.000Z",
+          "purchasePrice": 650000,
+          "expectedAgentIncome": 0,
+          "sourceIncomeField": "Haven Income",
+          "incomeBreakdown": {
+            "agentIncome": 0,
+            "personalSphere": 0,
+            "havenIncome": 0
+          },
+          "leadSource": "SOI",
+          "isSphere": false,
+          "isZillow": false
         }
       ]
     },
@@ -1305,6 +1883,25 @@
           "isRedfin": false,
           "isSphere": false
         }
+      ],
+      "pendingTransactionsDetail": [
+        {
+          "transactionId": "pend-kiaya-henry-8414-w-sugar-ct-2026-04-12T07:00:00.000Z",
+          "address": "8414 W Sugar Ct",
+          "contractDate": "2026-04-12T07:00:00.000Z",
+          "expectedClosingDate": "2026-05-10T07:00:00.000Z",
+          "purchasePrice": 445000,
+          "expectedAgentIncome": 0,
+          "sourceIncomeField": "Haven Income",
+          "incomeBreakdown": {
+            "agentIncome": 0,
+            "personalSphere": 0,
+            "havenIncome": 0
+          },
+          "leadSource": "Zillow (Over 2 Years)",
+          "isSphere": false,
+          "isZillow": true
+        }
       ]
     },
     "kimberly-butler": {
@@ -1325,7 +1922,8 @@
       "capContributingTransactions": [],
       "referrals": 0,
       "referralVolume": 0,
-      "referralTransactions": []
+      "referralTransactions": [],
+      "pendingTransactionsDetail": []
     },
     "kurt-antone-burgan": {
       "id": "kurt-antone-burgan",
@@ -1412,6 +2010,144 @@
           "isRedfin": false,
           "isSphere": false
         }
+      ],
+      "pendingTransactionsDetail": [
+        {
+          "transactionId": "pend-kurt-antone-burgan-60849-westview-dr-2026-03-12T07:00:00.000Z",
+          "address": "60849 Westview Dr",
+          "contractDate": "2026-03-12T07:00:00.000Z",
+          "expectedClosingDate": "2026-04-28T07:00:00.000Z",
+          "purchasePrice": 810000,
+          "expectedAgentIncome": 3898.14,
+          "sourceIncomeField": "Agent Income",
+          "incomeBreakdown": {
+            "agentIncome": 3898.14,
+            "personalSphere": 0,
+            "havenIncome": 4974.25
+          },
+          "leadSource": "Zillow (Over 2 yrs)",
+          "isSphere": false,
+          "isZillow": true
+        },
+        {
+          "transactionId": "pend-kurt-antone-burgan-3079-s-monterey-ln-2026-03-28T07:00:00.000Z",
+          "address": "3079 S Monterey Ln",
+          "contractDate": "2026-03-28T07:00:00.000Z",
+          "expectedClosingDate": "2026-04-30T07:00:00.000Z",
+          "purchasePrice": 469950,
+          "expectedAgentIncome": 5488.28,
+          "sourceIncomeField": "Agent Income",
+          "incomeBreakdown": {
+            "agentIncome": 5488.28,
+            "personalSphere": 0,
+            "havenIncome": 4579.76
+          },
+          "leadSource": "Sphere",
+          "isSphere": true,
+          "isZillow": false
+        },
+        {
+          "transactionId": "pend-kurt-antone-burgan-14922-e-belle-terre-ave-2026-04-06T07:00:00.000Z",
+          "address": "14922 E Belle Terre Ave",
+          "contractDate": "2026-04-06T07:00:00.000Z",
+          "expectedClosingDate": "2026-05-07T07:00:00.000Z",
+          "purchasePrice": 622500,
+          "expectedAgentIncome": 0,
+          "sourceIncomeField": "Haven Income",
+          "incomeBreakdown": {
+            "agentIncome": 0,
+            "personalSphere": 0,
+            "havenIncome": 0
+          },
+          "leadSource": "SOI",
+          "isSphere": false,
+          "isZillow": false
+        },
+        {
+          "transactionId": "pend-kurt-antone-burgan-2630-s-fairmont-estates-ct-2026-03-29T07:00:00.000Z",
+          "address": "2630 S Fairmont Estates Ct",
+          "contractDate": "2026-03-29T07:00:00.000Z",
+          "expectedClosingDate": "2026-05-07T07:00:00.000Z",
+          "purchasePrice": 640000,
+          "expectedAgentIncome": 6141.97,
+          "sourceIncomeField": "Agent Income",
+          "incomeBreakdown": {
+            "agentIncome": 6141.97,
+            "personalSphere": 0,
+            "havenIncome": 5092.45
+          },
+          "leadSource": "Sphere",
+          "isSphere": true,
+          "isZillow": false
+        },
+        {
+          "transactionId": "pend-kurt-antone-burgan-5718-n-cook-st-2026-04-08T07:00:00.000Z",
+          "address": "5718 N Cook St",
+          "contractDate": "2026-04-08T07:00:00.000Z",
+          "expectedClosingDate": "2026-05-11T07:00:00.000Z",
+          "purchasePrice": 260000,
+          "expectedAgentIncome": 0,
+          "sourceIncomeField": "Haven Income",
+          "incomeBreakdown": {
+            "agentIncome": 0,
+            "personalSphere": 0,
+            "havenIncome": 0
+          },
+          "leadSource": "Referral Sphere",
+          "isSphere": true,
+          "isZillow": false
+        },
+        {
+          "transactionId": "pend-kurt-antone-burgan-2601-n-barker-road-2026-03-28T07:00:00.000Z",
+          "address": "2601 N Barker Rd #45",
+          "contractDate": "2026-03-28T07:00:00.000Z",
+          "expectedClosingDate": "2026-05-11T07:00:00.000Z",
+          "purchasePrice": 60000,
+          "expectedAgentIncome": 0,
+          "sourceIncomeField": "Haven Income",
+          "incomeBreakdown": {
+            "agentIncome": 0,
+            "personalSphere": 0,
+            "havenIncome": 0
+          },
+          "leadSource": "Sphere",
+          "isSphere": true,
+          "isZillow": false
+        },
+        {
+          "transactionId": "pend-kurt-antone-burgan-14420-w-charles-rd-2026-04-13T07:00:00.000Z",
+          "address": "14420 W Charles Rd",
+          "contractDate": "2026-04-13T07:00:00.000Z",
+          "expectedClosingDate": "2026-05-18T07:00:00.000Z",
+          "purchasePrice": 867490,
+          "expectedAgentIncome": 0,
+          "sourceIncomeField": "Haven Income",
+          "incomeBreakdown": {
+            "agentIncome": 0,
+            "personalSphere": 0,
+            "havenIncome": 0
+          },
+          "leadSource": "Zillow (Over 2 Years)",
+          "isSphere": false,
+          "isZillow": true
+        },
+        {
+          "transactionId": "pend-kurt-antone-burgan-980-d-westover-rd-2026-04-20T07:00:00.000Z",
+          "address": "980 D Westover Rd",
+          "contractDate": "2026-04-20T07:00:00.000Z",
+          "expectedClosingDate": "2026-05-27T07:00:00.000Z",
+          "purchasePrice": 600000,
+          "expectedAgentIncome": 0,
+          "sourceIncomeField": "Haven Income",
+          "incomeBreakdown": {
+            "agentIncome": 0,
+            "personalSphere": 0,
+            "havenIncome": 0
+          },
+          "leadSource": "Realtor.Com Team Lead 2024",
+          "isSphere": false,
+          "isZillow": false
+        }
       ]
     },
     "leah-clawson": {
@@ -1432,7 +2168,8 @@
       "capContributingTransactions": [],
       "referrals": 0,
       "referralVolume": 0,
-      "referralTransactions": []
+      "referralTransactions": [],
+      "pendingTransactionsDetail": []
     },
     "lisa-hays": {
       "id": "lisa-hays",
@@ -1452,7 +2189,8 @@
       "capContributingTransactions": [],
       "referrals": 0,
       "referralVolume": 0,
-      "referralTransactions": []
+      "referralTransactions": [],
+      "pendingTransactionsDetail": []
     },
     "lori-ruby": {
       "id": "lori-ruby",
@@ -1472,7 +2210,43 @@
       "capContributingTransactions": [],
       "referrals": 0,
       "referralVolume": 0,
-      "referralTransactions": []
+      "referralTransactions": [],
+      "pendingTransactionsDetail": [
+        {
+          "transactionId": "pend-lori-ruby-14004-s-finney-st-2026-04-20T07:00:00.000Z",
+          "address": "14004 S Finney St",
+          "contractDate": "2026-04-20T07:00:00.000Z",
+          "expectedClosingDate": "2026-05-19T07:00:00.000Z",
+          "purchasePrice": 625000,
+          "expectedAgentIncome": 0,
+          "sourceIncomeField": "Haven Income",
+          "incomeBreakdown": {
+            "agentIncome": 0,
+            "personalSphere": 0,
+            "havenIncome": 0
+          },
+          "leadSource": "MyPlusLeads",
+          "isSphere": false,
+          "isZillow": false
+        },
+        {
+          "transactionId": "pend-lori-ruby-4224-n-maple-st-2026-04-26T07:00:00.000Z",
+          "address": "4224 N Maple St",
+          "contractDate": "2026-04-26T07:00:00.000Z",
+          "expectedClosingDate": "2026-06-15T07:00:00.000Z",
+          "purchasePrice": 265000,
+          "expectedAgentIncome": 0,
+          "sourceIncomeField": "Haven Income",
+          "incomeBreakdown": {
+            "agentIncome": 0,
+            "personalSphere": 0,
+            "havenIncome": 0
+          },
+          "leadSource": "Sphere",
+          "isSphere": true,
+          "isZillow": false
+        }
+      ]
     },
     "lui-carrasco": {
       "id": "lui-carrasco",
@@ -1526,6 +2300,24 @@
           "isRedfin": false,
           "isSphere": false
         }
+      ],
+      "pendingTransactionsDetail": [
+        {
+          "transactionId": "pend-lui-carrasco-7918-e-glass-ave-2026-04-19T07:00:00.000Z",
+          "address": "7918 E Glass Ave",
+          "contractDate": "2026-04-19T07:00:00.000Z",
+          "purchasePrice": 485000,
+          "expectedAgentIncome": 0,
+          "sourceIncomeField": "Haven Income",
+          "incomeBreakdown": {
+            "agentIncome": 0,
+            "personalSphere": 0,
+            "havenIncome": 0
+          },
+          "leadSource": "Zillow Flex",
+          "isSphere": false,
+          "isZillow": true
+        }
       ]
     },
     "maggie-fairbanks": {
@@ -1546,7 +2338,8 @@
       "capContributingTransactions": [],
       "referrals": 0,
       "referralVolume": 0,
-      "referralTransactions": []
+      "referralTransactions": [],
+      "pendingTransactionsDetail": []
     },
     "marcus-mathews": {
       "id": "marcus-mathews",
@@ -1588,6 +2381,93 @@
           "isZillowFlex": true,
           "isRedfin": false,
           "isSphere": false
+        }
+      ],
+      "pendingTransactionsDetail": [
+        {
+          "transactionId": "pend-marcus-mathews-409-pend-oreille-blvd-2026-04-03T07:00:00.000Z",
+          "address": "409 Pend Oreille Blvd",
+          "contractDate": "2026-04-03T07:00:00.000Z",
+          "expectedClosingDate": "2026-05-05T07:00:00.000Z",
+          "purchasePrice": 225000,
+          "expectedAgentIncome": 0,
+          "sourceIncomeField": "Haven Income",
+          "incomeBreakdown": {
+            "agentIncome": 0,
+            "personalSphere": 0,
+            "havenIncome": 0
+          },
+          "leadSource": "Sphere",
+          "isSphere": true,
+          "isZillow": false
+        },
+        {
+          "transactionId": "pend-marcus-mathews-1519-w-13th-ave-2026-04-16T07:00:00.000Z",
+          "address": "1519 W 13th Ave",
+          "contractDate": "2026-04-16T07:00:00.000Z",
+          "expectedClosingDate": "2026-05-13T07:00:00.000Z",
+          "purchasePrice": 439000,
+          "expectedAgentIncome": 0,
+          "sourceIncomeField": "Haven Income",
+          "incomeBreakdown": {
+            "agentIncome": 0,
+            "personalSphere": 0,
+            "havenIncome": 0
+          },
+          "leadSource": "Zillow Flex",
+          "isSphere": false,
+          "isZillow": true
+        },
+        {
+          "transactionId": "pend-marcus-mathews-632-n-hydra-2026-04-19T07:00:00.000Z",
+          "address": "632 N Hydra #B",
+          "contractDate": "2026-04-19T07:00:00.000Z",
+          "expectedClosingDate": "2026-05-20T07:00:00.000Z",
+          "purchasePrice": 299000,
+          "expectedAgentIncome": 0,
+          "sourceIncomeField": "Haven Income",
+          "incomeBreakdown": {
+            "agentIncome": 0,
+            "personalSphere": 0,
+            "havenIncome": 0
+          },
+          "leadSource": "Sphere",
+          "isSphere": true,
+          "isZillow": false
+        },
+        {
+          "transactionId": "pend-marcus-mathews-19029-e-boone-avenueue-2026-04-16T07:00:00.000Z",
+          "address": "19029 E Boone Ave #10",
+          "contractDate": "2026-04-16T07:00:00.000Z",
+          "expectedClosingDate": "2026-06-01T07:00:00.000Z",
+          "purchasePrice": 289900,
+          "expectedAgentIncome": 0,
+          "sourceIncomeField": "Haven Income",
+          "incomeBreakdown": {
+            "agentIncome": 0,
+            "personalSphere": 0,
+            "havenIncome": 0
+          },
+          "leadSource": "Sphere",
+          "isSphere": true,
+          "isZillow": false
+        },
+        {
+          "transactionId": "pend-marcus-mathews-nna-e-howard-rd-2025-08-12T07:00:00.000Z",
+          "address": "NNA E Howard Rd",
+          "contractDate": "2025-08-12T07:00:00.000Z",
+          "expectedClosingDate": "2026-08-01T07:00:00.000Z",
+          "purchasePrice": 993760,
+          "expectedAgentIncome": 0,
+          "sourceIncomeField": "Haven Income",
+          "incomeBreakdown": {
+            "agentIncome": 0,
+            "personalSphere": 0,
+            "havenIncome": 0
+          },
+          "leadSource": "Lofty Paid Lead",
+          "isSphere": false,
+          "isZillow": false
         }
       ]
     },
@@ -1643,6 +2523,59 @@
           "isRedfin": false,
           "isSphere": false
         }
+      ],
+      "pendingTransactionsDetail": [
+        {
+          "transactionId": "pend-matt-procter-811-e-dalke-ave-2026-03-26T07:00:00.000Z",
+          "address": "811 E Dalke Ave",
+          "contractDate": "2026-03-26T07:00:00.000Z",
+          "expectedClosingDate": "2026-04-28T07:00:00.000Z",
+          "purchasePrice": 264000,
+          "expectedAgentIncome": 2032.74,
+          "sourceIncomeField": "Agent Income",
+          "incomeBreakdown": {
+            "agentIncome": 2032.74,
+            "personalSphere": 0,
+            "havenIncome": 2779.67
+          },
+          "leadSource": "Zillow Flex",
+          "isSphere": false,
+          "isZillow": true
+        },
+        {
+          "transactionId": "pend-matt-procter-4007-s-forest-meadows-dr-2026-04-21T07:00:00.000Z",
+          "address": "4007 S Forest Meadows Dr",
+          "contractDate": "2026-04-21T07:00:00.000Z",
+          "expectedClosingDate": "2026-05-05T07:00:00.000Z",
+          "purchasePrice": 554500,
+          "expectedAgentIncome": 0,
+          "sourceIncomeField": "Haven Income",
+          "incomeBreakdown": {
+            "agentIncome": 0,
+            "personalSphere": 0,
+            "havenIncome": 0
+          },
+          "leadSource": "Zillow Flex",
+          "isSphere": false,
+          "isZillow": true
+        },
+        {
+          "transactionId": "pend-matt-procter-21110-w-blue-heron-rd-2026-04-26T07:00:00.000Z",
+          "address": "21110 W Blue Heron Rd",
+          "contractDate": "2026-04-26T07:00:00.000Z",
+          "expectedClosingDate": "2026-05-26T07:00:00.000Z",
+          "purchasePrice": 770000,
+          "expectedAgentIncome": 0,
+          "sourceIncomeField": "Haven Income",
+          "incomeBreakdown": {
+            "agentIncome": 0,
+            "personalSphere": 0,
+            "havenIncome": 0
+          },
+          "leadSource": "Homes.com",
+          "isSphere": false,
+          "isZillow": false
+        }
       ]
     },
     "natalya-romanov": {
@@ -1663,7 +2596,8 @@
       "capContributingTransactions": [],
       "referrals": 0,
       "referralVolume": 0,
-      "referralTransactions": []
+      "referralTransactions": [],
+      "pendingTransactionsDetail": []
     },
     "patrick-fry": {
       "id": "patrick-fry",
@@ -1694,6 +2628,25 @@
           "isZillowFlex": false,
           "isRedfin": false,
           "isSphere": false
+        }
+      ],
+      "pendingTransactionsDetail": [
+        {
+          "transactionId": "pend-patrick-fry-1608-n-rim-view-st-2026-04-03T07:00:00.000Z",
+          "address": "1608 N Rim View St",
+          "contractDate": "2026-04-03T07:00:00.000Z",
+          "expectedClosingDate": "2026-05-14T07:00:00.000Z",
+          "purchasePrice": 820000,
+          "expectedAgentIncome": 0,
+          "sourceIncomeField": "Haven Income",
+          "incomeBreakdown": {
+            "agentIncome": 0,
+            "personalSphere": 0,
+            "havenIncome": 0
+          },
+          "leadSource": "SOI",
+          "isSphere": false,
+          "isZillow": false
         }
       ]
     },
@@ -1786,6 +2739,42 @@
           "isRedfin": false,
           "isSphere": false
         }
+      ],
+      "pendingTransactionsDetail": [
+        {
+          "transactionId": "pend-paula-kamp-1803-w-maxine-ave-2026-04-12T07:00:00.000Z",
+          "address": "1803 W Maxine Ave",
+          "contractDate": "2026-04-12T07:00:00.000Z",
+          "expectedClosingDate": "2026-05-08T07:00:00.000Z",
+          "purchasePrice": 533000,
+          "expectedAgentIncome": 0,
+          "sourceIncomeField": "Haven Income",
+          "incomeBreakdown": {
+            "agentIncome": 0,
+            "personalSphere": 0,
+            "havenIncome": 0
+          },
+          "leadSource": "Zillow (Over 2 Years)",
+          "isSphere": false,
+          "isZillow": true
+        },
+        {
+          "transactionId": "pend-paula-kamp-44-elsa-ct-2026-04-13T07:00:00.000Z",
+          "address": "44 Elsa Ct",
+          "contractDate": "2026-04-13T07:00:00.000Z",
+          "expectedClosingDate": "2026-05-08T07:00:00.000Z",
+          "purchasePrice": 560000,
+          "expectedAgentIncome": 0,
+          "sourceIncomeField": "Haven Income",
+          "incomeBreakdown": {
+            "agentIncome": 0,
+            "personalSphere": 0,
+            "havenIncome": 0
+          },
+          "leadSource": "Zilllow Flex",
+          "isSphere": false,
+          "isZillow": false
+        }
       ]
     },
     "sage-wehrman": {
@@ -1806,7 +2795,8 @@
       "capContributingTransactions": [],
       "referrals": 0,
       "referralVolume": 0,
-      "referralTransactions": []
+      "referralTransactions": [],
+      "pendingTransactionsDetail": []
     },
     "sandra-pagliaro": {
       "id": "sandra-pagliaro",
@@ -1826,7 +2816,8 @@
       "capContributingTransactions": [],
       "referrals": 0,
       "referralVolume": 0,
-      "referralTransactions": []
+      "referralTransactions": [],
+      "pendingTransactionsDetail": []
     },
     "sarah-heywood": {
       "id": "sarah-heywood",
@@ -1869,6 +2860,25 @@
           "isRedfin": false,
           "isSphere": false
         }
+      ],
+      "pendingTransactionsDetail": [
+        {
+          "transactionId": "pend-sarah-heywood-2378-eagle-river-way-2026-03-14T07:00:00.000Z",
+          "address": "2378 Eagle River Way",
+          "contractDate": "2026-03-14T07:00:00.000Z",
+          "expectedClosingDate": "2026-05-06T07:00:00.000Z",
+          "purchasePrice": 700000,
+          "expectedAgentIncome": 4107.45,
+          "sourceIncomeField": "Agent Income",
+          "incomeBreakdown": {
+            "agentIncome": 4107.45,
+            "personalSphere": 0,
+            "havenIncome": 5220.5
+          },
+          "leadSource": "Zillow Flex",
+          "isSphere": false,
+          "isZillow": true
+        }
       ]
     },
     "shelby-tidd": {
@@ -1889,7 +2899,42 @@
       "capContributingTransactions": [],
       "referrals": 0,
       "referralVolume": 0,
-      "referralTransactions": []
+      "referralTransactions": [],
+      "pendingTransactionsDetail": [
+        {
+          "transactionId": "pend-shelby-tidd-523-s-ralph-st-2026-04-12T07:00:00.000Z",
+          "address": "523 S Ralph St",
+          "contractDate": "2026-04-12T07:00:00.000Z",
+          "expectedClosingDate": "2026-05-13T07:00:00.000Z",
+          "purchasePrice": 319950,
+          "expectedAgentIncome": 0,
+          "sourceIncomeField": "Haven Income",
+          "incomeBreakdown": {
+            "agentIncome": 0,
+            "personalSphere": 0,
+            "havenIncome": 0
+          },
+          "leadSource": "Zillow Flex",
+          "isSphere": false,
+          "isZillow": true
+        },
+        {
+          "transactionId": "pend-shelby-tidd-726-e-rockwell-ave-2026-01-25T08:00:00.000Z",
+          "address": "726 E Rockwell Ave",
+          "contractDate": "2026-01-25T08:00:00.000Z",
+          "purchasePrice": 199900,
+          "expectedAgentIncome": 0,
+          "sourceIncomeField": "Haven Income",
+          "incomeBreakdown": {
+            "agentIncome": 0,
+            "personalSphere": 0,
+            "havenIncome": 0
+          },
+          "leadSource": "SOI",
+          "isSphere": false,
+          "isZillow": false
+        }
+      ]
     },
     "stephanie-komar": {
       "id": "stephanie-komar",
@@ -1954,7 +2999,8 @@
           "isRedfin": false,
           "isSphere": false
         }
-      ]
+      ],
+      "pendingTransactionsDetail": []
     },
     "steve-ruby": {
       "id": "steve-ruby",
@@ -1974,7 +3020,8 @@
       "capContributingTransactions": [],
       "referrals": 0,
       "referralVolume": 0,
-      "referralTransactions": []
+      "referralTransactions": [],
+      "pendingTransactionsDetail": []
     },
     "tamarah-kokinda": {
       "id": "tamarah-kokinda",
@@ -2039,7 +3086,8 @@
           "isRedfin": false,
           "isSphere": false
         }
-      ]
+      ],
+      "pendingTransactionsDetail": []
     },
     "terryl-johnson": {
       "id": "terryl-johnson",
@@ -2059,7 +3107,8 @@
       "capContributingTransactions": [],
       "referrals": 0,
       "referralVolume": 0,
-      "referralTransactions": []
+      "referralTransactions": [],
+      "pendingTransactionsDetail": []
     },
     "trevor-hayden": {
       "id": "trevor-hayden",
@@ -2124,6 +3173,42 @@
           "isRedfin": false,
           "isSphere": false
         }
+      ],
+      "pendingTransactionsDetail": [
+        {
+          "transactionId": "pend-trevor-hayden-2911-e-fairview-ave-2026-03-21T07:00:00.000Z",
+          "address": "2911 E Fairview Ave",
+          "contractDate": "2026-03-21T07:00:00.000Z",
+          "expectedClosingDate": "2026-04-29T07:00:00.000Z",
+          "purchasePrice": 350000,
+          "expectedAgentIncome": 2050.96,
+          "sourceIncomeField": "Agent Income",
+          "incomeBreakdown": {
+            "agentIncome": 2050.96,
+            "personalSphere": 0,
+            "havenIncome": 2464.65
+          },
+          "leadSource": "Zillow Flex",
+          "isSphere": false,
+          "isZillow": true
+        },
+        {
+          "transactionId": "pend-trevor-hayden-1321-e-gordon-ave-2026-04-21T07:00:00.000Z",
+          "address": "1321 E Gordon Ave",
+          "contractDate": "2026-04-21T07:00:00.000Z",
+          "expectedClosingDate": "2026-05-21T07:00:00.000Z",
+          "purchasePrice": 290000,
+          "expectedAgentIncome": 0,
+          "sourceIncomeField": "Haven Income",
+          "incomeBreakdown": {
+            "agentIncome": 0,
+            "personalSphere": 0,
+            "havenIncome": 0
+          },
+          "leadSource": "Zillow Flex",
+          "isSphere": false,
+          "isZillow": true
+        }
       ]
     },
     "cda-agents-car-418-e-lakeside-ave-ste-224-h-cda-83814-car-208-667-0664-epique-lic-co58764-mls-epq": {
@@ -2144,7 +3229,8 @@
       "capContributingTransactions": [],
       "referrals": 0,
       "referralVolume": 0,
-      "referralTransactions": []
+      "referralTransactions": [],
+      "pendingTransactionsDetail": []
     },
     "id-epique-office": {
       "id": "id-epique-office",
@@ -2164,7 +3250,8 @@
       "capContributingTransactions": [],
       "referrals": 0,
       "referralVolume": 0,
-      "referralTransactions": []
+      "referralTransactions": [],
+      "pendingTransactionsDetail": []
     },
     "kyle-flory": {
       "id": "kyle-flory",
@@ -2184,7 +3271,8 @@
       "capContributingTransactions": [],
       "referrals": 0,
       "referralVolume": 0,
-      "referralTransactions": []
+      "referralTransactions": [],
+      "pendingTransactionsDetail": []
     },
     "monty-yeager": {
       "id": "monty-yeager",
@@ -2204,7 +3292,26 @@
       "capContributingTransactions": [],
       "referrals": 0,
       "referralVolume": 0,
-      "referralTransactions": []
+      "referralTransactions": [],
+      "pendingTransactionsDetail": [
+        {
+          "transactionId": "pend-monty-yeager-9201-n-castle-way-2026-04-08T07:00:00.000Z",
+          "address": "9201 N Castle Way",
+          "contractDate": "2026-04-08T07:00:00.000Z",
+          "expectedClosingDate": "2026-05-05T07:00:00.000Z",
+          "purchasePrice": 654000,
+          "expectedAgentIncome": 0,
+          "sourceIncomeField": "Haven Income",
+          "incomeBreakdown": {
+            "agentIncome": 0,
+            "personalSphere": 0,
+            "havenIncome": 0
+          },
+          "leadSource": "Zillow Flex",
+          "isSphere": false,
+          "isZillow": true
+        }
+      ]
     },
     "sandpoint-agents-229-pine-st-sandpoint-id-83864-208-290-9380-epique-lic-co58764-mls-selkirk": {
       "id": "sandpoint-agents-229-pine-st-sandpoint-id-83864-208-290-9380-epique-lic-co58764-mls-selkirk",
@@ -2224,7 +3331,8 @@
       "capContributingTransactions": [],
       "referrals": 0,
       "referralVolume": 0,
-      "referralTransactions": []
+      "referralTransactions": [],
+      "pendingTransactionsDetail": []
     },
     "jeff-howland": {
       "id": "jeff-howland",
@@ -2244,7 +3352,8 @@
       "capContributingTransactions": [],
       "referrals": 0,
       "referralVolume": 0,
-      "referralTransactions": []
+      "referralTransactions": [],
+      "pendingTransactionsDetail": []
     },
     "lisa-hazan": {
       "id": "lisa-hazan",
@@ -2264,7 +3373,8 @@
       "capContributingTransactions": [],
       "referrals": 0,
       "referralVolume": 0,
-      "referralTransactions": []
+      "referralTransactions": [],
+      "pendingTransactionsDetail": []
     }
   },
   "leaderboard": [

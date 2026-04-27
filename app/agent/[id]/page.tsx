@@ -40,6 +40,8 @@ export default function AgentDashboard() {
   const [leads, setLeads] = useState<any[]>([]);
   const [showLeadForm, setShowLeadForm] = useState(false);
   const [showCapDrilldown, setShowCapDrilldown] = useState(false);
+  const [showPendingDrilldown, setShowPendingDrilldown] = useState(false);
+  const [selectedPendingTxn, setSelectedPendingTxn] = useState<any>(null);
   const [activeTab, setActiveTab] = useState<'overview' | 'results'>('overview');
   const [newLead, setNewLead] = useState({ type: 'sphere', name: '', source: '', notes: '' });
 
@@ -260,13 +262,18 @@ export default function AgentDashboard() {
                 </div>
 
                 <div className="space-y-3">
-                  {leaderboard.map((entry) => (
+                  {leaderboard.slice(0, 5).map((entry) => (
                     <LeaderboardRow
                       key={entry.rank}
                       entry={entry}
                       isOwn={entry.isOwn}
                     />
                   ))}
+                  {leaderboard.length > 5 && (
+                    <div className="text-center text-sm text-slate-500 py-3">
+                      {leaderboard.filter(e => !e.isOwn).length - 5} more agents (anonymized for privacy)
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -387,15 +394,39 @@ export default function AgentDashboard() {
                     <div className="mb-6">
                       <p className="text-sm font-semibold uppercase tracking-[0.24em] text-slate-500">In-flight deals</p>
                       <h2 className="mt-2 text-2xl font-semibold text-slate-950">Pending transactions</h2>
-                      <p className="mt-2 text-sm text-slate-600">Click to see expected agent income from Master Haven PNDS</p>
+                      <p className="mt-2 text-sm text-slate-600">Click any deal to see your expected income</p>
                     </div>
 
                     <div className="space-y-3">
-                      {/* Placeholder - actual pending transaction data would come from snapshot */}
-                      <div className="rounded-2xl border border-slate-100 bg-slate-50/80 p-4 cursor-pointer hover:bg-indigo-50/80 transition">
-                        <p className="text-sm text-slate-600">Pending transaction details will appear here from Master Haven PNDS data</p>
-                        <p className="text-xs text-slate-400 mt-1">Agent income and Personal Sphere sections shown on click</p>
-                      </div>
+                      {agentData.pendingTransactionsDetail && agentData.pendingTransactionsDetail.length > 0 ? (
+                        agentData.pendingTransactionsDetail.map((txn: any, idx: number) => (
+                          <div
+                            key={txn.transactionId}
+                            className="cursor-pointer rounded-2xl border border-slate-100 bg-slate-50/80 p-4 transition hover:bg-indigo-50/80"
+                            onClick={() => {
+                              setSelectedPendingTxn(txn);
+                              setShowPendingDrilldown(true);
+                            }}
+                          >
+                            <div className="flex items-center justify-between">
+                              <div className="min-w-0 flex-1">
+                                <p className="truncate font-semibold text-slate-900">{txn.address}</p>
+                                <p className="text-sm text-slate-600">
+                                  {txn.expectedClosingDate ? `Expected closing: ${new Date(txn.expectedClosingDate).toLocaleDateString()}` : 'Closing date TBD'}
+                                </p>
+                              </div>
+                              <div className="text-right">
+                                <p className="text-lg font-bold text-emerald-700">{formatCurrency(txn.expectedAgentIncome || 0)}</p>
+                                <p className="text-xs text-slate-500">Expected agent income</p>
+                              </div>
+                            </div>
+                          </div>
+                        ))
+                      ) : (
+                        <div className="rounded-2xl border border-slate-100 bg-slate-50/80 p-4">
+                          <p className="text-sm text-slate-600">{agentData.pendingTransactions} pending deal(s) - details loading</p>
+                        </div>
+                      )}
                     </div>
                   </section>
                 )}
@@ -477,6 +508,16 @@ export default function AgentDashboard() {
             capProgress={agentData.capProgress}
             capTarget={agentData.capTarget || 20000}
             onClose={() => setShowCapDrilldown(false)}
+          />
+        ) : null}
+
+        {showPendingDrilldown && selectedPendingTxn ? (
+          <PendingDrilldownModal
+            txn={selectedPendingTxn}
+            onClose={() => {
+              setShowPendingDrilldown(false);
+              setSelectedPendingTxn(null);
+            }}
           />
         ) : null}
 
@@ -858,6 +899,97 @@ function CapDrilldownModal({
               <p className="mt-1 text-sm text-slate-500">Sphere deals will appear here once they close.</p>
             </div>
           )}
+        </div>
+
+        <div className="mt-6 flex justify-end">
+          <button
+            onClick={onClose}
+            className="rounded-2xl bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800">
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function PendingDrilldownModal({
+  txn,
+  onClose,
+}: {
+  txn: any;
+  onClose: () => void;
+}) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
+      <div className="w-full max-w-2xl rounded-[2rem] border border-white/70 bg-white p-6 shadow-2xl">
+        <div className="mb-6 flex items-start justify-between">
+          <div>
+            <p className="text-sm font-semibold uppercase tracking-[0.24em] text-slate-500">Pending deal details</p>
+            <h2 className="mt-2 text-2xl font-semibold text-slate-950">{txn.address}</h2>
+            <p className="mt-2 text-sm text-slate-600">Expected income breakdown from Master Haven PNDS</p>
+          </div>
+          <button
+            onClick={onClose}
+            className="rounded-full p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-600"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+
+        <div className="mb-6 grid grid-cols-2 gap-4">
+          <div className="rounded-2xl bg-emerald-50 p-5">
+            <p className="text-sm font-medium text-emerald-900">Expected agent income</p>
+            <p className="mt-2 text-3xl font-bold text-emerald-700">{formatCurrency(txn.expectedAgentIncome || 0)}</p>
+            <p className="mt-1 text-xs text-emerald-600">From {txn.sourceIncomeField}</p>
+          </div>
+          <div className="rounded-2xl bg-slate-50 p-5">
+            <p className="text-sm font-medium text-slate-600">Purchase price</p>
+            <p className="mt-2 text-3xl font-bold text-slate-900">{formatCurrency(txn.purchasePrice || 0)}</p>
+          </div>
+        </div>
+
+        <div className="mb-6 rounded-2xl border border-slate-200 bg-slate-50/80 p-5">
+          <h3 className="text-sm font-semibold text-slate-700 mb-3">Income breakdown</h3>
+          <div className="space-y-2 text-sm">
+            <div className="flex justify-between">
+              <span className="text-slate-600">Agent Income (commission split)</span>
+              <span className="font-medium text-slate-900">{formatCurrency(txn.incomeBreakdown?.agentIncome || 0)}</span>
+            </div>
+            {txn.incomeBreakdown?.personalSphere > 0 && (
+              <div className="flex justify-between">
+                <span className="text-slate-600">Personal Sphere</span>
+                <span className="font-medium text-emerald-700">{formatCurrency(txn.incomeBreakdown.personalSphere)}</span>
+              </div>
+            )}
+            {txn.incomeBreakdown?.havenIncome > 0 && (
+              <div className="flex justify-between">
+                <span className="text-slate-600">Haven Income (GCI)</span>
+                <span className="font-medium text-slate-900">{formatCurrency(txn.incomeBreakdown.havenIncome)}</span>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-4 text-sm">
+          <div>
+            <p className="text-slate-500">Contract date</p>
+            <p className="font-medium text-slate-900">{txn.contractDate ? formatDate(txn.contractDate) : 'TBD'}</p>
+          </div>
+          <div>
+            <p className="text-slate-500">Expected closing</p>
+            <p className="font-medium text-slate-900">{txn.expectedClosingDate ? formatDate(txn.expectedClosingDate) : 'TBD'}</p>
+          </div>
+          <div>
+            <p className="text-slate-500">Lead source</p>
+            <p className="font-medium text-slate-900">{txn.leadSource || 'Unknown'}</p>
+          </div>
+          <div>
+            <p className="text-slate-500">Deal type</p>
+            <p className="font-medium text-slate-900">
+              {txn.isSphere ? 'Personal Sphere' : txn.isZillow ? 'Zillow' : 'Other'}
+            </p>
+          </div>
         </div>
 
         <div className="mt-6 flex justify-end">

@@ -347,6 +347,7 @@ async function loadPendingTransactions(roster, closedTransactions) {
   const csv = await fetchTabCSV(SHEETS.TRANSACTIONS, 'MASTER HAVEN PNDS');
   const rows = parseCSV(csv);
   const pendings = [];
+  const pendingDetailsByAgent = {};
   const seenTransactions = new Set();
   const now = new Date();
   
@@ -385,6 +386,26 @@ async function loadPendingTransactions(roster, closedTransactions) {
     const leadSource = row['Lead Generated'] || row['Lead Source'] || '';
     const havenIncome = parseCurrency(row['Haven Income'] || row['GCI']) || 0;
     
+    // Extract agent income fields from MASTER HAVEN PNDS
+    // Use Agent Income for normal deals, Personal Sphere column for sphere deals
+    const agentIncomeField = parseCurrency(row['Agent Income'] || row['agent income']);
+    const personalSphereField = parseCurrency(row['Personal Sphere'] || row['personal sphere']);
+    
+    // Determine expected agent income based on deal type
+    let expectedAgentIncome = 0;
+    let sourceIncomeField = 'Haven Income';
+    
+    if (personalSphereField && personalSphereField > 0) {
+      expectedAgentIncome = personalSphereField;
+      sourceIncomeField = 'Personal Sphere';
+    } else if (agentIncomeField && agentIncomeField > 0) {
+      expectedAgentIncome = agentIncomeField;
+      sourceIncomeField = 'Agent Income';
+    } else if (havenIncome && havenIncome > 0) {
+      expectedAgentIncome = havenIncome;
+      sourceIncomeField = 'Haven Income';
+    }
+    
     // Identify referrals from Referral column or Lead Generated source
     const referralAmount = parseCurrency(row['Referral'] || row['referral']);
     const zillowFlexReferral = parseCurrency(row['Zillow Flex Referral'] || row['zillow flex referral']);
@@ -416,7 +437,7 @@ async function loadPendingTransactions(roster, closedTransactions) {
     const isActuallyClosed = closingDate && closingDate <= now;
     if (isActuallyClosed) continue;
     
-    pendings.push({
+    const pendingTxn = {
       id: `pend-${rosterAgentId}-${normalizedAddress.replace(/\s+/g, '-').substring(0, 30)}-${contractDate?.toISOString() || ''}`,
       agentId: rosterAgentId,
       agentName: agentName.trim(),
@@ -435,13 +456,37 @@ async function loadPendingTransactions(roster, closedTransactions) {
       isZillowFlex: zillowFlexReferral > 0,
       isRedfin: redfinReferral > 0,
       isSphere: personalSphere > 0 || leadSource.toLowerCase().includes('sphere'),
+    };
+    
+    pendings.push(pendingTxn);
+    
+    // Build pending transaction detail for agent view
+    if (!pendingDetailsByAgent[rosterAgentId]) {
+      pendingDetailsByAgent[rosterAgentId] = [];
+    }
+    pendingDetailsByAgent[rosterAgentId].push({
+      transactionId: pendingTxn.id,
+      address,
+      contractDate: contractDate?.toISOString() || undefined,
+      expectedClosingDate: closingDate?.toISOString() || undefined,
+      purchasePrice: price,
+      expectedAgentIncome: expectedAgentIncome,
+      sourceIncomeField,
+      incomeBreakdown: {
+        agentIncome: agentIncomeField || 0,
+        personalSphere: personalSphereField || 0,
+        havenIncome: havenIncome || 0,
+      },
+      leadSource,
+      isSphere: personalSphere > 0 || leadSource.toLowerCase().includes('sphere'),
+      isZillow: leadSource.toLowerCase().includes('zillow'),
     });
     
     seenTransactions.add(pendingDedupeKey);
   }
   
   console.log(`  Pending transactions: ${pendings.length}`);
-  return pendings;
+  return { pendings, pendingDetailsByAgent };
 }
 
 async function loadListings(roster) {
@@ -614,6 +659,7 @@ function createEmptyAgent(name, id) {
     referrals: 0,
     referralVolume: 0,
     referralTransactions: [],
+    pendingTransactionsDetail: [],
   };
 }
 
@@ -679,7 +725,7 @@ async function main() {
   
   const roster = await loadRoster();
   const closed = await loadClosedTransactions(roster);
-  const pendings = await loadPendingTransactions(roster, closed);
+  const { pendings, pendingDetailsByAgent } = await loadPendingTransactions(roster, closed);
   const listingsByAgent = await loadListings(roster);
   const cmasByAgent = await loadCmas(roster);
   const { capByAgent, capTransactionsByAgent } = await loadCapContributions(roster);
@@ -739,6 +785,13 @@ async function main() {
   }
   for (const [agentId, showings] of Object.entries(showingsByAgent)) {
     if (agents[agentId]) agents[agentId].showings = showings;
+  }
+  
+  // Attach pending transaction details to each agent
+  for (const [agentId, details] of Object.entries(pendingDetailsByAgent)) {
+    if (agents[agentId]) {
+      agents[agentId].pendingTransactionsDetail = details;
+    }
   }
   
   const leaderboard = buildLeaderboard(agents);
