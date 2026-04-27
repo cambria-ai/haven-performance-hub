@@ -96,6 +96,43 @@ export async function GET(request: NextRequest) {
       }
     }
 
+    // Aggregate all closed transactions with full details
+    const allClosedTransactions: any[] = [];
+    let totalClosedVolume = 0;
+    let totalClosedCount = 0;
+    let totalClosedHavenIncome = 0;
+
+    if (snapshot?.agents) {
+      for (const agent of Object.values(snapshot.agents)) {
+        if (agent.closedTransactionsDetail && agent.closedTransactionsDetail.length > 0) {
+          for (const txn of agent.closedTransactionsDetail) {
+            allClosedTransactions.push({
+              transactionId: txn.transactionId,
+              agentId: agent.id,
+              agentName: agent.name,
+              address: txn.address,
+              closedDate: txn.closedDate,
+              contractDate: txn.contractDate,
+              purchasePrice: txn.purchasePrice || 0,
+              agentIncome: txn.agentIncome || 0,
+              havenIncome: txn.incomeBreakdown?.havenIncome || 0,
+              boTax: txn.boTax || 0,
+              transactionFee: txn.transactionFee || 0,
+              leadSource: txn.leadSource || 'Unknown',
+              isSphere: txn.isSphere || false,
+              isZillow: txn.isZillow || false,
+              isRedfin: txn.isRedfin || false,
+              incomeBreakdown: txn.incomeBreakdown,
+            });
+
+            totalClosedVolume += txn.purchasePrice || 0;
+            totalClosedCount += 1;
+            totalClosedHavenIncome += txn.incomeBreakdown?.havenIncome || 0;
+          }
+        }
+      }
+    }
+
     return NextResponse.json({
       snapshot,
       history,
@@ -104,9 +141,17 @@ export async function GET(request: NextRequest) {
       leaderboard: snapshot?.leaderboard || [],
       timeWindowStats,
       allPendingTransactions,
-      totalHavenReceivables,
-      totalAgentReceivables,
-      totalPurchasePrice,
+      allClosedTransactions,
+      closedStats: {
+        totalClosedVolume,
+        totalClosedCount,
+        totalClosedHavenIncome,
+      },
+      pendingStats: {
+        totalHavenReceivables,
+        totalAgentReceivables,
+        totalPurchasePrice,
+      },
       transactionCount: allPendingTransactions.length,
     });
   } catch (error) {

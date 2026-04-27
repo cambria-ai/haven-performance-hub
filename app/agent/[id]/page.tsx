@@ -250,6 +250,10 @@ export default function AgentDashboard() {
                 value={agentData.closedTransactions || 0}
                 helper="Year to date closings"
                 accent="indigo"
+                clickable={agentData.closedTransactions && agentData.closedTransactions > 0}
+                onClick={() => {
+                  router.push(`/agent/${agentData.id}/closings`);
+                }}
               />
               <StatCard
                 icon={<DollarSign className="h-5 w-5" />}

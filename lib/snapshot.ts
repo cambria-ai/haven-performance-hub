@@ -80,6 +80,7 @@ export interface AgentSnapshot {
   referralVolume?: number;
   referralTransactions?: ReferralTransaction[];
   pendingTransactionsDetail?: PendingTransactionDetail[];
+  closedTransactionsDetail?: ClosedTransactionDetail[];
 }
 
 export interface CapContribution {
@@ -121,6 +122,27 @@ export interface PendingTransactionDetail {
   leadSource?: string;
   isSphere?: boolean;
   isZillow?: boolean;
+  boTax?: number;
+  transactionFee?: number;
+}
+
+export interface ClosedTransactionDetail {
+  transactionId: string;
+  address: string;
+  closedDate: string;
+  contractDate?: string;
+  purchasePrice: number;
+  agentIncome: number;
+  sourceIncomeField: 'Agent Income' | 'Personal Sphere' | 'Haven Income';
+  incomeBreakdown?: {
+    agentIncome: number;
+    personalSphere?: number;
+    havenIncome?: number;
+  };
+  leadSource?: string;
+  isSphere?: boolean;
+  isZillow?: boolean;
+  isRedfin?: boolean;
   boTax?: number;
   transactionFee?: number;
 }

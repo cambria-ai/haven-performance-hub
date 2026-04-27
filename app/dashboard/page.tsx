@@ -125,6 +125,10 @@ export default function TeamLeaderDashboard() {
     router.push('/admin/pendings');
   }
 
+  function handleViewClosings() {
+    router.push('/admin/closings');
+  }
+
   const uploads = data?.history || [];
   const totalAgents = data?.snapshot?.metadata?.agentCount || 0;
   const totalTransactions = data?.snapshot?.metadata?.transactionCount || 0;
@@ -265,8 +269,9 @@ export default function TeamLeaderDashboard() {
             icon={<Target className="h-5 w-5" />}
             label="Closed transactions"
             value={data?.teamStats?.totalClosedTransactions || totalTransactions}
-            helper={data?.teamStats?.totalClosedTransactions ? 'Across the full team' : 'Waiting for first import'}
+            helper={data?.teamStats?.totalClosedTransactions ? 'Click to review all closed transactions' : 'Waiting for first import'}
             accent="cyan"
+            onClick={data?.teamStats?.totalClosedTransactions ? handleViewClosings : undefined}
           />
           <StatCard
             icon={<TrendingUp className="h-5 w-5" />}

@@ -1,13 +1,13 @@
 /**
  * Clean-room rebuild of Haven Performance Hub snapshot from all 5 source sheets.
- * 
+ *
  * Sources:
  * 1. Haven Transactions 2026 (1qmwuePI7Q47gjcI5WmvQj1gjTLmmVpnl) - roster, pendings, closings, listings, CMAs
  * 2. Haven Master Payout & Cap Dashboard (15Wfyp7Z8hvLayj2DtPQ9K_ydtdwIUojLhmlVzHOra3k) - cap contributions
  * 3. Weekly Zillow Stats (1cqoprcDPxah-1b9gSUiXwNUFJBlCcfrq5-XyUmIarmI) - showings, funnel metrics
  * 4. Zillow Transactions Tracking (11lKgPwG_p7PTTD7nSetijPxx9gz5NEw0U20foCA9On4) - Zillow attribution
  * 5. Team Commission Level Tracking (1jM-W9MWNU5lkfdgu3vESfj9CWcxnnNjR) - split levels
- * 
+ *
  * Business rules:
  * - Roster defines active agents (Spokane + CDA merged)
  * - Non-roster agents with transactions = departed, exclude from active stats
@@ -78,7 +78,7 @@ function parseCSV(csvText) {
   let currentField = '';
   let inQuotes = false;
   let i = 0;
-  
+
   while (i < csvText.length) {
     const char = csvText[i];
     if (inQuotes) {
@@ -188,15 +188,15 @@ function isInCurrentCapYear(date) {
   const now = new Date();
   const currentYear = now.getFullYear();
   const capYearStart = new Date(currentYear, 3, 7); // April is month 3 (0-indexed)
-  
+
   // If we're before April 7, cap year started last year
   if (now < capYearStart) {
     capYearStart.setFullYear(currentYear - 1);
   }
-  
+
   const capYearEnd = new Date(capYearStart);
   capYearEnd.setFullYear(capYearEnd.getFullYear() + 1);
-  
+
   return date >= capYearStart && date < capYearEnd;
 }
 
@@ -226,39 +226,39 @@ async function loadRoster() {
   console.log('  Loading Spokane Agent Roster...');
   const spokaneCSV = await fetchTabCSV(SHEETS.TRANSACTIONS, 'Spokane Agent Roster');
   const spokaneRows = parseCSV(spokaneCSV);
-  
+
   console.log('  Loading CDA Agent Roster...');
   const cdaCSV = await fetchTabCSV(SHEETS.TRANSACTIONS, 'CDA Agent Roster');
   const cdaRows = parseCSV(cdaCSV);
-  
+
   const roster = new Map();
   const rosterMatchKeys = new Map();
-  
+
   function processRosterRow(row) {
     // Roster sheets have agent names in first column (index 0), not named columns
     // First column key is '0' after parsing
     let agentName = row['0'] || row['AGENT'] || row['Agent'] || row['agent'];
-    
+
     // Handle multi-line names like "Cambria Henry\nOwner | Managing Broker"
     if (agentName && typeof agentName === 'string') {
       agentName = agentName.split('\n')[0].trim();
     }
-    
+
     if (!agentName || !isValidAgentName(agentName)) return;
-    
+
     const canonicalName = agentName.trim();
     const agentId = normalizeAgentId(canonicalName);
     const matchKey = getAgentMatchKey(canonicalName);
-    
+
     if (!rosterMatchKeys.has(matchKey)) {
       rosterMatchKeys.set(matchKey, agentId);
       roster.set(agentId, canonicalName);
     }
   }
-  
+
   for (const row of spokaneRows) processRosterRow(row);
   for (const row of cdaRows) processRosterRow(row);
-  
+
   console.log(`  Roster loaded: ${roster.size} unique agents (merged Spokane + CDA)`);
   return roster;
 }
@@ -268,59 +268,60 @@ async function loadClosedTransactions(roster) {
   const csv = await fetchTabCSV(SHEETS.TRANSACTIONS, 'Master Closed 2026');
   const rows = parseCSV(csv);
   const closed = [];
+  const closedDetailsByAgent = {};
   const seenTransactions = new Map();
   const now = new Date();
-  
+
   const rosterMatchKeys = new Map();
   for (const [agentId, agentName] of roster.entries()) {
     rosterMatchKeys.set(getAgentMatchKey(agentName), agentId);
   }
-  
+
   for (const row of rows) {
     // Handle header with trailing space: "Name-2nd Agent " vs "Name-2nd Agent"
     const agentName = row['Name-2nd Agent'] || row['Name-2nd Agent '.trim()] || row['Agent'] || row['agent'];
     if (!agentName || !isValidAgentName(agentName)) continue;
-    
+
     const agentId = normalizeAgentId(agentName);
     const matchKey = getAgentMatchKey(agentName);
-    
+
     let rosterAgentId = roster.has(agentId) ? agentId : null;
     if (!rosterAgentId && rosterMatchKeys.has(matchKey)) {
       rosterAgentId = rosterMatchKeys.get(matchKey);
     }
     if (!rosterAgentId) continue;
-    
+
     // Use correct column names from Master Closed 2026 sheet
     // Check BOTH Team Purchase Price and Independent Purchase Price columns
     const teamPrice = parseCurrency(row['Team Purchase Price']);
     const independentPrice = parseCurrency(row['Independent Purchase Price']);
     const price = teamPrice || independentPrice || parseCurrency(row['PRICE']) || parseCurrency(row['price']);
     if (!price) continue;
-    
+
     const address = row['Address'] || row['ADDRESS'] || row['address'] || 'Unknown';
     const normalizedAddress = normalizeAddress(address);
     // Settlement Date is the closing date in Master Closed 2026
     const closingDate = parseDate(row['Settlement Date'] || row['CLOSING'] || row['closing']);
-    
+
     // Only count as closed if the closing date is in the past
     if (!closingDate || closingDate > now) continue;
-    
+
     const leadSource = row['Lead Generated'] || row['Lead Source'] || '';
     const havenIncome = parseCurrency(row['Haven Income'] || row['GCI']) || 0;
     const boTax = parseCurrency(row['B&O Tax'] || row['B&O'] || row['b&o tax']) || 0;
     const transactionFee = parseCurrency(row['Transaction Fee'] || row['transaction fee'] || row['Tech Fee']) || 0;
-    
+
     // Identify referrals from Referral column or Lead Generated source
     // EXCLUDE Zillow and Redfin - they are NOT referrals per Cambria's rule
     const referralAmount = parseCurrency(row['Referral'] || row['referral']);
     const zillowFlexReferral = parseCurrency(row['Zillow Flex Referral'] || row['zillow flex referral']);
     const redfinReferral = parseCurrency(row['Redfin Referral'] || row['redfin referral']);
     const personalSphere = parseCurrency(row['Personal Sphere'] || row['personal sphere']);
-    
+
     // Check if source is Zillow or Redfin - these should NEVER count as referrals
     const isZillow = isZillowSource(leadSource);
     const isRedfin = isRedfinSource(leadSource);
-    
+
     // A transaction is a referral ONLY if it has referral money from non-Zillow/Redfin sources
     // OR if the lead source contains 'referral', 'sphere', or 'soi' (but not Zillow/Redfin)
     const isReferral = (referralAmount > 0 && !isZillow && !isRedfin) ||
@@ -330,10 +331,10 @@ async function loadClosedTransactions(roster) {
                          leadSource.toLowerCase().includes('sphere') ||
                          leadSource.toLowerCase().includes('soi')
                        ));
-    
+
     let referralSource = null;
     let referralFee = 0;
-    
+
     // Only set referral fee and source for non-Zillow/Redfin referrals
     if (!isZillow && !isRedfin) {
       if (referralAmount > 0) {
@@ -350,10 +351,10 @@ async function loadClosedTransactions(roster) {
         referralSource = leadSource;
       }
     }
-    
+
     const dedupeKey = `${normalizedAddress}|${matchKey}|${price}|${closingDate.toISOString().split('T')[0]}`;
     if (seenTransactions.has(dedupeKey)) continue;
-    
+
     closed.push({
       id: `closed-${rosterAgentId}-${normalizedAddress.replace(/\s+/g, '-').substring(0, 30)}-${closingDate.toISOString()}`,
       agentId: rosterAgentId,
@@ -376,12 +377,37 @@ async function loadClosedTransactions(roster) {
       boTax,
       transactionFee,
     });
-    
+
+    // Build closed transaction detail for agent view
+    if (!closedDetailsByAgent[rosterAgentId]) {
+      closedDetailsByAgent[rosterAgentId] = [];
+    }
+    closedDetailsByAgent[rosterAgentId].push({
+      transactionId: `closed-${rosterAgentId}-${normalizedAddress.replace(/\s+/g, '-').substring(0, 30)}-${closingDate.toISOString()}`,
+      address,
+      closedDate: closingDate.toISOString(),
+      contractDate: parseDate(row['Mutual Acceptance'])?.toISOString() || undefined,
+      purchasePrice: price,
+      agentIncome: havenIncome,
+      sourceIncomeField: 'Haven Income',
+      incomeBreakdown: {
+        agentIncome: 0,
+        personalSphere: personalSphere || 0,
+        havenIncome: havenIncome || 0,
+      },
+      leadSource,
+      isSphere: personalSphere > 0 || leadSource.toLowerCase().includes('sphere'),
+      isZillow,
+      isRedfin,
+      boTax,
+      transactionFee,
+    });
+
     seenTransactions.set(dedupeKey, true);
   }
-  
+
   console.log(`  Closed transactions: ${closed.length}`);
-  return closed;
+  return { closed, closedDetailsByAgent };
 }
 
 async function loadPendingTransactions(roster, closedTransactions) {
@@ -392,35 +418,35 @@ async function loadPendingTransactions(roster, closedTransactions) {
   const pendingDetailsByAgent = {};
   const seenTransactions = new Set();
   const now = new Date();
-  
+
   const closedSignatures = new Set();
   for (const txn of closedTransactions) {
     const matchKey = getAgentMatchKey(txn.agentName);
     const normalizedAddr = normalizeAddress(txn.address);
     closedSignatures.add(`${normalizedAddr}|${matchKey}|${txn.price}`);
   }
-  
+
   const rosterMatchKeys = new Map();
   for (const [agentId, agentName] of roster.entries()) {
     rosterMatchKeys.set(getAgentMatchKey(agentName), agentId);
   }
-  
+
   for (const row of rows) {
     const agentName = row['Agent'] || row['agent'];
     if (!agentName || !isValidAgentName(agentName)) continue;
-    
+
     const agentId = normalizeAgentId(agentName);
     const matchKey = getAgentMatchKey(agentName);
-    
+
     let rosterAgentId = roster.has(agentId) ? agentId : null;
     if (!rosterAgentId && rosterMatchKeys.has(matchKey)) {
       rosterAgentId = rosterMatchKeys.get(matchKey);
     }
     if (!rosterAgentId) continue;
-    
+
     const price = parseCurrency(row['PRICE'] || row['price']);
     if (!price) continue;
-    
+
     const address = row['ADDRESS'] || row['address'] || 'Unknown';
     const normalizedAddress = normalizeAddress(address);
     const contractDate = parseDate(row['Mutual Acceptance']);
@@ -429,16 +455,16 @@ async function loadPendingTransactions(roster, closedTransactions) {
     const havenIncome = parseCurrency(row['Haven Income'] || row['GCI']) || 0;
     const boTax = parseCurrency(row['B&O Tax'] || row['B&O'] || row['b&o tax']) || 0;
     const transactionFee = parseCurrency(row['Transaction Fee'] || row['transaction fee'] || row['Tech Fee']) || 0;
-    
+
     // Extract agent income fields from MASTER HAVEN PNDS
     // Use Agent Income for normal deals, Personal Sphere column for sphere deals
     const agentIncomeField = parseCurrency(row['Agent Income'] || row['agent income']);
     const personalSphereField = parseCurrency(row['Personal Sphere'] || row['personal sphere']);
-    
+
     // Determine expected agent income based on deal type
     let expectedAgentIncome = 0;
     let sourceIncomeField = 'Haven Income';
-    
+
     if (personalSphereField && personalSphereField > 0) {
       expectedAgentIncome = personalSphereField;
       sourceIncomeField = 'Personal Sphere';
@@ -449,18 +475,18 @@ async function loadPendingTransactions(roster, closedTransactions) {
       expectedAgentIncome = havenIncome;
       sourceIncomeField = 'Haven Income';
     }
-    
+
     // Identify referrals from Referral column or Lead Generated source
     // EXCLUDE Zillow and Redfin - they are NOT referrals per Cambria's rule
     const referralAmount = parseCurrency(row['Referral'] || row['referral']);
     const zillowFlexReferral = parseCurrency(row['Zillow Flex Referral'] || row['zillow flex referral']);
     const redfinReferral = parseCurrency(row['Redfin Referral'] || row['redfin referral']);
     const personalSphere = parseCurrency(row['Personal Sphere'] || row['personal sphere']);
-    
+
     // Check if source is Zillow or Redfin - these should NEVER count as referrals
     const isZillow = isZillowSource(leadSource);
     const isRedfin = isRedfinSource(leadSource);
-    
+
     // A transaction is a referral ONLY if it has referral money from non-Zillow/Redfin sources
     // OR if the lead source contains 'referral', 'sphere', or 'soi' (but not Zillow/Redfin)
     const isReferral = (referralAmount > 0 && !isZillow && !isRedfin) ||
@@ -470,10 +496,10 @@ async function loadPendingTransactions(roster, closedTransactions) {
                          leadSource.toLowerCase().includes('sphere') ||
                          leadSource.toLowerCase().includes('soi')
                        ));
-    
+
     let referralSource = null;
     let referralFee = 0;
-    
+
     // Only set referral fee and source for non-Zillow/Redfin referrals
     if (!isZillow && !isRedfin) {
       if (referralAmount > 0) {
@@ -490,14 +516,14 @@ async function loadPendingTransactions(roster, closedTransactions) {
         referralSource = leadSource;
       }
     }
-    
+
     const pendingDedupeKey = `${normalizedAddress}|${matchKey}|${price}`;
     if (seenTransactions.has(pendingDedupeKey)) continue;
     if (closedSignatures.has(pendingDedupeKey)) continue;
-    
+
     const isActuallyClosed = closingDate && closingDate <= now;
     if (isActuallyClosed) continue;
-    
+
     const pendingTxn = {
       id: `pend-${rosterAgentId}-${normalizedAddress.replace(/\s+/g, '-').substring(0, 30)}-${contractDate?.toISOString() || ''}`,
       agentId: rosterAgentId,
@@ -520,9 +546,9 @@ async function loadPendingTransactions(roster, closedTransactions) {
       boTax,
       transactionFee,
     };
-    
+
     pendings.push(pendingTxn);
-    
+
     // Build pending transaction detail for agent view
     if (!pendingDetailsByAgent[rosterAgentId]) {
       pendingDetailsByAgent[rosterAgentId] = [];
@@ -546,10 +572,10 @@ async function loadPendingTransactions(roster, closedTransactions) {
       boTax,
       transactionFee,
     });
-    
+
     seenTransactions.add(pendingDedupeKey);
   }
-  
+
   console.log(`  Pending transactions: ${pendings.length}`);
   return { pendings, pendingDetailsByAgent };
 }
@@ -559,28 +585,28 @@ async function loadListings(roster) {
   const csv = await fetchTabCSV(SHEETS.TRANSACTIONS, 'Listings');
   const rows = parseCSV(csv);
   const listingsByAgent = {};
-  
+
   const rosterMatchKeys = new Map();
   for (const [agentId, agentName] of roster.entries()) {
     rosterMatchKeys.set(getAgentMatchKey(agentName), agentId);
   }
-  
+
   for (const row of rows) {
     const agentName = row['Agent'] || row['agent'];
     if (!agentName || !isValidAgentName(agentName)) continue;
-    
+
     const agentId = normalizeAgentId(agentName);
     const matchKey = getAgentMatchKey(agentName);
-    
+
     let rosterAgentId = roster.has(agentId) ? agentId : null;
     if (!rosterAgentId && rosterMatchKeys.has(matchKey)) {
       rosterAgentId = rosterMatchKeys.get(matchKey);
     }
     if (!rosterAgentId) continue;
-    
+
     listingsByAgent[rosterAgentId] = (listingsByAgent[rosterAgentId] || 0) + 1;
   }
-  
+
   console.log(`  Active listings: ${Object.values(listingsByAgent).reduce((a, b) => a + b, 0)} across ${Object.keys(listingsByAgent).length} agents`);
   return listingsByAgent;
 }
@@ -590,33 +616,33 @@ async function loadCmas(roster) {
   const csv = await fetchTabCSV(SHEETS.TRANSACTIONS, 'CMAS_2026');
   const rows = parseCSV(csv);
   const cmasByAgent = {};
-  
+
   const rosterMatchKeys = new Map();
   for (const [agentId, agentName] of roster.entries()) {
     rosterMatchKeys.set(getAgentMatchKey(agentName), agentId);
   }
-  
+
   for (const row of rows) {
     // Header has leading spaces: "   AGENT"
     const agentName = row['AGENT'] || row['   AGENT'] || row['Agent'] || row['agent'];
     if (!agentName || !isValidAgentName(agentName)) continue;
-    
+
     const agentId = normalizeAgentId(agentName);
     const matchKey = getAgentMatchKey(agentName);
-    
+
     let rosterAgentId = roster.has(agentId) ? agentId : null;
     if (!rosterAgentId && rosterMatchKeys.has(matchKey)) {
       rosterAgentId = rosterMatchKeys.get(matchKey);
     }
     if (!rosterAgentId) continue;
-    
+
     // Count completed CMAs (DATE COMPLETED is populated)
     const dateCompleted = row['DATE COMPLETED'] || row[' DATE COMPLETED'];
     if (dateCompleted && dateCompleted.trim() !== '') {
       cmasByAgent[rosterAgentId] = (cmasByAgent[rosterAgentId] || 0) + 1;
     }
   }
-  
+
   const total = Object.values(cmasByAgent).reduce((a, b) => a + b, 0);
   console.log(`  Completed CMAs: ${total}`);
   return cmasByAgent;
@@ -629,28 +655,28 @@ async function loadCapContributions(roster) {
   const agentTabs = ['Amy Sparrow', 'Paula Kamp', 'Kurt Burgan', 'Emily Polanco', 'Marcus Mathews', 'Kiaya Henry', 'Didi Emtman', 'Matt Procter'];
   const capByAgent = {};
   const capTransactionsByAgent = {};
-  
+
   for (const agentTab of agentTabs) {
     try {
       const csv = await fetchTabCSV(SHEETS.PAYOUT, agentTab);
       const rows = parseCSV(csv);
-      
+
       const rosterAgentId = normalizeAgentId(agentTab);
       if (!roster.has(rosterAgentId)) continue;
-      
+
       let totalCap = 0;
       const capTxns = [];
-      
+
       for (const row of rows) {
         // Look for cap-eligible field: "Haven's Gross Commission (This amount should be added to personal cap if transaction is personal)"
         const capEligibleField = row['Haven Commission Breakdown Haven\'s Gross Commission (This amount should be added to personal cap if transaction is personal)'] ||
                                   row['Haven\'s Gross Commission'] ||
                                   row['Haven Gross Commission'];
-        
+
         if (capEligibleField) {
           const capAmount = parseCurrency(capEligibleField);
           const closedDate = parseDate(row['Closing Date'] || row['Settlement Date']);
-          
+
           // Only count cap contributions from current cap year (April 7 - April 6)
           if (capAmount && capAmount > 0 && closedDate && isInCurrentCapYear(closedDate)) {
             totalCap += capAmount;
@@ -664,7 +690,7 @@ async function loadCapContributions(roster) {
           }
         }
       }
-      
+
       if (totalCap > 0) {
         capByAgent[rosterAgentId] = totalCap;
         capTransactionsByAgent[rosterAgentId] = capTxns;
@@ -674,7 +700,7 @@ async function loadCapContributions(roster) {
       // Tab may not exist or agent may have no data
     }
   }
-  
+
   return { capByAgent, capTransactionsByAgent };
 }
 
@@ -684,17 +710,17 @@ async function loadShowings() {
     const csv = await fetchTabCSV(SHEETS.ZILLOW_STATS, 'Buyer Connections 30D');
     const rows = parseCSV(csv);
     const showingsByAgent = {};
-    
+
     for (const row of rows) {
       const agentName = row['Agent Name'];
       if (!agentName || agentName.toLowerCase() === 'grand total') continue;
-      
+
       const showings = parseInt(row['Showings'] || '0', 10);
       if (showings > 0) {
         showingsByAgent[normalizeAgentId(agentName)] = showings;
       }
     }
-    
+
     const total = Object.values(showingsByAgent).reduce((a, b) => a + b, 0);
     console.log(`  Showings (30D): ${total} across ${Object.keys(showingsByAgent).length} agents`);
     return showingsByAgent;
@@ -787,22 +813,22 @@ function getWeekDates(date = new Date()) {
 async function main() {
   console.log('\n=== Haven Performance Hub - Clean Room Rebuild ===\n');
   console.log('Loading from 5 source sheets:\n');
-  
+
   const roster = await loadRoster();
-  const closed = await loadClosedTransactions(roster);
+  const { closed, closedDetailsByAgent } = await loadClosedTransactions(roster);
   const { pendings, pendingDetailsByAgent } = await loadPendingTransactions(roster, closed);
   const listingsByAgent = await loadListings(roster);
   const cmasByAgent = await loadCmas(roster);
   const { capByAgent, capTransactionsByAgent } = await loadCapContributions(roster);
   const showingsByAgent = await loadShowings();
-  
+
   console.log('\nBuilding agent snapshots...\n');
-  
+
   const agents = {};
   for (const [agentId, agentName] of roster.entries()) {
     agents[agentId] = createEmptyAgent(agentName, agentId);
   }
-  
+
   const allTransactions = [...pendings, ...closed];
   for (const txn of allTransactions) {
     if (!agents[txn.agentId]) continue;
@@ -816,7 +842,7 @@ async function main() {
       agent.pendingVolume += txn.price;
     }
     if (txn.isZillow) agent.zillowLeads += 1;
-    
+
     // Track referrals (closed transactions only)
     if (txn.status === 'closed' && txn.isReferral) {
       agent.referrals = (agent.referrals || 0) + 1;
@@ -835,7 +861,7 @@ async function main() {
       });
     }
   }
-  
+
   for (const [agentId, count] of Object.entries(listingsByAgent)) {
     if (agents[agentId]) agents[agentId].activeListings = count;
   }
@@ -851,17 +877,24 @@ async function main() {
   for (const [agentId, showings] of Object.entries(showingsByAgent)) {
     if (agents[agentId]) agents[agentId].showings = showings;
   }
-  
+
   // Attach pending transaction details to each agent
   for (const [agentId, details] of Object.entries(pendingDetailsByAgent)) {
     if (agents[agentId]) {
       agents[agentId].pendingTransactionsDetail = details;
     }
   }
-  
+
+  // Attach closed transaction details to each agent
+  for (const [agentId, details] of Object.entries(closedDetailsByAgent)) {
+    if (agents[agentId]) {
+      agents[agentId].closedTransactionsDetail = details;
+    }
+  }
+
   const leaderboard = buildLeaderboard(agents);
   const teamStats = calculateTeamStats(agents);
-  
+
   const { weekStart, weekEnd } = getWeekDates();
   const metadata = {
     id: generateSnapshotId(),
@@ -880,11 +913,11 @@ async function main() {
     weekEnd,
     notes: `Clean-room rebuild. Roster: ${roster.size} agents. Closed: ${closed.length}. Pending: ${pendings.length}. Cap from Payout Dashboard. Showings from Weekly Zillow Stats.`,
   };
-  
+
   const snapshot = { metadata, agents, leaderboard, teamStats };
-  
+
   fs.writeFileSync(CURRENT_SNAPSHOT, JSON.stringify(snapshot, null, 2));
-  
+
   console.log('\n=== Summary ===\n');
   console.log(`Snapshot saved to: ${CURRENT_SNAPSHOT}`);
   console.log(`Agents: ${metadata.agentCount}`);

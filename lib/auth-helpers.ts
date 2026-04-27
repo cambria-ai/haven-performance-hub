@@ -17,21 +17,21 @@ export interface AuthContext {
 export function getAuthFromRequest(request: NextRequest): AuthContext | null {
   const authHeader = request.headers.get('authorization');
   const token = authHeader?.replace('Bearer ', '');
-  
+
   if (!token) {
     return null;
   }
-  
+
   const decoded = verifyToken(token);
   if (!decoded) {
     return null;
   }
-  
+
   const agent = findAgent(decoded.agentId);
   if (!agent) {
     return null;
   }
-  
+
   return {
     agentId: agent.id,
     name: agent.name,
@@ -58,7 +58,7 @@ export function getScopedSnapshotData(
       isAdmin: false,
     };
   }
-  
+
   if (auth.role === 'admin') {
     // Admin sees everything
     return {
@@ -68,10 +68,10 @@ export function getScopedSnapshotData(
       isAdmin: true,
     };
   }
-  
+
   // Agent sees only their own data + anonymized leaderboard
   const agentData = snapshot.agents[auth.agentId];
-  
+
   if (!agentData) {
     // Agent not found in snapshot - return empty state
     return {
@@ -82,11 +82,11 @@ export function getScopedSnapshotData(
       error: 'Agent not found in current snapshot',
     };
   }
-  
+
   // Sanitize agent data to remove sensitive Haven-side fields
   const sanitizedAgentData = sanitizeAgentData(agentData, false);
   const sanitizedLeaderboard = sanitizeLeaderboard(snapshot.leaderboard, auth.agentId, false);
-  
+
   return {
     snapshot: {
       ...snapshot,
@@ -108,7 +108,7 @@ export function validateAgentAccess(
   if (auth.role === 'admin') {
     return true;
   }
-  
+
   // Agents can only access their own data
   return auth.agentId === requestedAgentId;
 }
@@ -137,7 +137,7 @@ function anonymizeLeaderboard(
         isOwn: true,
       };
     }
-    
+
     // Anonymize other entries
     return {
       ...entry,
@@ -156,7 +156,7 @@ export function requireAuth(request: NextRequest): {
   response?: NextResponse;
 } {
   const auth = getAuthFromRequest(request);
-  
+
   if (!auth) {
     return {
       auth: {
@@ -171,18 +171,18 @@ export function requireAuth(request: NextRequest): {
       ),
     };
   }
-  
+
   return { auth };
 }
 
 /**
  * Sanitize agent data for non-admin users.
  * Removes sensitive Haven-side financial fields while preserving agent-visible fields.
- * 
+ *
  * Agents CAN see:
  * - Their own expectedAgentIncome, agentIncome, personalSphere
  * - Cap progress and personal production metrics
- * 
+ *
  * Agents CANNOT see:
  * - agent.gci (Haven-side GCI)
  * - leaderboard.gci for other agents
@@ -190,6 +190,9 @@ export function requireAuth(request: NextRequest): {
  * - pendingTransactionsDetail[].boTax
  * - pendingTransactionsDetail[].transactionFee
  * - pendingTransactionsDetail[].lniTax
+ * - closedTransactionsDetail[].incomeBreakdown.havenIncome
+ * - closedTransactionsDetail[].boTax
+ * - closedTransactionsDetail[].transactionFee
  */
 function sanitizeAgentData(agentData: AgentSnapshot, isAdmin: boolean): AgentSnapshot {
   if (isAdmin || !agentData) {
@@ -206,7 +209,7 @@ function sanitizeAgentData(agentData: AgentSnapshot, isAdmin: boolean): AgentSna
   if (sanitized.pendingTransactionsDetail) {
     sanitized.pendingTransactionsDetail = sanitized.pendingTransactionsDetail.map(txn => {
       const sanitizedTxn = { ...txn };
-      
+
       // Remove Haven-side income breakdown
       if (sanitizedTxn.incomeBreakdown) {
         sanitizedTxn.incomeBreakdown = {
@@ -215,12 +218,34 @@ function sanitizeAgentData(agentData: AgentSnapshot, isAdmin: boolean): AgentSna
           // Remove havenIncome - agents only see their expectedAgentIncome
         };
       }
-      
+
       // Remove tax and fee fields
       delete (sanitizedTxn as any).boTax;
       delete (sanitizedTxn as any).transactionFee;
       delete (sanitizedTxn as any).lniTax;
-      
+
+      return sanitizedTxn;
+    });
+  }
+
+  // Sanitize closed transactions detail
+  if (sanitized.closedTransactionsDetail) {
+    sanitized.closedTransactionsDetail = sanitized.closedTransactionsDetail.map(txn => {
+      const sanitizedTxn = { ...txn };
+
+      // Remove Haven-side income breakdown
+      if (sanitizedTxn.incomeBreakdown) {
+        sanitizedTxn.incomeBreakdown = {
+          agentIncome: sanitizedTxn.incomeBreakdown.agentIncome || 0,
+          personalSphere: sanitizedTxn.incomeBreakdown.personalSphere || 0,
+          // Remove havenIncome
+        };
+      }
+
+      // Remove tax and fee fields
+      delete (sanitizedTxn as any).boTax;
+      delete (sanitizedTxn as any).transactionFee;
+
       return sanitizedTxn;
     });
   }
@@ -242,7 +267,7 @@ function sanitizeLeaderboard(leaderboard: LeaderboardEntry[], currentAgentId: st
       // Keep own entry with full data (but GCI already 0 from agent sanitization)
       return { ...entry };
     }
-    
+
     // Remove GCI from anonymized entries
     const { gci, ...rest } = entry;
     return { ...rest, gci: 0 };
