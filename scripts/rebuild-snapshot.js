@@ -115,6 +115,27 @@ function parseCSV(csvText) {
   return result;
 }
 
+/**
+ * Check if a lead source is Zillow (including typos/variants).
+ * Handles: Zillow, Zilllow, Zillow Flex, Zillow (Non Flex), Zillow Non-flex, etc.
+ */
+function isZillowSource(leadSource) {
+  if (!leadSource) return false;
+  const normalized = leadSource.toLowerCase().replace(/\s+/g, ' ').trim();
+  // Match any variant containing "zill" to catch typos like "Zilllow"
+  return normalized.includes('zill');
+}
+
+/**
+ * Check if a lead source is Redfin (including variants).
+ * Handles: Redfin, Redfin Referral, etc.
+ */
+function isRedfinSource(leadSource) {
+  if (!leadSource) return false;
+  const normalized = leadSource.toLowerCase().replace(/\s+/g, ' ').trim();
+  return normalized.includes('redfin');
+}
+
 function isValidAgentName(name) {
   if (!name || typeof name !== 'string') return false;
   const trimmed = name.trim();
@@ -297,14 +318,14 @@ async function loadClosedTransactions(roster) {
     const personalSphere = parseCurrency(row['Personal Sphere'] || row['personal sphere']);
     
     // Check if source is Zillow or Redfin - these should NEVER count as referrals
-    const isZillowSource = leadSource.toLowerCase().includes('zillow');
-    const isRedfinSource = leadSource.toLowerCase().includes('redfin');
+    const isZillow = isZillowSource(leadSource);
+    const isRedfin = isRedfinSource(leadSource);
     
     // A transaction is a referral ONLY if it has referral money from non-Zillow/Redfin sources
     // OR if the lead source contains 'referral', 'sphere', or 'soi' (but not Zillow/Redfin)
-    const isReferral = (referralAmount > 0 && !isZillowSource && !isRedfinSource) ||
-                       (personalSphere > 0 && !isZillowSource && !isRedfinSource) ||
-                       (!isZillowSource && !isRedfinSource && (
+    const isReferral = (referralAmount > 0 && !isZillow && !isRedfin) ||
+                       (personalSphere > 0 && !isZillow && !isRedfin) ||
+                       (!isZillow && !isRedfin && (
                          leadSource.toLowerCase().includes('referral') ||
                          leadSource.toLowerCase().includes('sphere') ||
                          leadSource.toLowerCase().includes('soi')
@@ -314,7 +335,7 @@ async function loadClosedTransactions(roster) {
     let referralFee = 0;
     
     // Only set referral fee and source for non-Zillow/Redfin referrals
-    if (!isZillowSource && !isRedfinSource) {
+    if (!isZillow && !isRedfin) {
       if (referralAmount > 0) {
         referralFee = referralAmount;
         referralSource = 'Referral';
@@ -345,12 +366,12 @@ async function loadClosedTransactions(roster) {
       closedDate: closingDate.toISOString(),
       gci: havenIncome,
       leadSource,
-      isZillow: leadSource.toLowerCase().includes('zillow'),
+      isZillow,
       isReferral,
       referralFee,
       referralSource,
       isZillowFlex: zillowFlexReferral > 0,
-      isRedfin: redfinReferral > 0,
+      isRedfin,
       isSphere: personalSphere > 0 || leadSource.toLowerCase().includes('sphere'),
       boTax,
       transactionFee,
@@ -437,14 +458,14 @@ async function loadPendingTransactions(roster, closedTransactions) {
     const personalSphere = parseCurrency(row['Personal Sphere'] || row['personal sphere']);
     
     // Check if source is Zillow or Redfin - these should NEVER count as referrals
-    const isZillowSource = leadSource.toLowerCase().includes('zillow');
-    const isRedfinSource = leadSource.toLowerCase().includes('redfin');
+    const isZillow = isZillowSource(leadSource);
+    const isRedfin = isRedfinSource(leadSource);
     
     // A transaction is a referral ONLY if it has referral money from non-Zillow/Redfin sources
     // OR if the lead source contains 'referral', 'sphere', or 'soi' (but not Zillow/Redfin)
-    const isReferral = (referralAmount > 0 && !isZillowSource && !isRedfinSource) ||
-                       (personalSphere > 0 && !isZillowSource && !isRedfinSource) ||
-                       (!isZillowSource && !isRedfinSource && (
+    const isReferral = (referralAmount > 0 && !isZillow && !isRedfin) ||
+                       (personalSphere > 0 && !isZillow && !isRedfin) ||
+                       (!isZillow && !isRedfin && (
                          leadSource.toLowerCase().includes('referral') ||
                          leadSource.toLowerCase().includes('sphere') ||
                          leadSource.toLowerCase().includes('soi')
@@ -454,7 +475,7 @@ async function loadPendingTransactions(roster, closedTransactions) {
     let referralFee = 0;
     
     // Only set referral fee and source for non-Zillow/Redfin referrals
-    if (!isZillowSource && !isRedfinSource) {
+    if (!isZillow && !isRedfin) {
       if (referralAmount > 0) {
         referralFee = referralAmount;
         referralSource = 'Referral';
@@ -489,12 +510,12 @@ async function loadPendingTransactions(roster, closedTransactions) {
       closedDate: undefined,
       gci: havenIncome,
       leadSource,
-      isZillow: leadSource.toLowerCase().includes('zillow'),
+      isZillow,
       isReferral,
       referralFee,
       referralSource,
       isZillowFlex: zillowFlexReferral > 0,
-      isRedfin: redfinReferral > 0,
+      isRedfin,
       isSphere: personalSphere > 0 || leadSource.toLowerCase().includes('sphere'),
       boTax,
       transactionFee,
@@ -521,7 +542,7 @@ async function loadPendingTransactions(roster, closedTransactions) {
       },
       leadSource,
       isSphere: personalSphere > 0 || leadSource.toLowerCase().includes('sphere'),
-      isZillow: leadSource.toLowerCase().includes('zillow'),
+      isZillow,
       boTax,
       transactionFee,
     });

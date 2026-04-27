@@ -1,7 +1,7 @@
 {
   "metadata": {
-    "id": "snapshot-2026-04-27-14-30",
-    "createdAt": "2026-04-27T21:30:25.437Z",
+    "id": "snapshot-2026-04-27-15-22",
+    "createdAt": "2026-04-27T22:22:05.273Z",
     "uploadedBy": "clean-room-rebuild",
     "sourceFiles": [
       "Haven Transactions 2026",
@@ -11,10 +11,10 @@
       "Team Commission Level Tracking"
     ],
     "agentCount": 67,
-    "transactionCount": 158,
+    "transactionCount": 159,
     "weekStart": "2026-04-27T07:00:00.000Z",
     "weekEnd": "2026-05-04T06:59:59.999Z",
-    "notes": "Clean-room rebuild. Roster: 67 agents. Closed: 98. Pending: 60. Cap from Payout Dashboard. Showings from Weekly Zillow Stats."
+    "notes": "Clean-room rebuild. Roster: 67 agents. Closed: 98. Pending: 61. Cap from Payout Dashboard. Showings from Weekly Zillow Stats."
   },
   "agents": {
     "phone-590-4701-590-1765-fax-210-5698-ein-47-1273297-naid-hvnrea3297": {
@@ -100,23 +100,23 @@
       "referralVolume": 1385000,
       "referralTransactions": [
         {
-          "transactionId": "closed-cambria-henry-nka-quarry-browns-lake-rd-2026-02-11T08:00:00.000Z",
-          "address": "NKA Quarry-Browns Lake Rd",
-          "closedDate": "2026-02-11T08:00:00.000Z",
-          "purchasePrice": 160000,
-          "referralFee": 0,
-          "referralSource": "Personal Sphere",
-          "isZillowFlex": false,
-          "isRedfin": false,
-          "isSphere": true
-        },
-        {
           "transactionId": "closed-cambria-henry-5711-e-nancy-ln-2026-02-27T08:00:00.000Z",
           "address": "5711 E Nancy Ln",
           "closedDate": "2026-02-27T08:00:00.000Z",
           "purchasePrice": 1225000,
           "referralFee": 0,
           "referralSource": "Sphere",
+          "isZillowFlex": false,
+          "isRedfin": false,
+          "isSphere": true
+        },
+        {
+          "transactionId": "closed-cambria-henry-nka-quarry-browns-lake-rd-2026-02-11T08:00:00.000Z",
+          "address": "NKA Quarry-Browns Lake Rd",
+          "closedDate": "2026-02-11T08:00:00.000Z",
+          "purchasePrice": 160000,
+          "referralFee": 0,
+          "referralSource": "Personal Sphere",
           "isZillowFlex": false,
           "isRedfin": false,
           "isSphere": true
@@ -457,43 +457,10 @@
           "isSphere": true
         },
         {
-          "transactionId": "closed-andrey-morgunov-l4-n-orchard-bluff-rd-2026-02-06T08:00:00.000Z",
-          "address": "L4 N Orchard Bluff Rd",
-          "closedDate": "2026-02-06T08:00:00.000Z",
-          "purchasePrice": 118000,
-          "referralFee": 0,
-          "referralSource": "Personal Sphere",
-          "isZillowFlex": false,
-          "isRedfin": false,
-          "isSphere": true
-        },
-        {
-          "transactionId": "closed-andrey-morgunov-12211-e-boone-ave-2026-02-17T08:00:00.000Z",
-          "address": "12211 E Boone Ave",
-          "closedDate": "2026-02-17T08:00:00.000Z",
-          "purchasePrice": 238000,
-          "referralFee": 0,
-          "referralSource": "Personal Sphere",
-          "isZillowFlex": false,
-          "isRedfin": false,
-          "isSphere": true
-        },
-        {
           "transactionId": "closed-andrey-morgunov-11010-e-36th-dr-2026-03-10T07:00:00.000Z",
           "address": "11010 E 36th Dr",
           "closedDate": "2026-03-10T07:00:00.000Z",
           "purchasePrice": 162500,
-          "referralFee": 0,
-          "referralSource": "Personal Sphere",
-          "isZillowFlex": false,
-          "isRedfin": false,
-          "isSphere": true
-        },
-        {
-          "transactionId": "closed-andrey-morgunov-5908-n-monroe-st-2026-03-25T07:00:00.000Z",
-          "address": "5908 N Monroe St",
-          "closedDate": "2026-03-25T07:00:00.000Z",
-          "purchasePrice": 379900,
           "referralFee": 0,
           "referralSource": "Personal Sphere",
           "isZillowFlex": false,
@@ -523,6 +490,28 @@
           "isSphere": true
         },
         {
+          "transactionId": "closed-andrey-morgunov-12211-e-boone-ave-2026-02-17T08:00:00.000Z",
+          "address": "12211 E Boone Ave",
+          "closedDate": "2026-02-17T08:00:00.000Z",
+          "purchasePrice": 238000,
+          "referralFee": 0,
+          "referralSource": "Personal Sphere",
+          "isZillowFlex": false,
+          "isRedfin": false,
+          "isSphere": true
+        },
+        {
+          "transactionId": "closed-andrey-morgunov-5908-n-monroe-st-2026-03-25T07:00:00.000Z",
+          "address": "5908 N Monroe St",
+          "closedDate": "2026-03-25T07:00:00.000Z",
+          "purchasePrice": 379900,
+          "referralFee": 0,
+          "referralSource": "Personal Sphere",
+          "isZillowFlex": false,
+          "isRedfin": false,
+          "isSphere": true
+        },
+        {
           "transactionId": "closed-andrey-morgunov-6615-n-catherine-st-2026-04-06T07:00:00.000Z",
           "address": "6615 N Catherine St",
           "closedDate": "2026-04-06T07:00:00.000Z",
@@ -532,6 +521,17 @@
           "isZillowFlex": false,
           "isRedfin": false,
           "isSphere": false
+        },
+        {
+          "transactionId": "closed-andrey-morgunov-l4-n-orchard-bluff-rd-2026-02-06T08:00:00.000Z",
+          "address": "L4 N Orchard Bluff Rd",
+          "closedDate": "2026-02-06T08:00:00.000Z",
+          "purchasePrice": 118000,
+          "referralFee": 0,
+          "referralSource": "Personal Sphere",
+          "isZillowFlex": false,
+          "isRedfin": false,
+          "isSphere": true
         }
       ],
       "pendingTransactionsDetail": [
@@ -838,10 +838,10 @@
       "referralVolume": 1653500,
       "referralTransactions": [
         {
-          "transactionId": "closed-didi-emtman-4217-n-normandie-st-2026-01-15T08:00:00.000Z",
-          "address": "4217 N Normandie St",
-          "closedDate": "2026-01-15T08:00:00.000Z",
-          "purchasePrice": 295000,
+          "transactionId": "closed-didi-emtman-3803-w-greenwood-road,-2026-02-18T08:00:00.000Z",
+          "address": "3803 W Greenwood Rd, #A23",
+          "closedDate": "2026-02-18T08:00:00.000Z",
+          "purchasePrice": 115000,
           "referralFee": 0,
           "referralSource": "Personal Sphere",
           "isZillowFlex": false,
@@ -849,10 +849,10 @@
           "isSphere": true
         },
         {
-          "transactionId": "closed-didi-emtman-3803-w-greenwood-road,-2026-02-18T08:00:00.000Z",
-          "address": "3803 W Greenwood Rd, #A23",
-          "closedDate": "2026-02-18T08:00:00.000Z",
-          "purchasePrice": 115000,
+          "transactionId": "closed-didi-emtman-4217-n-normandie-st-2026-01-15T08:00:00.000Z",
+          "address": "4217 N Normandie St",
+          "closedDate": "2026-01-15T08:00:00.000Z",
+          "purchasePrice": 295000,
           "referralFee": 0,
           "referralSource": "Personal Sphere",
           "isZillowFlex": false,
@@ -1759,9 +1759,9 @@
       "id": "kurt-antone-burgan",
       "name": "Kurt Antone Burgan",
       "closedTransactions": 7,
-      "pendingTransactions": 8,
+      "pendingTransactions": 9,
       "closedVolume": 4360945,
-      "pendingVolume": 4329940,
+      "pendingVolume": 5522940,
       "gci": 0,
       "capProgress": 0,
       "activeListings": 9,
@@ -1779,17 +1779,6 @@
           "address": "59 S Parkview Ct",
           "closedDate": "2026-01-23T08:00:00.000Z",
           "purchasePrice": 563500,
-          "referralFee": 0,
-          "referralSource": "Personal Sphere",
-          "isZillowFlex": false,
-          "isRedfin": false,
-          "isSphere": true
-        },
-        {
-          "transactionId": "closed-kurt-antone-burgan-3029-s-coulter-ln-2026-01-23T08:00:00.000Z",
-          "address": "3029 S Coulter Ln",
-          "closedDate": "2026-01-23T08:00:00.000Z",
-          "purchasePrice": 499950,
           "referralFee": 0,
           "referralSource": "Personal Sphere",
           "isZillowFlex": false,
@@ -1828,6 +1817,17 @@
           "isZillowFlex": false,
           "isRedfin": false,
           "isSphere": false
+        },
+        {
+          "transactionId": "closed-kurt-antone-burgan-3029-s-coulter-ln-2026-01-23T08:00:00.000Z",
+          "address": "3029 S Coulter Ln",
+          "closedDate": "2026-01-23T08:00:00.000Z",
+          "purchasePrice": 499950,
+          "referralFee": 0,
+          "referralSource": "Personal Sphere",
+          "isZillowFlex": false,
+          "isRedfin": false,
+          "isSphere": true
         }
       ],
       "pendingTransactionsDetail": [
@@ -1847,6 +1847,25 @@
           "leadSource": "Zillow (Over 2 yrs)",
           "isSphere": false,
           "isZillow": true,
+          "boTax": 0,
+          "transactionFee": 0
+        },
+        {
+          "transactionId": "pend-kurt-antone-burgan-3201-n-arden-rd-2026-03-13T07:00:00.000Z",
+          "address": "3201 N Arden Rd",
+          "contractDate": "2026-03-13T07:00:00.000Z",
+          "expectedClosingDate": "2026-04-30T07:00:00.000Z",
+          "purchasePrice": 1193000,
+          "expectedAgentIncome": 8701.44,
+          "sourceIncomeField": "Agent Income",
+          "incomeBreakdown": {
+            "agentIncome": 8701.44,
+            "personalSphere": 0,
+            "havenIncome": 7099.88
+          },
+          "leadSource": "Self-generated/Sphere",
+          "isSphere": true,
+          "isZillow": false,
           "boTax": 0,
           "transactionFee": 0
         },
@@ -2441,7 +2460,7 @@
       "capProgress": 8286.68,
       "activeListings": 2,
       "cmasCompleted": 1,
-      "zillowLeads": 5,
+      "zillowLeads": 6,
       "zillowConversion": null,
       "zillowCost": null,
       "showings": 1,
@@ -2511,7 +2530,7 @@
           },
           "leadSource": "Zilllow Flex",
           "isSphere": false,
-          "isZillow": false,
+          "isZillow": true,
           "boTax": 0,
           "transactionFee": 0
         }
@@ -3036,7 +3055,7 @@
       "agentName": "Kurt Antone Burgan",
       "closedVolume": 4360945,
       "closedTransactions": 7,
-      "pendingTransactions": 8,
+      "pendingTransactions": 9,
       "gci": 0,
       "capProgress": 0,
       "referrals": 5,
@@ -3371,13 +3390,13 @@
     "totalAgents": 67,
     "totalClosedTransactions": 98,
     "totalClosedVolume": 42272197,
-    "totalPendingTransactions": 60,
-    "totalPendingVolume": 30620778,
+    "totalPendingTransactions": 61,
+    "totalPendingVolume": 31813778,
     "totalActiveListings": 64,
     "totalCmasCompleted": 39,
     "totalShowings": 17,
     "avgZillowConversion": 0,
-    "totalZillowLeads": 81,
+    "totalZillowLeads": 82,
     "totalZillowCost": 0,
     "totalCapContributions": 13665.43,
     "totalGCI": 0,

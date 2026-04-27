@@ -4,21 +4,27 @@ import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import {
   BarChart3,
+  Calendar,
+  CheckSquare,
   DollarSign,
+  FileText,
   Home,
   LogOut,
   Mail,
+  MessageSquare,
   Phone,
   PlusCircle,
   Sparkles,
   Target,
   TrendingUp,
   Trophy,
+  Users,
   ArrowUpRight,
   ArrowDownRight,
   Minus,
   X,
   CheckCircle2,
+  Activity,
 } from 'lucide-react';
 
 interface AgentData {
@@ -40,7 +46,7 @@ export default function AgentDashboard() {
   const [leads, setLeads] = useState<any[]>([]);
   const [showLeadForm, setShowLeadForm] = useState(false);
   const [showCapDrilldown, setShowCapDrilldown] = useState(false);
-  const [activeTab, setActiveTab] = useState<'overview' | 'results'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'weekly' | 'results'>('overview');
   const [newLead, setNewLead] = useState({ type: 'sphere', name: '', source: '', notes: '' });
 
   useEffect(() => {
@@ -205,6 +211,16 @@ export default function AgentDashboard() {
               Overview
             </button>
             <button
+              onClick={() => setActiveTab('weekly')}
+              className={`rounded-2xl px-5 py-3 text-sm font-semibold transition ${
+                activeTab === 'weekly'
+                  ? 'bg-slate-950 text-white'
+                  : 'bg-white text-slate-600 hover:bg-slate-50'
+              }`}
+            >
+              Weekly Activity
+            </button>
+            <button
               onClick={() => setActiveTab('results')}
               className={`rounded-2xl px-5 py-3 text-sm font-semibold transition ${
                 activeTab === 'results'
@@ -358,6 +374,96 @@ export default function AgentDashboard() {
 
               </div>
             </section>
+              </>
+            ) : activeTab === 'weekly' ? (
+              <>
+                {/* Weekly Activity Tab Content */}
+                <section className="mb-8 rounded-[2rem] border border-white/70 bg-white/85 p-6 shadow-[0_30px_80px_-35px_rgba(15,23,42,0.24)] backdrop-blur">
+                  <div className="mb-6">
+                    <p className="text-sm font-semibold uppercase tracking-[0.24em] text-slate-500">FUB integration</p>
+                    <h2 className="mt-2 text-2xl font-semibold text-slate-950">Weekly Activity</h2>
+                    <p className="mt-2 text-sm text-slate-600">Track your daily effort and lead engagement from Follow Up Boss</p>
+                  </div>
+
+                  {agentData.weeklyStats ? (
+                    <>
+                      <div className="grid grid-cols-1 gap-5 md:grid-cols-4">
+                        <StatCard
+                          icon={<Users className="h-5 w-5" />}
+                          label="New leads"
+                          value={agentData.weeklyStats.newLeads || 0}
+                          helper="This week"
+                          accent="indigo"
+                        />
+                        <StatCard
+                          icon={<Phone className="h-5 w-5" />}
+                          label="Calls"
+                          value={agentData.weeklyStats.calls || 0}
+                          helper="This week"
+                          accent="emerald"
+                        />
+                        <StatCard
+                          icon={<Mail className="h-5 w-5" />}
+                          label="Emails sent"
+                          value={agentData.weeklyStats.emails || 0}
+                          helper="This week"
+                          accent="indigo"
+                        />
+                        <StatCard
+                          icon={<MessageSquare className="h-5 w-5" />}
+                          label="Texts sent"
+                          value={agentData.weeklyStats.texts || 0}
+                          helper="This week"
+                          accent="amber"
+                        />
+                      </div>
+
+                      <div className="mt-6 grid grid-cols-1 gap-5 md:grid-cols-4">
+                        <StatCard
+                          icon={<MessageSquare className="h-5 w-5" />}
+                          label="Zillow messages"
+                          value={agentData.weeklyStats.zillowMessages || 0}
+                          helper="This week"
+                          accent="indigo"
+                        />
+                        <StatCard
+                          icon={<FileText className="h-5 w-5" />}
+                          label="Notes added"
+                          value={agentData.weeklyStats.notes || 0}
+                          helper="This week"
+                          accent="emerald"
+                        />
+                        <StatCard
+                          icon={<CheckSquare className="h-5 w-5" />}
+                          label="Tasks completed"
+                          value={agentData.weeklyStats.tasksCompleted || 0}
+                          helper="This week"
+                          accent="emerald"
+                        />
+                        <StatCard
+                          icon={<Calendar className="h-5 w-5" />}
+                          label="Appointments set"
+                          value={agentData.weeklyStats.appointmentsSet || 0}
+                          helper="This week"
+                          accent="indigo"
+                        />
+                      </div>
+                    </>
+                  ) : (
+                    <div className="rounded-3xl border-2 border-dashed border-slate-200 bg-slate-50 p-12 text-center">
+                      <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-slate-100">
+                        <Activity className="h-8 w-8 text-slate-400" />
+                      </div>
+                      <h3 className="text-lg font-semibold text-slate-700">Not yet connected</h3>
+                      <p className="mt-2 text-sm text-slate-500">
+                        FUB activity tracking is not yet enabled for your account.
+                      </p>
+                      <p className="mt-1 text-sm text-slate-500">
+                        Contact your broker to enable Follow Up Boss integration.
+                      </p>
+                    </div>
+                  )}
+                </section>
               </>
             ) : activeTab === 'results' ? (
               <>

@@ -97,11 +97,11 @@ export async function GET(request: NextRequest) {
     const agentData = scopedData.snapshot?.agents[auth.agentId] || null;
     
     // Add rank to agent data from leaderboard
-    const leaderboard = (scopedData.leaderboard || []).map(entry => ({
+    const leaderboard = (scopedData.leaderboard || []).map((entry: any) => ({
       ...entry,
       isOwn: entry.agentId === auth.agentId,
     }));
-    const leaderboardEntry = leaderboard.find(l => l.agentId === auth.agentId);
+    const leaderboardEntry = leaderboard.find((l: any) => l.agentId === auth.agentId);
     const agentDataWithRank = leaderboardEntry ? { ...agentData, rank: leaderboardEntry.rank } : agentData;
     
     // Load time-window stats for this agent

@@ -44,11 +44,12 @@ export function getAuthFromRequest(request: NextRequest): AuthContext | null {
  * Get role-scoped snapshot data.
  * - Admins receive full named data
  * - Agents receive only their own detailed data + anonymized leaderboard
+ * - Sensitive Haven-side financial fields are removed from non-admin views
  */
 export function getScopedSnapshotData(
   snapshot: WeeklySnapshot | null,
   auth: AuthContext
-): ScopedSnapshotResponse {
+): ScopedAgentData {
   if (!snapshot) {
     return {
       snapshot: null,
@@ -82,20 +83,37 @@ export function getScopedSnapshotData(
     };
   }
   
+  // Sanitize agent data to remove sensitive Haven-side fields
+  const sanitizedAgentData = sanitizeAgentData(agentData, false);
+  const sanitizedLeaderboard = sanitizeLeaderboard(snapshot.leaderboard, auth.agentId, false);
+  
   return {
     snapshot: {
       ...snapshot,
       agents: {
-        [auth.agentId]: agentData,
+        [auth.agentId]: sanitizedAgentData,
       },
     },
-    leaderboard: anonymizeLeaderboard(snapshot.leaderboard, auth.agentId),
+    leaderboard: sanitizedLeaderboard,
     teamStats: snapshot.teamStats,
     isAdmin: false,
   };
 }
 
-export interface ScopedSnapshotResponse {
+export function validateAgentAccess(
+  auth: AuthContext,
+  requestedAgentId: string
+): boolean {
+  // Admins can access any agent's data
+  if (auth.role === 'admin') {
+    return true;
+  }
+  
+  // Agents can only access their own data
+  return auth.agentId === requestedAgentId;
+}
+
+export interface ScopedAgentData {
   snapshot: WeeklySnapshot | null;
   leaderboard: LeaderboardEntry[];
   teamStats: any;
@@ -158,17 +176,75 @@ export function requireAuth(request: NextRequest): {
 }
 
 /**
- * Validate that an agent can only access their own data
+ * Sanitize agent data for non-admin users.
+ * Removes sensitive Haven-side financial fields while preserving agent-visible fields.
+ * 
+ * Agents CAN see:
+ * - Their own expectedAgentIncome, agentIncome, personalSphere
+ * - Cap progress and personal production metrics
+ * 
+ * Agents CANNOT see:
+ * - agent.gci (Haven-side GCI)
+ * - leaderboard.gci for other agents
+ * - pendingTransactionsDetail[].incomeBreakdown.havenIncome
+ * - pendingTransactionsDetail[].boTax
+ * - pendingTransactionsDetail[].transactionFee
+ * - pendingTransactionsDetail[].lniTax
  */
-export function validateAgentAccess(
-  auth: AuthContext,
-  requestedAgentId: string
-): boolean {
-  // Admins can access any agent's data
-  if (auth.role === 'admin') {
-    return true;
+function sanitizeAgentData(agentData: AgentSnapshot, isAdmin: boolean): AgentSnapshot {
+  if (isAdmin || !agentData) {
+    return agentData;
   }
-  
-  // Agents can only access their own data
-  return auth.agentId === requestedAgentId;
+
+  // Create a copy to avoid mutating the original
+  const sanitized = { ...agentData };
+
+  // Remove Haven-side GCI (agents see their own production via capProgress, not Haven GCI)
+  sanitized.gci = 0;
+
+  // Sanitize pending transactions detail
+  if (sanitized.pendingTransactionsDetail) {
+    sanitized.pendingTransactionsDetail = sanitized.pendingTransactionsDetail.map(txn => {
+      const sanitizedTxn = { ...txn };
+      
+      // Remove Haven-side income breakdown
+      if (sanitizedTxn.incomeBreakdown) {
+        sanitizedTxn.incomeBreakdown = {
+          agentIncome: sanitizedTxn.incomeBreakdown.agentIncome || 0,
+          personalSphere: sanitizedTxn.incomeBreakdown.personalSphere || 0,
+          // Remove havenIncome - agents only see their expectedAgentIncome
+        };
+      }
+      
+      // Remove tax and fee fields
+      delete (sanitizedTxn as any).boTax;
+      delete (sanitizedTxn as any).transactionFee;
+      delete (sanitizedTxn as any).lniTax;
+      
+      return sanitizedTxn;
+    });
+  }
+
+  return sanitized;
+}
+
+/**
+ * Sanitize leaderboard for non-admin users.
+ * Removes GCI from other agents' entries.
+ */
+function sanitizeLeaderboard(leaderboard: LeaderboardEntry[], currentAgentId: string, isAdmin: boolean): LeaderboardEntry[] {
+  if (isAdmin) {
+    return leaderboard;
+  }
+
+  return leaderboard.map(entry => {
+    if (entry.agentId === currentAgentId) {
+      // Keep own entry with full data (but GCI already 0 from agent sanitization)
+      return { ...entry };
+    }
+    
+    // Remove GCI from anonymized entries
+    const { gci, ...rest } = entry;
+    return { ...rest, gci: 0 };
+  });
 }
