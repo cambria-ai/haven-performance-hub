@@ -1,7 +1,7 @@
 /**
  * Google Sheets data loader for Haven Performance Hub.
  * Core source: Haven Transactions 2026 (1qmwuePI7Q47gjcI5WmvQj1gjTLmmVpnl)
- * 
+ *
  * Business rules:
  * - MASTER HAVEN PNDS = pending/current pipeline ONLY
  * - Master Closed 2026 = closed/sold transactions ONLY
@@ -92,18 +92,46 @@ export async function fetchTabCSV(tabName: string): Promise<string> {
 }
 
 /**
- * Parse CSV text into rows. Handles multi-line quoted fields.
+ * Parse CSV text into rows with FIXED column indices.
+ * The sheet has a two-row header (rows 0-1) that merges into a single conceptual header.
+ * Data starts at row index 2.
+ *
+ * Column mapping (0-indexed, verified 2026-04-28):
+ * 0: (empty/merged)
+ * 1: Purch/List
+ * 2: Res Land Comm
+ * 3: Comm %
+ * 4: Mutual Acceptance
+ * 5: CLOSING
+ * 6: Commission Request Sent
+ * 7: Agent
+ * 8: PRICE
+ * 9-11: (various)
+ * 12: ADDRESS
+ * 13: Zip Code
+ * 14: Personal Sphere
+ * 15: Client First Name
+ * 16: Client Last Name
+ * 17: (empty)
+ * 18: Referral $
+ * 19: Haven B&O
+ * 20: Haven Income
+ * 21: Agent B&O
+ * 22: Agent Income
+ * 23: Epique Income
+ * 24: (empty)
+ * 25: Lead Generated
  */
-function parseCSV(csvText: string): Record<string, any>[] {
+function parseCSV(csvText: string): { rows: string[][]; headers: string[] } {
   const rows: string[][] = [];
   let currentRow: string[] = [];
   let currentField = '';
   let inQuotes = false;
   let i = 0;
-  
+
   while (i < csvText.length) {
     const char = csvText[i];
-    
+
     if (inQuotes) {
       if (char === '"') {
         if (csvText[i + 1] === '"') {
@@ -121,20 +149,20 @@ function parseCSV(csvText: string): Record<string, any>[] {
         continue;
       }
     }
-    
+
     if (char === '"') {
       inQuotes = true;
       i++;
       continue;
     }
-    
+
     if (char === ',') {
       currentRow.push(currentField.trim());
       currentField = '';
       i++;
       continue;
     }
-    
+
     if (char === '\n' || char === '\r') {
       if (char === '\r' && csvText[i + 1] === '\n') i++;
       currentRow.push(currentField.trim());
@@ -144,33 +172,29 @@ function parseCSV(csvText: string): Record<string, any>[] {
       i++;
       continue;
     }
-    
+
     currentField += char;
     i++;
   }
-  
+
   if (currentField || currentRow.length > 0) {
     currentRow.push(currentField.trim());
     if (currentRow.some(f => f.length > 0)) rows.push(currentRow);
   }
-  
-  if (rows.length === 0) return [];
-  
-  const headers = rows[0].map(h => h.trim());
-  const result: Record<string, any>[] = [];
-  
-  for (let rowIdx = 1; rowIdx < rows.length; rowIdx++) {
-    const values = rows[rowIdx];
-    if (values.length === 0) continue;
-    
-    const row: Record<string, any> = {};
-    headers.forEach((header, idx) => {
-      if (header && values[idx] !== undefined) row[header] = values[idx];
-    });
-    result.push(row);
-  }
-  
-  return result;
+
+  // Build fixed header mapping (combines conceptual header from rows 0-1)
+  const headers = [
+    'Empty', 'Purch/List', 'Res Land Comm', 'Comm %', 'Mutual Acceptance',
+    'CLOSING', 'Commission Request Sent', 'Agent', 'PRICE', 'INDP Transactions',
+    'Loan w/Shaun', 'CDA Sent to Closer', 'ADDRESS', 'Zip Code', 'Personal Sphere',
+    'Client First Name', 'Client Last Name', 'Empty2', 'Referral $', 'Haven B&O',
+    'Haven Income', 'Agent B&O', 'Agent Income', 'Epique Income', 'Empty3', 'Lead Generated',
+  ];
+
+  // Data starts at row index 2 (third row)
+  const dataRows = rows.slice(2);
+
+  return { rows: dataRows, headers };
 }
 
 /**
@@ -182,9 +206,9 @@ function parseCSV(csvText: string): Record<string, any>[] {
  */
 function normalizeAddress(address: string): string {
   if (!address) return '';
-  
+
   let normalized = address.toLowerCase().trim();
-  
+
   const suffixMap: Record<string, string> = {
     ' st ': ' street ', ' st,': ' street,', ' st.': ' street',
     ' ave ': ' avenue ', ' ave,': ' avenue,', ' ave.': ' avenue',
@@ -197,14 +221,14 @@ function normalizeAddress(address: string): string {
     ' hwy ': ' highway ', ' hwy,': ' highway,', ' hwy.': ' highway',
     ' rd ': ' road ', ' rd,': ' road,', ' rd.': ' road',
   };
-  
+
   for (const [short, long] of Object.entries(suffixMap)) {
     normalized = normalized.replace(new RegExp(short.replace(' ', '\\s+'), 'g'), long);
   }
-  
+
   normalized = normalized.replace(/\s*(?:unit|apt|suite|#|ste)\.?\s*[a-z0-9-]+/gi, '');
   normalized = normalized.replace(/\s+/g, ' ').trim();
-  
+
   return normalized;
 }
 
@@ -216,99 +240,118 @@ function normalizeAddress(address: string): string {
  */
 async function loadRoster(): Promise<Map<string, string>> {
   const csv = await fetchTabCSV('Spokane Agent Roster');
-  const rows = parseCSV(csv);
+  const { rows } = parseCSV(csv);
   const roster = new Map<string, string>();
   const rosterMatchKeys = new Map<string, string>();
-  
+
   let headerIndex = -1;
+  let headers: string[] = [];
   for (let i = 0; i < rows.length; i++) {
-    const firstCol = Object.values(rows[i])[0];
+    const firstCol = rows[i][0];
     if (firstCol && String(firstCol).toUpperCase() === 'AGENT') {
       headerIndex = i;
+      headers = rows[i];
       break;
     }
   }
-  
+
+  const getFieldValue = (row: string[], keys: string[]): string | null => {
+    for (let idx = 0; idx < headers.length; idx++) {
+      const header = headers[idx].trim().toUpperCase();
+      for (const key of keys) {
+        if (header === key.toUpperCase() && row[idx]) {
+          return row[idx];
+        }
+      }
+    }
+    return null;
+  };
+
   for (let i = (headerIndex >= 0 ? headerIndex + 1 : 0); i < rows.length; i++) {
     const row = rows[i];
-    const agentName = 
-      (row['AGENT'] as string) || 
-      (row['Agent'] as string) || 
-      (row['agent'] as string) || 
-      (row['Name'] as string) || 
-      (row['name'] as string) ||
-      (headerIndex >= 0 ? (Object.values(row)[0] as string) : null);
-    
+    const agentName = getFieldValue(row, ['AGENT', 'Agent', 'agent', 'Name', 'name']) || row[0];
+
     if (!agentName || !isValidAgentName(agentName)) continue;
 
     const canonicalName = agentName.trim();
     const agentId = normalizeAgentId(canonicalName);
     const matchKey = getAgentMatchKey(canonicalName);
-    
+
     if (!rosterMatchKeys.has(matchKey)) {
       rosterMatchKeys.set(matchKey, agentId);
       roster.set(agentId, canonicalName);
     }
   }
-  
+
   return roster;
 }
 
 /**
  * Load CLOSED transactions from Master Closed 2026 tab.
  * This is the authoritative source for closed/sold transactions.
- * 
+ *
  * DEDUPE LOGIC:
  * - Build deterministic key: normalizedAddress + agentMatchKey + price + closingDate
  * - Same address can only count twice if clearly separate (different agents or different closing dates >30 days apart)
  */
 async function loadClosedTransactions(roster: Map<string, string>): Promise<TransactionRecord[]> {
   const csv = await fetchTabCSV('Master Closed 2026');
-  const rows = parseCSV(csv);
+  const { rows, headers } = parseCSV(csv);
   const closed: TransactionRecord[] = [];
   const seenTransactions = new Map<string, TransactionRecord>();
-  
+
   const rosterMatchKeys = new Map<string, string>();
   for (const [agentId, agentName] of roster.entries()) {
     const matchKey = getAgentMatchKey(agentName);
     rosterMatchKeys.set(matchKey, agentId);
   }
-  
+
+  // Column indices (0-indexed, verified 2026-04-28):
+  // 7: Agent, 8: PRICE, 12: ADDRESS, 4: Mutual Acceptance, 5: CLOSING
+  // 20: Haven Income, 19: Haven B&O, 22: Agent Income, 23: Epique Income
+  // 25: Lead Generated, 1: Purch/List, 14: Personal Sphere, 18: Referral $
+
   for (const row of rows) {
-    const agentName = (row['Agent'] || row['agent']) as string;
+    const agentName = row[7];
     if (!agentName || !isValidAgentName(agentName)) continue;
-    
+
     const agentId = normalizeAgentId(agentName);
     const matchKey = getAgentMatchKey(agentName);
-    
+
     let rosterAgentId = roster.has(agentId) ? agentId : null;
     if (!rosterAgentId && rosterMatchKeys.has(matchKey)) {
       rosterAgentId = rosterMatchKeys.get(matchKey)!;
     }
     if (!rosterAgentId) continue;
-    
-    const price = parseCurrency(row['PRICE'] || row['price'] || row['Sales Price'] || row['sales price']);
+
+    const price = parseCurrency(row[8]);
     if (!price) continue;
-    
-    const address = (row['ADDRESS'] || row['address'] || row['Property Address'] || row['property address'] || 'Unknown') as string;
+
+    const address = row[12] || 'Unknown';
     const normalizedAddress = normalizeAddress(address);
-    const contractDate = parseDate(row['Mutual Acceptance'] || row['contract date'] || row['Contract Date']);
-    const closingDate = parseDate(row['CLOSING'] || row['closing'] || row['Close Date'] || row['close date']);
-    
+    const contractDate = parseDate(row[4]);
+    const closingDate = parseDate(row[5]);
+
     if (!closingDate) continue;
-    
-    const leadSource = (row['Lead Generated'] || row['lead source'] || row['Lead Source'] || '') as string;
-    const havenIncome = parseCurrency(row['Haven Income'] || row['GCI'] || row['gci']) || 0;
-    const boTax = parseCurrency(row['B&O Tax'] || row['B&O'] || row['b&o tax'] || row['b&o']) || 0;
-    const transactionFee = parseCurrency(row['Transaction Fee'] || row['transaction fee'] || row['Tech Fee'] || row['tech fee']) || 0;
-    
-    // Parse referral indicators
-    const referralIndicators = parseReferralIndicators(row);
-    
+
+    const leadSource = row[25] || '';
+    const havenIncome = parseCurrency(row[20]) || 0;
+    const agentIncome = parseCurrency(row[22]) || 0;
+    const epiqueIncome = parseCurrency(row[23]) || 0;
+    const boTax = parseCurrency(row[19]) || 0;
+    const referralFee = parseCurrency(row[18]) || 0;
+    const transactionFee = 0;
+    const isPersonalSphere = (row[14] || '').toLowerCase().includes('yes');
+
+    const isZillow = leadSource.toLowerCase().includes('zillow');
+    const isRedfin = leadSource.toLowerCase().includes('redfin');
+    const isSphere = isPersonalSphere || leadSource.toLowerCase().includes('sphere');
+    const isZillowFlex = isZillow && leadSource.toLowerCase().includes('flex');
+
     const dedupeKey = `${normalizedAddress}|${matchKey}|${price}|${closingDate.toISOString().split('T')[0]}`;
-    
+
     if (seenTransactions.has(dedupeKey)) continue;
-    
+
     const transaction: TransactionRecord = {
       id: `closed-${rosterAgentId}-${normalizedAddress.replace(/\s+/g, '-').substring(0, 30)}-${closingDate.toISOString()}`,
       agentId: rosterAgentId,
@@ -316,95 +359,109 @@ async function loadClosedTransactions(roster: Map<string, string>): Promise<Tran
       address,
       price,
       status: 'closed',
-      side: ((row['Purch/List'] || row['purch/list'] || row['Side'] || row['side'] || '') as string).toLowerCase().includes('list') ? 'seller' : 'buyer',
+      side: (row[1] || '').toLowerCase().includes('list') ? 'seller' : 'buyer',
       contractDate: contractDate?.toISOString() || undefined,
       closedDate: closingDate.toISOString(),
       gci: havenIncome,
       leadSource,
-      isZillow: leadSource.toLowerCase().includes('zillow'),
-      isReferral: referralIndicators.isReferral,
-      referralSource: referralIndicators.referralSource,
-      referralFee: referralIndicators.referralFee,
-      isZillowFlex: referralIndicators.isZillowFlex,
-      isRedfin: referralIndicators.isRedfin,
-      isSphere: referralIndicators.isSphere,
+      isZillow,
+      isReferral: referralFee > 0 || isSphere,
+      referralSource: isSphere ? 'Sphere' : (isZillow ? 'Zillow' : (isRedfin ? 'Redfin' : leadSource)),
+      referralFee,
+      isZillowFlex,
+      isRedfin,
+      isSphere,
       boTax,
       transactionFee,
+      // Extended fields for detail views
+      agentIncome,
+      epiqueIncome,
     };
-    
+
     seenTransactions.set(dedupeKey, transaction);
     closed.push(transaction);
   }
-  
+
   return closed;
 }
 
 /**
  * Load PENDING transactions from MASTER HAVEN PNDS tab.
  * This is the authoritative source for pending/current pipeline.
- * 
+ *
  * CRITICAL: If a deal in MASTER HAVEN PNDS also appears in Master Closed 2026,
  * it should NOT count as pending - it's already closed.
- * 
+ *
  * DEDUPE LOGIC:
  * - Build deterministic key: normalizedAddress + agentMatchKey + price
  * - Cross-check against closed transactions to avoid double-counting
  */
 async function loadPendingTransactions(roster: Map<string, string>, closedTransactions: TransactionRecord[]): Promise<TransactionRecord[]> {
   const csv = await fetchTabCSV('MASTER HAVEN PNDS');
-  const rows = parseCSV(csv);
+  const { rows, headers } = parseCSV(csv);
   const pendings: TransactionRecord[] = [];
   const seenTransactions = new Set<string>();
   const now = new Date();
-  
+
   const closedSignatures = new Set<string>();
   for (const txn of closedTransactions) {
     const agentMatchKey = getAgentMatchKey(txn.agentName);
     const normalizedAddr = normalizeAddress(txn.address);
     closedSignatures.add(`${normalizedAddr}|${agentMatchKey}|${txn.price}`);
   }
-  
+
   const rosterMatchKeys = new Map<string, string>();
   for (const [agentId, agentName] of roster.entries()) {
     const matchKey = getAgentMatchKey(agentName);
     rosterMatchKeys.set(matchKey, agentId);
   }
-  
+
+  // Column indices (0-indexed, verified 2026-04-28):
+  // 7: Agent, 8: PRICE, 12: ADDRESS, 4: Mutual Acceptance, 5: CLOSING
+  // 20: Haven Income, 19: Haven B&O, 22: Agent Income, 23: Epique Income
+  // 25: Lead Generated, 1: Purch/List, 14: Personal Sphere, 18: Referral $
+
   for (const row of rows) {
-    const agentName = (row['Agent'] || row['agent']) as string;
+    const agentName = row[7];
     if (!agentName || !isValidAgentName(agentName)) continue;
-    
+
     const agentId = normalizeAgentId(agentName);
     const matchKey = getAgentMatchKey(agentName);
-    
+
     let rosterAgentId = roster.has(agentId) ? agentId : null;
     if (!rosterAgentId && rosterMatchKeys.has(matchKey)) {
       rosterAgentId = rosterMatchKeys.get(matchKey)!;
     }
     if (!rosterAgentId) continue;
-    
-    const price = parseCurrency(row['PRICE'] || row['price'] || row['Sales Price']);
+
+    const price = parseCurrency(row[8]);
     if (!price) continue;
-    
-    const address = (row['ADDRESS'] || row['address'] || row['Property Address'] || 'Unknown') as string;
+
+    const address = row[12] || 'Unknown';
     const normalizedAddress = normalizeAddress(address);
-    const contractDate = parseDate(row['Mutual Acceptance'] || row['contract date'] || row['Contract Date']);
-    const closingDate = parseDate(row['CLOSING'] || row['closing'] || row['Close Date']);
-    const leadSource = (row['Lead Generated'] || row['lead source'] || row['Lead Source'] || '') as string;
-    const havenIncome = parseCurrency(row['Haven Income'] || row['GCI'] || row['gci']) || 0;
-    const boTax = parseCurrency(row['B&O Tax'] || row['B&O'] || row['b&o tax'] || row['b&o']) || 0;
-    const transactionFee = parseCurrency(row['Transaction Fee'] || row['transaction fee'] || row['Tech Fee'] || row['tech fee']) || 0;
-    
-    // Parse referral indicators
-    const referralIndicators = parseReferralIndicators(row);
-    
+    const contractDate = parseDate(row[4]);
+    const closingDate = parseDate(row[5]);
+    const leadSource = row[25] || '';
+    const havenIncome = parseCurrency(row[20]) || 0;
+    const agentIncome = parseCurrency(row[22]) || 0;
+    const epiqueIncome = parseCurrency(row[23]) || 0;
+    const boTax = parseCurrency(row[19]) || 0;
+    const referralFee = parseCurrency(row[18]) || 0;
+    const transactionFee = 0;
+    const isPersonalSphere = (row[14] || '').toLowerCase().includes('yes');
+
+    const isZillow = leadSource.toLowerCase().includes('zillow');
+    const isRedfin = leadSource.toLowerCase().includes('redfin');
+    const isSphere = isPersonalSphere || leadSource.toLowerCase().includes('sphere');
+    const isZillowFlex = isZillow && leadSource.toLowerCase().includes('flex');
+
     const pendingDedupeKey = `${normalizedAddress}|${matchKey}|${price}`;
     if (seenTransactions.has(pendingDedupeKey)) continue;
     if (closedSignatures.has(pendingDedupeKey)) continue;
-    
+
     const isActuallyClosed = closingDate && closingDate <= now;
     if (isActuallyClosed) continue;
-    
+
     const transaction: TransactionRecord = {
       id: `pend-${rosterAgentId}-${normalizedAddress.replace(/\s+/g, '-').substring(0, 30)}-${contractDate?.toISOString() || ''}`,
       agentId: rosterAgentId,
@@ -412,26 +469,29 @@ async function loadPendingTransactions(roster: Map<string, string>, closedTransa
       address,
       price,
       status: 'pending',
-      side: ((row['Purch/List'] || row['purch/list'] || row['Side'] || '') as string).toLowerCase().includes('list') ? 'seller' : 'buyer',
+      side: (row[1] || '').toLowerCase().includes('list') ? 'seller' : 'buyer',
       contractDate: contractDate?.toISOString() || undefined,
       closedDate: undefined,
       gci: havenIncome,
       leadSource,
-      isZillow: leadSource.toLowerCase().includes('zillow'),
-      isReferral: referralIndicators.isReferral,
-      referralSource: referralIndicators.referralSource,
-      referralFee: referralIndicators.referralFee,
-      isZillowFlex: referralIndicators.isZillowFlex,
-      isRedfin: referralIndicators.isRedfin,
-      isSphere: referralIndicators.isSphere,
+      isZillow,
+      isReferral: referralFee > 0 || isSphere,
+      referralSource: isSphere ? 'Sphere' : (isZillow ? 'Zillow' : (isRedfin ? 'Redfin' : leadSource)),
+      referralFee,
+      isZillowFlex,
+      isRedfin,
+      isSphere,
       boTax,
       transactionFee,
+      // Extended fields for detail views
+      agentIncome,
+      epiqueIncome,
     };
-    
+
     seenTransactions.add(pendingDedupeKey);
     pendings.push(transaction);
   }
-  
+
   return pendings;
 }
 
@@ -442,31 +502,43 @@ async function loadPendingTransactions(roster: Map<string, string>, closedTransa
  */
 async function loadListings(roster: Map<string, string>): Promise<Record<string, number>> {
   const csv = await fetchTabCSV('Listings');
-  const rows = parseCSV(csv);
+  const { rows, headers } = parseCSV(csv);
   const listingsByAgent: Record<string, number> = {};
-  
+
   const rosterMatchKeys = new Map<string, string>();
   for (const [agentId, agentName] of roster.entries()) {
     const matchKey = getAgentMatchKey(agentName);
     rosterMatchKeys.set(matchKey, agentId);
   }
-  
+
+  const getFieldValue = (row: string[], keys: string[]): string | null => {
+    for (let idx = 0; idx < headers.length; idx++) {
+      const header = headers[idx].trim().toUpperCase();
+      for (const key of keys) {
+        if (header === key.toUpperCase() && row[idx]) {
+          return row[idx];
+        }
+      }
+    }
+    return null;
+  };
+
   for (const row of rows) {
-    const agentName = (row['Agent'] || row['agent']) as string;
+    const agentName = getFieldValue(row, ['Agent', 'agent', 'Name']) || row[0];
     if (!agentName || !isValidAgentName(agentName)) continue;
-    
+
     const agentId = normalizeAgentId(agentName);
     const matchKey = getAgentMatchKey(agentName);
-    
+
     let rosterAgentId = roster.has(agentId) ? agentId : null;
     if (!rosterAgentId && rosterMatchKeys.has(matchKey)) {
       rosterAgentId = rosterMatchKeys.get(matchKey)!;
     }
     if (!rosterAgentId) continue;
-    
+
     listingsByAgent[rosterAgentId] = (listingsByAgent[rosterAgentId] || 0) + 1;
   }
-  
+
   return listingsByAgent;
 }
 
@@ -475,34 +547,46 @@ async function loadListings(roster: Map<string, string>): Promise<Record<string,
  */
 async function loadCmas(roster: Map<string, string>): Promise<Record<string, number>> {
   const csv = await fetchTabCSV('CMAS_2026');
-  const rows = parseCSV(csv);
+  const { rows, headers } = parseCSV(csv);
   const cmasByAgent: Record<string, number> = {};
-  
+
   const rosterMatchKeys = new Map<string, string>();
   for (const [agentId, agentName] of roster.entries()) {
     const matchKey = getAgentMatchKey(agentName);
     rosterMatchKeys.set(matchKey, agentId);
   }
-  
+
+  const getFieldValue = (row: string[], keys: string[]): string | null => {
+    for (let idx = 0; idx < headers.length; idx++) {
+      const header = headers[idx].trim().toUpperCase();
+      for (const key of keys) {
+        if (header === key.toUpperCase() && row[idx]) {
+          return row[idx];
+        }
+      }
+    }
+    return null;
+  };
+
   for (const row of rows) {
-    const agentName = (row['Agent'] || row['agent']) as string;
+    const agentName = getFieldValue(row, ['Agent', 'agent', 'Name']) || row[0];
     if (!agentName || !isValidAgentName(agentName)) continue;
-    
+
     const agentId = normalizeAgentId(agentName);
     const matchKey = getAgentMatchKey(agentName);
-    
+
     let rosterAgentId = roster.has(agentId) ? agentId : null;
     if (!rosterAgentId && rosterMatchKeys.has(matchKey)) {
       rosterAgentId = rosterMatchKeys.get(matchKey)!;
     }
     if (!rosterAgentId) continue;
-    
-    const status = ((row['Status'] || row['status'] || '') as string).toLowerCase();
-    if (status.includes('complete') || status.includes('done')) {
+
+    const status = getFieldValue(row, ['Status', 'status']) || '';
+    if (status.toLowerCase().includes('complete') || status.toLowerCase().includes('done')) {
       cmasByAgent[rosterAgentId] = (cmasByAgent[rosterAgentId] || 0) + 1;
     }
   }
-  
+
   return cmasByAgent;
 }
 
@@ -513,29 +597,29 @@ export async function loadFromGoogleSheets(): Promise<LoadResult> {
   const warnings: string[] = [];
   const errors: string[] = [];
   const sourcesLoaded: string[] = ['Haven Transactions 2026'];
-  
+
   try {
     const roster = await loadRoster();
     if (roster.size === 0) {
       warnings.push('Roster loaded but appears empty');
     }
-    
+
     const closed = await loadClosedTransactions(roster);
     const pendings = await loadPendingTransactions(roster, closed);
     const allTransactions = [...pendings, ...closed];
-    
+
     const listingsByAgent = await loadListings(roster);
     const cmasByAgent = await loadCmas(roster);
-    
+
     const agents: Record<string, AgentSnapshot> = {};
     for (const [agentId, agentName] of roster.entries()) {
       agents[agentId] = createEmptyAgent(agentName, agentId);
     }
-    
+
     for (const txn of allTransactions) {
       if (!agents[txn.agentId]) continue;
       const agent = agents[txn.agentId];
-      
+
       if (txn.status === 'closed') {
         agent.closedTransactions += 1;
         agent.closedVolume += txn.price;
@@ -544,11 +628,11 @@ export async function loadFromGoogleSheets(): Promise<LoadResult> {
         agent.pendingTransactions += 1;
         agent.pendingVolume += txn.price;
       }
-      
+
       if (txn.isZillow) {
         agent.zillowLeads += 1;
       }
-      
+
       // Track referrals (closed transactions only)
       if (txn.status === 'closed' && txn.isReferral) {
         agent.referrals = (agent.referrals || 0) + 1;
@@ -570,19 +654,19 @@ export async function loadFromGoogleSheets(): Promise<LoadResult> {
         ));
       }
     }
-    
+
     for (const [agentId, count] of Object.entries(listingsByAgent)) {
       if (agents[agentId]) agents[agentId].activeListings = count;
     }
-    
+
     for (const [agentId, count] of Object.entries(cmasByAgent)) {
       if (agents[agentId]) agents[agentId].cmasCompleted = count;
     }
-    
+
     const leaderboard = buildLeaderboard(agents);
     const teamStats = calculateTeamStats(agents);
     const timeWindowStats = buildTimeWindowStats(allTransactions, agents);
-    
+
     const { weekStart, weekEnd } = getWeekDates();
     const metadata: SnapshotMetadata = {
       id: generateSnapshotId(),
@@ -595,14 +679,14 @@ export async function loadFromGoogleSheets(): Promise<LoadResult> {
       weekEnd,
       notes: `Loaded from Haven Transactions 2026. Roster-based filtering active. Excluded tabs: ${EXCLUDED_TABS.join(', ')}. CLOSED from Master Closed 2026 (${closed.length} txns). PENDING from MASTER HAVEN PNDS (${pendings.length} txns). Dedupe: normalizedAddress+agentMatchKey+price+closingDate.`,
     };
-    
+
     const snapshot: WeeklySnapshot = { metadata, agents, leaderboard, teamStats };
-    
+
     return { snapshot, timeWindowStats, warnings, errors, sourcesLoaded };
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
     errors.push(`Failed to load from Google Sheets: ${msg}`);
-    
+
     const { weekStart, weekEnd } = getWeekDates();
     const snapshot: WeeklySnapshot = {
       metadata: {
@@ -633,7 +717,7 @@ export async function loadFromGoogleSheets(): Promise<LoadResult> {
         totalGCI: 0,
       },
     };
-    
+
     return { snapshot, timeWindowStats: {}, warnings: [], errors, sourcesLoaded: [] };
   }
 }
@@ -644,7 +728,7 @@ function buildTimeWindowStats(
 ): Record<string, TimeWindowStats> {
   const result: Record<string, TimeWindowStats> = {};
   const now = new Date();
-  
+
   for (const [agentId, agent] of Object.entries(agents)) {
     const agentTxns = transactions.filter(t => t.agentId === agentId);
     result[agentId] = {
@@ -653,7 +737,7 @@ function buildTimeWindowStats(
       yearly: calculateRollup(agentTxns, now, 'year'),
     };
   }
-  
+
   return result;
 }
 
@@ -663,17 +747,17 @@ function calculateRollup(
   period: 'week' | 'month' | 'year'
 ): MetricRollup {
   const { startDate, endDate } = getPeriodBounds(referenceDate, period);
-  
+
   const filtered = transactions.filter(t => {
     const txnDate = t.closedDate ? new Date(t.closedDate) : t.contractDate ? new Date(t.contractDate) : null;
     if (!txnDate) return false;
     return txnDate >= startDate && txnDate <= endDate;
   });
-  
+
   const solds = filtered.filter(t => t.status === 'closed').length;
   const pendings = filtered.filter(t => t.status === 'pending').length;
   const listings = filtered.filter(t => t.side === 'seller').length;
-  
+
   return {
     period,
     startDate: startDate.toISOString(),
@@ -691,7 +775,7 @@ function calculateRollup(
 function getPeriodBounds(referenceDate: Date, period: 'week' | 'month' | 'year'): { startDate: Date; endDate: Date } {
   const endDate = new Date(referenceDate);
   const startDate = new Date(referenceDate);
-  
+
   switch (period) {
     case 'week':
       const day = startDate.getDay();
@@ -712,7 +796,7 @@ function getPeriodBounds(referenceDate: Date, period: 'week' | 'month' | 'year')
       endDate.setHours(23, 59, 59, 999);
       break;
   }
-  
+
   return { startDate, endDate };
 }
 
@@ -781,17 +865,17 @@ function isValidAgentName(name: string): boolean {
   const trimmed = name.trim();
   if (trimmed.length < 2) return false;
   if (!/[a-zA-Z]/.test(trimmed)) return false;
-  
+
   const lower = trimmed.toLowerCase();
   const rejectedPatterns = ['pending', 'closed', 'rescinded', 'active', 'contingent', 'total', 'totals', 'sum', 'count', 'average', 'address', 'price', 'commission', 'gci', 'lead source', 'n/a', 'none', 'null', 'undefined', 'tbd'];
-  
+
   for (const pattern of rejectedPatterns) {
     if (lower === pattern || lower.includes(pattern)) return false;
   }
-  
+
   if (/^\d{1,4}[-/]\d{1,2}[-/]\d{1,4}$/.test(trimmed)) return false;
   if (/^[\d.,$%]+$/.test(trimmed)) return false;
-  
+
   return true;
 }
 
@@ -802,10 +886,10 @@ function normalizeAgentId(name: string): string {
 function getAgentMatchKey(name: string): string {
   const parts = name.trim().split(/\s+/).filter(p => p.length > 0);
   if (parts.length === 0) return '';
-  
+
   let firstName: string;
   let lastName: string;
-  
+
   if (parts[0].endsWith(',')) {
     lastName = parts[0].replace(',', '').toLowerCase();
     firstName = parts[1] ? parts[1].toLowerCase() : '';
@@ -813,7 +897,7 @@ function getAgentMatchKey(name: string): string {
     lastName = parts[parts.length - 1].toLowerCase();
     firstName = parts[0].toLowerCase();
   }
-  
+
   const firstInitial = firstName.charAt(0);
   return `${lastName}-${firstInitial}`;
 }

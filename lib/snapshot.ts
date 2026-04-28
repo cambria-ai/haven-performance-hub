@@ -6,22 +6,26 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
-export const CAP_MAX = 20000; // Maximum cap contribution per agent
+export const CAP_MAX = 20000; // Maximum Haven cap contribution per agent
 export const CAP_YEAR_START_MONTH = 3; // April (0-indexed)
-export const CAP_YEAR_START_DAY = 7; // April 7th
+export const CAP_YEAR_START_DAY = 19; // April 19th (per Payout Dashboard: "resets every 04/19")
 
 /**
- * Get the current cap year start date based on April 7th reset.
- * Cap year runs from April 7 of year Y to April 6 of year Y+1.
- * If today is before April 7, we're in the cap year that started last year.
+ * Get the current cap year start date based on April 19th reset.
+ * Cap year runs from April 19 of year Y to April 18 of year Y+1.
+ * If today is before April 19, we're in the cap year that started last year.
+ *
+ * NOTE: The authoritative cap reset date per agent should come from the Haven Transaction spreadsheet.
+ * Currently using April 19th as the universal reset date. If anniversary-based resets are needed,
+ * the spreadsheet must include hire/anniversary date columns.
  */
 export function getCurrentCapYearStart(): Date {
   const now = new Date();
   const currentYear = now.getFullYear();
-  
+
   // Check if we're past April 7th this year
   const april7ThisYear = new Date(currentYear, CAP_YEAR_START_MONTH, CAP_YEAR_START_DAY);
-  
+
   if (now >= april7ThisYear) {
     // We're in the cap year starting April 7, currentYear
     return april7ThisYear;
@@ -38,7 +42,7 @@ export function isInCurrentCapYear(date: Date): boolean {
   const capYearStart = getCurrentCapYearStart();
   const capYearEnd = new Date(capYearStart);
   capYearEnd.setFullYear(capYearEnd.getFullYear() + 1);
-  
+
   return date >= capYearStart && date < capYearEnd;
 }
 
@@ -74,8 +78,13 @@ export interface AgentSnapshot {
   zillowConversion: number | null;
   zillowCost: number | null;
   gci: number;
+  epiqueIncome?: number;
   capProgress: number;
+  capTarget?: number;
   capContributingTransactions?: CapContribution[];
+  epiqueCapProgress?: number;
+  epiqueCapTarget?: number;
+  epiqueCapContributingTransactions?: EpiqueCapContribution[];
   referrals?: number;
   referralVolume?: number;
   referralTransactions?: ReferralTransaction[];
@@ -91,6 +100,18 @@ export interface CapContribution {
   purchasePrice: number;
   capContribution: number;
   isSphere: boolean;
+  notes?: string;
+}
+
+export interface EpiqueCapContribution {
+  transactionId?: string;
+  address: string;
+  closedDate?: string;
+  purchasePrice: number;
+  capContribution: number;
+  epique15Tf?: number;
+  epiqueTf?: number;
+  isSphere?: boolean;
   notes?: string;
 }
 
@@ -113,17 +134,21 @@ export interface PendingTransactionDetail {
   expectedClosingDate?: string;
   purchasePrice: number;
   expectedAgentIncome: number;
-  sourceIncomeField: 'Agent Income' | 'Personal Sphere' | 'Haven Income';
+  commissionPercent?: string;
+  sourceIncomeField: 'Agent' | 'Agent Income' | 'Personal Sphere' | 'Haven' | 'Haven Income';
   incomeBreakdown?: {
     agentIncome: number;
     personalSphere?: number;
     havenIncome?: number;
+    epiqueIncome?: number;
+    referralFee?: number;
   };
   leadSource?: string;
   isSphere?: boolean;
   isZillow?: boolean;
   boTax?: number;
   transactionFee?: number;
+  epiqueIncome?: number;
 }
 
 export interface ClosedTransactionDetail {
@@ -133,11 +158,16 @@ export interface ClosedTransactionDetail {
   contractDate?: string;
   purchasePrice: number;
   agentIncome: number;
-  sourceIncomeField: 'Agent Income' | 'Personal Sphere' | 'Haven Income';
+  epiqueIncome?: number;
+  commissionPercent?: string;
+  referralFee?: number;
+  sourceIncomeField: 'Agent' | 'Agent Income' | 'Personal Sphere' | 'Haven' | 'Haven Income';
   incomeBreakdown?: {
     agentIncome: number;
     personalSphere?: number;
     havenIncome?: number;
+    epiqueIncome?: number;
+    referralFee?: number;
   };
   leadSource?: string;
   isSphere?: boolean;
@@ -171,6 +201,10 @@ export interface TransactionRecord {
   // Fee breakdown
   boTax?: number;
   transactionFee?: number;
+  // Income breakdown fields
+  agentIncome?: number;
+  epiqueIncome?: number;
+  havenIncome?: number;
 }
 
 export interface LeaderboardEntry {
@@ -198,6 +232,7 @@ export interface TeamStats {
   totalZillowLeads: number;
   totalZillowCost: number;
   totalCapContributions: number;
+  totalEpiqueCapContributions?: number;
   totalGCI?: number;
   totalReferrals?: number;
   totalReferralVolume?: number;
@@ -228,10 +263,10 @@ export function loadCurrentSnapshot(): WeeklySnapshot | null {
 
 export function saveCurrentSnapshot(snapshot: WeeklySnapshot) {
   ensureSnapshotDir();
-  
+
   // Save as current
   fs.writeFileSync(CURRENT_SNAPSHOT_PATH, JSON.stringify(snapshot, null, 2));
-  
+
   // Add to history
   let history: SnapshotMetadata[] = [];
   try {
@@ -241,10 +276,10 @@ export function saveCurrentSnapshot(snapshot: WeeklySnapshot) {
   } catch {
     history = [];
   }
-  
+
   history.push(snapshot.metadata);
   history.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-  
+
   fs.writeFileSync(HISTORY_PATH, JSON.stringify(history, null, 2));
 }
 
@@ -274,10 +309,10 @@ export function loadSnapshotById(snapshotId: string): WeeklySnapshot | null {
 export function archiveCurrentSnapshot(): string | null {
   const current = loadCurrentSnapshot();
   if (!current) return null;
-  
+
   const archivePath = path.join(SNAPSHOTS_DIR, `${current.metadata.id}.json`);
   fs.writeFileSync(archivePath, JSON.stringify(current, null, 2));
-  
+
   return current.metadata.id;
 }
 
@@ -296,14 +331,14 @@ export function getWeekDates(date: Date = new Date()): { weekStart: string; week
   const current = new Date(date);
   const day = current.getDay();
   const diff = current.getDate() - day + (day === 0 ? -6 : 1); // Adjust to Monday
-  
+
   const weekStart = new Date(current.setDate(diff));
   weekStart.setHours(0, 0, 0, 0);
-  
+
   const weekEnd = new Date(weekStart);
   weekEnd.setDate(weekEnd.getDate() + 6);
   weekEnd.setHours(23, 59, 59, 999);
-  
+
   return {
     weekStart: weekStart.toISOString(),
     weekEnd: weekEnd.toISOString(),

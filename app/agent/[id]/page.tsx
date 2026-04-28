@@ -26,6 +26,7 @@ import {
   CheckCircle2,
   Activity,
 } from 'lucide-react';
+import { getEpiqueCap, getHavenCap, agentPaysHavenCap } from '../../../lib/cap-rules';
 
 interface AgentData {
   agent: any;
@@ -46,6 +47,7 @@ export default function AgentDashboard() {
   const [leads, setLeads] = useState<any[]>([]);
   const [showLeadForm, setShowLeadForm] = useState(false);
   const [showCapDrilldown, setShowCapDrilldown] = useState(false);
+  const [showEpiqueCapDrilldown, setShowEpiqueCapDrilldown] = useState(false);
   const [activeTab, setActiveTab] = useState<'overview' | 'weekly' | 'results'>('overview');
   const [newLead, setNewLead] = useState({ type: 'sphere', name: '', source: '', notes: '' });
 
@@ -153,7 +155,12 @@ export default function AgentDashboard() {
   const conversionProgress = Math.min((conversionRate / 4) * 100, 100);
   const timeWindowStats = data?.timeWindowStats;
   const isAdminViewing = agent?.role === 'admin';
-  
+
+  // Cap rules: Cambria has different cap rules than other agents
+  const epiqueCapTarget = agentData ? getEpiqueCap(agentData.id) : 5000;
+  const havenCapTarget = agentData ? getHavenCap(agentData.id) : 20000;
+  const showsHavenCap = agentData ? agentPaysHavenCap(agentData.id) : true;
+
   const motivationMessage = !agentData
     ? 'Your dashboard is ready and waiting for the next report upload.'
     : conversionRate >= 4
@@ -358,7 +365,7 @@ export default function AgentDashboard() {
               </div>
 
               <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-5">
-                <div 
+                <div
                   className="cursor-pointer rounded-3xl border border-slate-100 bg-slate-50/80 p-5 transition hover:border-indigo-200 hover:bg-indigo-50/80"
                   onClick={() => setShowCapDrilldown(true)}
                 >
@@ -480,20 +487,30 @@ export default function AgentDashboard() {
                   </div>
 
                   <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
-                    <div className="rounded-[1.75rem] border border-white/70 bg-gradient-to-br from-emerald-500/15 to-teal-500/10 p-6 backdrop-blur">
-                      <p className="text-sm font-medium text-slate-500">Cap paid (received)</p>
-                      <p className="mt-2 text-4xl font-bold text-slate-950">{formatCurrency(agentData.capProgress || 0)}</p>
-                      <p className="mt-1 text-sm text-slate-500">Of ${formatCurrency(agentData.capTarget || 20000)} annual cap</p>
-                    </div>
-                    <div className="rounded-[1.75rem] border border-white/70 bg-gradient-to-br from-indigo-500/15 to-violet-500/10 p-6 backdrop-blur">
-                      <p className="text-sm font-medium text-slate-500">Cap remaining</p>
-                      <p className="mt-2 text-4xl font-bold text-slate-950">{formatCurrency((agentData.capTarget || 20000) - (agentData.capProgress || 0))}</p>
-                      <p className="mt-1 text-sm text-slate-500">Until cap reset on April 7</p>
-                    </div>
+                    {showsHavenCap && (
+                      <button
+                        type="button"
+                        onClick={() => setShowCapDrilldown(true)}
+                        className="rounded-[1.75rem] border border-white/70 bg-gradient-to-br from-emerald-500/15 to-teal-500/10 p-6 text-left backdrop-blur transition hover:shadow-lg"
+                      >
+                        <p className="text-sm font-medium text-slate-500">Haven cap paid</p>
+                        <p className="mt-2 text-4xl font-bold text-slate-950">{formatCurrency(agentData.capProgress || 0)}</p>
+                        <p className="mt-1 text-sm text-slate-500">Of {formatCurrency(havenCapTarget || 0)} annual cap</p>
+                      </button>
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => setShowEpiqueCapDrilldown(true)}
+                      className="rounded-[1.75rem] border border-white/70 bg-gradient-to-br from-indigo-500/15 to-violet-500/10 p-6 text-left backdrop-blur transition hover:shadow-lg"
+                    >
+                      <p className="text-sm font-medium text-slate-500">Epique cap paid</p>
+                      <p className="mt-2 text-4xl font-bold text-slate-950">{formatCurrency(agentData.epiqueCapProgress || 0)}</p>
+                      <p className="mt-1 text-sm text-slate-500">Of {formatCurrency(epiqueCapTarget)} Epique cap</p>
+                    </button>
                     <div className="rounded-[1.75rem] border border-white/70 bg-gradient-to-br from-amber-500/15 to-orange-500/10 p-6 backdrop-blur">
-                      <p className="text-sm font-medium text-slate-500">Cap progress</p>
-                      <p className="mt-2 text-4xl font-bold text-slate-950">{`${((agentData.capProgress || 0) / (agentData.capTarget || 1) * 100).toFixed(0)}%`}</p>
-                      <p className="mt-1 text-sm text-slate-500">Sphere transactions only</p>
+                      <p className="text-sm font-medium text-slate-500">Income split</p>
+                      <p className="mt-2 text-4xl font-bold text-slate-950">{formatCurrency((agentData.closedTransactionsDetail || []).reduce((sum: number, txn: any) => sum + (txn.agentIncome || 0), 0))}</p>
+                      <p className="mt-1 text-sm text-slate-500">Closed agent income with Haven and Epique detail below</p>
                     </div>
                   </div>
                 </section>
@@ -611,12 +628,31 @@ export default function AgentDashboard() {
           </section>
         )}
 
-        {showCapDrilldown && agentData?.capContributingTransactions ? (
+        {showCapDrilldown && agentData?.capContributingTransactions && showsHavenCap ? (
           <CapDrilldownModal
             transactions={agentData.capContributingTransactions}
             capProgress={agentData.capProgress}
-            capTarget={agentData.capTarget || 20000}
+            capTarget={havenCapTarget || 0}
+            title="Sphere transactions counting toward your Haven cap"
+            description={`Only sphere/personal deals count toward your ${formatCurrency(havenCapTarget || 0)} Haven cap maximum.`}
+            amountLabel="to Haven cap"
+            emptyTitle="No contracts have contributed to your Haven cap yet."
+            emptyDescription="Sphere deals will appear here once they close."
             onClose={() => setShowCapDrilldown(false)}
+          />
+        ) : null}
+
+        {showEpiqueCapDrilldown && agentData?.epiqueCapContributingTransactions ? (
+          <CapDrilldownModal
+            transactions={agentData.epiqueCapContributingTransactions}
+            capProgress={agentData.epiqueCapProgress || 0}
+            capTarget={epiqueCapTarget || 0}
+            title="Transactions counting toward your Epique cap"
+            description={`Epique transaction fees count toward a separate ${formatCurrency(epiqueCapTarget || 0)} cap that resets on April 7.`}
+            amountLabel="to Epique cap"
+            emptyTitle="No transactions have contributed to your Epique cap yet."
+            emptyDescription="Epique fees will appear here once qualifying transactions close."
+            onClose={() => setShowEpiqueCapDrilldown(false)}
           />
         ) : null}
 
@@ -768,7 +804,7 @@ function StatCard({
   };
 
   return (
-    <div 
+    <div
       className={`rounded-[1.75rem] border border-white/70 bg-white/85 p-6 shadow-[0_28px_80px_-40px_rgba(15,23,42,0.24)] backdrop-blur${clickable ? ' cursor-pointer transition hover:border-indigo-200 hover:bg-indigo-50/80' : ''}`}
       onClick={clickable ? onClick : undefined}
     >
@@ -881,8 +917,8 @@ function RankCard({ rank, totalAgents, movement, distanceToNext }: {
 function LeaderboardRow({ entry, isOwn }: { entry: any; isOwn: boolean }) {
   return (
     <div className={`flex items-center justify-between rounded-2xl border px-4 py-3 ${
-      isOwn 
-        ? 'border-indigo-200 bg-indigo-50/80' 
+      isOwn
+        ? 'border-indigo-200 bg-indigo-50/80'
         : 'border-slate-100 bg-slate-50/50'
     }`}>
       <div className="flex items-center gap-4">
@@ -928,11 +964,21 @@ function CapDrilldownModal({
   transactions,
   capProgress,
   capTarget,
+  title,
+  description,
+  amountLabel,
+  emptyTitle,
+  emptyDescription,
   onClose,
 }: {
   transactions: any[];
   capProgress: number;
   capTarget: number;
+  title: string;
+  description: string;
+  amountLabel: string;
+  emptyTitle: string;
+  emptyDescription: string;
   onClose: () => void;
 }) {
   return (
@@ -941,10 +987,8 @@ function CapDrilldownModal({
         <div className="mb-6 flex items-start justify-between">
           <div>
             <p className="text-sm font-semibold uppercase tracking-[0.24em] text-slate-500">Cap breakdown</p>
-            <h2 className="mt-2 text-2xl font-semibold text-slate-950">Contracts contributing to your cap</h2>
-            <p className="mt-2 text-sm text-slate-600">
-              Only sphere/personal deals count toward your ${formatCurrency(capTarget)} cap maximum.
-            </p>
+            <h2 className="mt-2 text-2xl font-semibold text-slate-950">{title}</h2>
+            <p className="mt-2 text-sm text-slate-600">{description}</p>
           </div>
           <button
             onClick={onClose}
@@ -994,15 +1038,15 @@ function CapDrilldownModal({
                       <CheckCircle2 className="h-4 w-4" />
                       <p className="text-lg font-bold">+{formatCurrency(txn.capContribution)}</p>
                     </div>
-                    <p className="text-xs text-slate-500">to cap</p>
+                    <p className="text-xs text-slate-500">{amountLabel}</p>
                   </div>
                 </div>
               </div>
             ))
           ) : (
             <div className="rounded-2xl bg-slate-50 p-8 text-center">
-              <p className="text-slate-600">No contracts have contributed to your cap yet.</p>
-              <p className="mt-1 text-sm text-slate-500">Sphere deals will appear here once they close.</p>
+              <p className="text-slate-600">{emptyTitle}</p>
+              <p className="mt-1 text-sm text-slate-500">{emptyDescription}</p>
             </div>
           )}
         </div>

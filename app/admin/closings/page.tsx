@@ -13,6 +13,8 @@ interface ClosedTransaction {
   contractDate?: string;
   purchasePrice: number;
   agentIncome: number;
+  epiqueIncome?: number;
+  commissionPercent?: string | null;
   havenIncome: number;
   boTax: number;
   transactionFee: number;
@@ -24,11 +26,32 @@ interface ClosedTransaction {
     agentIncome: number;
     personalSphere: number;
     havenIncome: number;
+    epiqueIncome?: number;
   };
 }
 
 interface AdminData {
   allClosedTransactions: ClosedTransaction[];
+  closedTransactionsBySource: {
+    source: string;
+    count: number;
+    volume: number;
+    gci: number;
+    agentIncome: number;
+    havenIncome: number;
+    transactions: Array<{
+      transactionId: string;
+      agentId: string;
+      agentName: string;
+      address: string;
+      closedDate: string;
+      purchasePrice: number;
+      havenIncome: number;
+      agentIncome: number;
+      commissionPercent?: string | null;
+      leadSource: string;
+    }>;
+  }[];
   closedStats: {
     totalClosedVolume: number;
     totalClosedCount: number;
@@ -42,6 +65,7 @@ export default function AdminClosingsPage() {
   const [data, setData] = useState<AdminData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [expandedSource, setExpandedSource] = useState<string | null>(null);
 
   useEffect(() => {
     async function loadData() {
@@ -183,9 +207,52 @@ export default function AdminClosingsPage() {
           </div>
         </div>
 
+        {/* Source Breakdown */}
+        {data?.closedTransactionsBySource && data.closedTransactionsBySource.length > 0 && (
+          <div className="mb-8 rounded-[2rem] border border-white/70 bg-white/85 p-6 shadow-[0_30px_80px_-35px_rgba(15,23,42,0.24)] backdrop-blur">
+            <h2 className="mb-6 text-xl font-semibold text-slate-950">Closed Transactions by Source</h2>
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {data.closedTransactionsBySource.map((sourceData) => (
+                <button
+                  key={sourceData.source}
+                  onClick={() => setExpandedSource(expandedSource === sourceData.source ? null : sourceData.source)}
+                  className="group flex flex-col items-start gap-3 rounded-2xl border border-slate-200/60 bg-white/60 p-5 text-left transition hover:border-indigo-200 hover:bg-white/80 hover:shadow-lg"
+                >
+                  <div className="flex w-full items-center justify-between">
+                    <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700">
+                      {sourceData.source}
+                    </span>
+                    <span className="text-xs font-medium text-slate-500">
+                      {sourceData.count} transaction{sourceData.count !== 1 ? 's' : ''}
+                    </span>
+                  </div>
+                  <div className="w-full space-y-2">
+                    <div className="flex items-baseline justify-between">
+                      <span className="text-xs font-medium uppercase tracking-wider text-slate-500">Volume</span>
+                      <span className="text-lg font-bold text-slate-950">{formatCurrency(sourceData.volume)}</span>
+                    </div>
+                    <div className="flex items-baseline justify-between">
+                      <span className="text-xs font-medium uppercase tracking-wider text-slate-500">GCI</span>
+                      <span className="text-base font-semibold text-emerald-600">{formatCurrency(sourceData.gci)}</span>
+                    </div>
+                    {sourceData.agentIncome > 0 && (
+                      <div className="flex items-baseline justify-between">
+                        <span className="text-xs font-medium uppercase tracking-wider text-slate-500">Agent Income</span>
+                        <span className="text-base font-semibold text-indigo-600">{formatCurrency(sourceData.agentIncome)}</span>
+                      </div>
+                    )}
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Transaction List */}
         <div className="rounded-[2rem] border border-white/70 bg-white/85 p-6 shadow-[0_30px_80px_-35px_rgba(15,23,42,0.24)] backdrop-blur">
-          <h2 className="mb-6 text-xl font-semibold text-slate-950">All Closed Transactions</h2>
+          <h2 className="mb-6 text-xl font-semibold text-slate-950">
+            {expandedSource ? `Transactions from ${expandedSource}` : 'All Closed Transactions'}
+          </h2>
           
           {transactions.length === 0 ? (
             <div className="py-12 text-center text-slate-500">
@@ -195,7 +262,7 @@ export default function AdminClosingsPage() {
             </div>
           ) : (
             <div className="space-y-4">
-              {transactions.map((txn, index) => (
+              {(expandedSource ? data?.closedTransactionsBySource?.find(s => s.source === expandedSource)?.transactions || [] : transactions).map((txn: any, index) => (
                 <div
                   key={txn.transactionId}
                   className="group rounded-2xl border border-slate-200/60 bg-white/60 p-5 transition hover:border-indigo-200 hover:bg-white/80 hover:shadow-lg"
@@ -244,6 +311,11 @@ export default function AdminClosingsPage() {
                         {txn.leadSource && !txn.isZillow && !txn.isRedfin && !txn.isSphere && (
                           <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700">
                             {txn.leadSource}
+                          </span>
+                        )}
+                        {txn.commissionPercent && (
+                          <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700">
+                            {txn.commissionPercent}% commission
                           </span>
                         )}
                       </div>

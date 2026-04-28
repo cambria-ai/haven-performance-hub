@@ -23,6 +23,35 @@ const https = require('https');
 const SNAPSHOTS_DIR = path.join(__dirname, '..', 'data', 'snapshots');
 const CURRENT_SNAPSHOT = path.join(SNAPSHOTS_DIR, 'current.json');
 
+// Cap rules - synced with lib/cap-rules.ts
+const DEFAULT_EPIQUE_CAP = 5000;
+const HAVEN_CAP_TARGET = 20000;
+const CAP_RESET_MONTH = 3; // April (0-indexed)
+const CAP_RESET_DAY = 19; // April 19th (per Payout Dashboard)
+
+const AGENT_CAP_EXCEPTIONS = {
+  'cambria-henry': {
+    epiqueCap: 10000,
+    havenCap: null, // Does not pay into Haven cap
+  },
+};
+
+function getEpiqueCap(agentId) {
+  return AGENT_CAP_EXCEPTIONS[agentId]?.epiqueCap || DEFAULT_EPIQUE_CAP;
+}
+
+function getHavenCap(agentId) {
+  const exception = AGENT_CAP_EXCEPTIONS[agentId];
+  if (exception?.havenCap !== undefined) {
+    return exception.havenCap;
+  }
+  return HAVEN_CAP_TARGET;
+}
+
+function agentPaysHavenCap(agentId) {
+  return getHavenCap(agentId) !== null;
+}
+
 if (!fs.existsSync(SNAPSHOTS_DIR)) {
   fs.mkdirSync(SNAPSHOTS_DIR, { recursive: true });
 }
@@ -112,6 +141,68 @@ function parseCSV(csvText) {
     headers.forEach((header, idx) => { if (header && values[idx] !== undefined) row[header] = values[idx]; });
     result.push(row);
   }
+  return result;
+}
+
+/**
+ * Parse a single CSV line into an array of values.
+ * Used for merging multi-row headers in MASTER HAVEN PNDS.
+ */
+function parseCSVLine(line) {
+  const values = [];
+  let currentField = '';
+  let inQuotes = false;
+
+  for (let i = 0; i < line.length; i++) {
+    const char = line[i];
+    if (inQuotes) {
+      if (char === '"') {
+        if (line[i + 1] === '"') { currentField += '"'; i++; continue; }
+        else { inQuotes = false; continue; }
+      } else { currentField += char; continue; }
+    }
+    if (char === '"') { inQuotes = true; continue; }
+    if (char === ',') { values.push(currentField.trim()); currentField = ''; continue; }
+    currentField += char;
+  }
+  values.push(currentField.trim());
+  return values;
+}
+
+/**
+ * Parse MASTER HAVEN PNDS CSV with special handling for its malformed 2-row header.
+ * Row 1 has 16 columns, Row 2 has income columns starting after row 1's columns.
+ */
+function parseMasterHavenPndsCSV(csv) {
+  const lines = csv.split('\n').filter(l => l.trim());
+  if (lines.length < 3) return [];
+
+  // Row 1: basic columns (16 cols)
+  const row1 = parseCSVLine(lines[0]);
+
+  // Row 2: income columns - use simple split since all fields are quoted
+  const row2 = lines[1].split(',').map(v => v.replace(/^"|"$/g, '').trim());
+
+  // Row 2 columns start AFTER row 1's columns
+  // Row 1 has 16 cols, so row 2's income cols start at index 16
+  const mergedHeaders = [...row1];
+  for (let i = 1; i < row2.length; i++) {
+    const mergedIdx = row1.length - 1 + i;
+    if (row2[i] && row2[i].trim()) {
+      mergedHeaders[mergedIdx] = row2[i].trim();
+    }
+  }
+
+  // Parse data rows (starting from line 2)
+  const result = [];
+  for (let i = 2; i < lines.length; i++) {
+    const values = parseCSVLine(lines[i]);
+    if (values.length === 0) continue;
+    const row = {};
+    mergedHeaders.forEach((header, idx) => { if (header && values[idx] !== undefined) row[header] = values[idx]; });
+    result.push(row);
+  }
+
   return result;
 }
 
@@ -307,7 +398,12 @@ async function loadClosedTransactions(roster) {
     if (!closingDate || closingDate > now) continue;
 
     const leadSource = row['Lead Generated'] || row['Lead Source'] || '';
-    const havenIncome = parseCurrency(row['Haven Income'] || row['GCI']) || 0;
+    // FIX: Column headers have leading/trailing spaces in Master Closed 2026
+    // Column 18: 'Haven', Column 20: 'Agent', Column 3: 'Comm %'
+    const havenIncome = parseCurrency(row['Haven'] || row['GCI']) || 0;
+    const agentIncome = parseCurrency(row['Agent'] || row['agent']) || 0;
+    const epiqueIncome = parseCurrency(row['Epique Income'] || row['epique income']) || 0;
+    const commPercent = row['Comm %'] || '';
     const boTax = parseCurrency(row['B&O Tax'] || row['B&O'] || row['b&o tax']) || 0;
     const transactionFee = parseCurrency(row['Transaction Fee'] || row['transaction fee'] || row['Tech Fee']) || 0;
 
@@ -366,6 +462,7 @@ async function loadClosedTransactions(roster) {
       contractDate: parseDate(row['Mutual Acceptance'])?.toISOString() || undefined,
       closedDate: closingDate.toISOString(),
       gci: havenIncome,
+      epiqueIncome,
       leadSource,
       isZillow,
       isReferral,
@@ -379,21 +476,29 @@ async function loadClosedTransactions(roster) {
     });
 
     // Build closed transaction detail for agent view
+    // Use exact dollar amounts from sheet - no hardcoded percentages
+    // Comm % is stored for informational display only
     if (!closedDetailsByAgent[rosterAgentId]) {
       closedDetailsByAgent[rosterAgentId] = [];
     }
+
     closedDetailsByAgent[rosterAgentId].push({
       transactionId: `closed-${rosterAgentId}-${normalizedAddress.replace(/\s+/g, '-').substring(0, 30)}-${closingDate.toISOString()}`,
       address,
       closedDate: closingDate.toISOString(),
       contractDate: parseDate(row['Mutual Acceptance'])?.toISOString() || undefined,
       purchasePrice: price,
-      agentIncome: havenIncome,
-      sourceIncomeField: 'Haven Income',
+      agentIncome: agentIncome || 0,
+      epiqueIncome: epiqueIncome || 0,
+      commissionPercent: commPercent,
+      referralFee: referralFee || 0,
+      sourceIncomeField: 'Agent',
       incomeBreakdown: {
-        agentIncome: 0,
+        agentIncome: agentIncome || 0,
         personalSphere: personalSphere || 0,
         havenIncome: havenIncome || 0,
+        epiqueIncome: epiqueIncome || 0,
+        referralFee: referralFee || 0,
       },
       leadSource,
       isSphere: personalSphere > 0 || leadSource.toLowerCase().includes('sphere'),
@@ -413,7 +518,10 @@ async function loadClosedTransactions(roster) {
 async function loadPendingTransactions(roster, closedTransactions) {
   console.log('  Loading MASTER HAVEN PNDS...');
   const csv = await fetchTabCSV(SHEETS.TRANSACTIONS, 'MASTER HAVEN PNDS');
-  const rows = parseCSV(csv);
+
+  // MASTER HAVEN PNDS has a malformed 2-row header that needs special handling
+  const pendingRows = parseMasterHavenPndsCSV(csv);
+
   const pendings = [];
   const pendingDetailsByAgent = {};
   const seenTransactions = new Set();
@@ -431,7 +539,7 @@ async function loadPendingTransactions(roster, closedTransactions) {
     rosterMatchKeys.set(getAgentMatchKey(agentName), agentId);
   }
 
-  for (const row of rows) {
+  for (const row of pendingRows) {
     const agentName = row['Agent'] || row['agent'];
     if (!agentName || !isValidAgentName(agentName)) continue;
 
@@ -452,28 +560,33 @@ async function loadPendingTransactions(roster, closedTransactions) {
     const contractDate = parseDate(row['Mutual Acceptance']);
     const closingDate = parseDate(row['CLOSING']);
     const leadSource = row['Lead Generated'] || row['Lead Source'] || '';
-    const havenIncome = parseCurrency(row['Haven Income'] || row['GCI']) || 0;
-    const boTax = parseCurrency(row['B&O Tax'] || row['B&O'] || row['b&o tax']) || 0;
+    const commPercent = row['Comm %'] || '';
+    // MASTER HAVEN PNDS has merged headers now - use correct column names
+    // Column indices from merged header: Haven Income (col ~21), Agent Income (col ~23)
+    const havenIncome = parseCurrency(row['Haven Income'] || row['Haven'] || row['GCI']) || 0;
+    const agentIncome = parseCurrency(row['Agent Income'] || row['agent income'] || row['Agent']) || 0;
+    const epiqueIncome = parseCurrency(row['Epique Income']) || 0;
+    const boTax = parseCurrency(row['Haven B&O'] || row['B&O Tax'] || row['B&O'] || row['b&o tax']) || 0;
     const transactionFee = parseCurrency(row['Transaction Fee'] || row['transaction fee'] || row['Tech Fee']) || 0;
 
     // Extract agent income fields from MASTER HAVEN PNDS
     // Use Agent Income for normal deals, Personal Sphere column for sphere deals
-    const agentIncomeField = parseCurrency(row['Agent Income'] || row['agent income']);
+    const agentIncomeField = agentIncome;
     const personalSphereField = parseCurrency(row['Personal Sphere'] || row['personal sphere']);
 
     // Determine expected agent income based on deal type
     let expectedAgentIncome = 0;
-    let sourceIncomeField = 'Haven Income';
+    let sourceIncomeField = 'Haven';
 
     if (personalSphereField && personalSphereField > 0) {
       expectedAgentIncome = personalSphereField;
       sourceIncomeField = 'Personal Sphere';
     } else if (agentIncomeField && agentIncomeField > 0) {
       expectedAgentIncome = agentIncomeField;
-      sourceIncomeField = 'Agent Income';
+      sourceIncomeField = 'Agent';
     } else if (havenIncome && havenIncome > 0) {
-      expectedAgentIncome = havenIncome;
-      sourceIncomeField = 'Haven Income';
+      expectedAgentIncome = agentIncome || havenIncome;
+      sourceIncomeField = 'Haven';
     }
 
     // Identify referrals from Referral column or Lead Generated source
@@ -535,6 +648,7 @@ async function loadPendingTransactions(roster, closedTransactions) {
       contractDate: contractDate?.toISOString() || undefined,
       closedDate: undefined,
       gci: havenIncome,
+      epiqueIncome,
       leadSource,
       isZillow,
       isReferral,
@@ -553,6 +667,7 @@ async function loadPendingTransactions(roster, closedTransactions) {
     if (!pendingDetailsByAgent[rosterAgentId]) {
       pendingDetailsByAgent[rosterAgentId] = [];
     }
+
     pendingDetailsByAgent[rosterAgentId].push({
       transactionId: pendingTxn.id,
       address,
@@ -560,11 +675,16 @@ async function loadPendingTransactions(roster, closedTransactions) {
       expectedClosingDate: closingDate?.toISOString() || undefined,
       purchasePrice: price,
       expectedAgentIncome: expectedAgentIncome,
+      commissionPercent: commPercent,
+      epiqueIncome: epiqueIncome || 0,
+      referralFee: referralFee || 0,
       sourceIncomeField,
       incomeBreakdown: {
-        agentIncome: agentIncomeField || 0,
+        agentIncome: agentIncome || 0,
         personalSphere: personalSphereField || 0,
         havenIncome: havenIncome || 0,
+        epiqueIncome: epiqueIncome || 0,
+        referralFee: referralFee || 0,
       },
       leadSource,
       isSphere: personalSphere > 0 || leadSource.toLowerCase().includes('sphere'),
@@ -655,6 +775,8 @@ async function loadCapContributions(roster) {
   const agentTabs = ['Amy Sparrow', 'Paula Kamp', 'Kurt Burgan', 'Emily Polanco', 'Marcus Mathews', 'Kiaya Henry', 'Didi Emtman', 'Matt Procter'];
   const capByAgent = {};
   const capTransactionsByAgent = {};
+  const epiqueCapByAgent = {};
+  const epiqueCapTransactionsByAgent = {};
 
   for (const agentTab of agentTabs) {
     try {
@@ -665,7 +787,9 @@ async function loadCapContributions(roster) {
       if (!roster.has(rosterAgentId)) continue;
 
       let totalCap = 0;
+      let totalEpiqueCap = 0;
       const capTxns = [];
+      const epiqueCapTxns = [];
 
       for (const row of rows) {
         // Look for cap-eligible field: "Haven's Gross Commission (This amount should be added to personal cap if transaction is personal)"
@@ -673,21 +797,47 @@ async function loadCapContributions(roster) {
                                   row['Haven\'s Gross Commission'] ||
                                   row['Haven Gross Commission'];
 
+        const closedDate = parseDate(row['Closing Date'] || row['Settlement Date']);
+        const address = row['Address'] || 'Unknown';
+        const purchasePrice = parseCurrency(row['Purchase Price'] || row[' Purchase Price ']) || 0;
+
         if (capEligibleField) {
           const capAmount = parseCurrency(capEligibleField);
-          const closedDate = parseDate(row['Closing Date'] || row['Settlement Date']);
-
           // Only count cap contributions from current cap year (April 7 - April 6)
           if (capAmount && capAmount > 0 && closedDate && isInCurrentCapYear(closedDate)) {
             totalCap += capAmount;
             capTxns.push({
-              address: row['Address'] || 'Unknown',
+              address,
               closedDate: row['Closing Date'] || row['Settlement Date'] || undefined,
-              purchasePrice: parseCurrency(row[' Purchase Price ']) || 0,
+              purchasePrice,
               capContribution: capAmount,
               isSphere: (row['Lead Source'] || '').toLowerCase().includes('personal') || (row['Lead Source'] || '').toLowerCase().includes('sphere'),
             });
           }
+        }
+
+        const epiqueCapField = row['Epique 15% TF (capped at $5,000.00 for all non-personal transactions)'] ||
+                               row['Epique 15% TF'];
+        const epiqueTfField = row['Epique TF (smaller of 0.1% of Purchase Price or $250.00)'] ||
+                              row['Epique TF'];
+        const epiqueCapAmount = (parseCurrency(epiqueCapField) || 0) + (parseCurrency(epiqueTfField) || 0);
+
+        // Epique has a separate transaction-fee cap. Use explicit Epique TF columns only.
+        if (epiqueCapAmount > 0 && closedDate && isInCurrentCapYear(closedDate)) {
+          const agentEpiqueCap = getEpiqueCap(rosterAgentId);
+          const remainingEpiqueCap = Math.max(agentEpiqueCap - totalEpiqueCap, 0);
+          const cappedContribution = Math.min(epiqueCapAmount, remainingEpiqueCap);
+          if (cappedContribution <= 0) continue;
+          totalEpiqueCap += cappedContribution;
+          epiqueCapTxns.push({
+            address,
+            closedDate: row['Closing Date'] || row['Settlement Date'] || undefined,
+            purchasePrice,
+            capContribution: cappedContribution,
+            epique15Tf: parseCurrency(epiqueCapField) || 0,
+            epiqueTf: parseCurrency(epiqueTfField) || 0,
+            isSphere: (row['Lead Source'] || '').toLowerCase().includes('personal') || (row['Lead Source'] || '').toLowerCase().includes('sphere'),
+          });
         }
       }
 
@@ -696,12 +846,18 @@ async function loadCapContributions(roster) {
         capTransactionsByAgent[rosterAgentId] = capTxns;
         console.log(`    ${agentTab}: $${totalCap.toLocaleString()} cap (${capTxns.length} transactions)`);
       }
+
+      if (totalEpiqueCap > 0) {
+        epiqueCapByAgent[rosterAgentId] = totalEpiqueCap;
+        epiqueCapTransactionsByAgent[rosterAgentId] = epiqueCapTxns;
+        console.log(`    ${agentTab}: $${totalEpiqueCap.toLocaleString()} Epique cap (${epiqueCapTxns.length} transactions)`);
+      }
     } catch (e) {
       // Tab may not exist or agent may have no data
     }
   }
 
-  return { capByAgent, capTransactionsByAgent };
+  return { capByAgent, capTransactionsByAgent, epiqueCapByAgent, epiqueCapTransactionsByAgent };
 }
 
 async function loadShowings() {
@@ -731,8 +887,12 @@ async function loadShowings() {
 }
 
 function createEmptyAgent(name, id) {
+  const agentId = id || normalizeAgentId(name);
+  const epiqueCap = getEpiqueCap(agentId);
+  const havenCap = getHavenCap(agentId);
+
   return {
-    id: id || normalizeAgentId(name),
+    id: agentId,
     name: name.trim(),
     closedTransactions: 0,
     pendingTransactions: 0,
@@ -740,6 +900,10 @@ function createEmptyAgent(name, id) {
     pendingVolume: 0,
     gci: 0,
     capProgress: 0,
+    capTarget: havenCap,
+    epiqueCapProgress: 0,
+    epiqueCapTarget: epiqueCap,
+    epiqueCapContributingTransactions: [],
     activeListings: 0,
     cmasCompleted: 0,
     zillowLeads: 0,
@@ -787,6 +951,7 @@ function calculateTeamStats(agents) {
     totalZillowLeads: values.reduce((sum, a) => sum + a.zillowLeads, 0),
     totalZillowCost: 0,
     totalCapContributions: values.reduce((sum, a) => sum + a.capProgress, 0),
+    totalEpiqueCapContributions: values.reduce((sum, a) => sum + (a.epiqueCapProgress || 0), 0),
     totalGCI: values.reduce((sum, a) => sum + a.gci, 0),
     totalReferrals: values.reduce((sum, a) => sum + (a.referrals || 0), 0),
     totalReferralVolume: values.reduce((sum, a) => sum + (a.referralVolume || 0), 0),
@@ -819,7 +984,7 @@ async function main() {
   const { pendings, pendingDetailsByAgent } = await loadPendingTransactions(roster, closed);
   const listingsByAgent = await loadListings(roster);
   const cmasByAgent = await loadCmas(roster);
-  const { capByAgent, capTransactionsByAgent } = await loadCapContributions(roster);
+  const { capByAgent, capTransactionsByAgent, epiqueCapByAgent, epiqueCapTransactionsByAgent } = await loadCapContributions(roster);
   const showingsByAgent = await loadShowings();
 
   console.log('\nBuilding agent snapshots...\n');
@@ -837,6 +1002,7 @@ async function main() {
       agent.closedTransactions += 1;
       agent.closedVolume += txn.price;
       agent.gci += txn.gci;
+      agent.epiqueIncome = (agent.epiqueIncome || 0) + (txn.epiqueIncome || 0);
     } else if (txn.status === 'pending') {
       agent.pendingTransactions += 1;
       agent.pendingVolume += txn.price;
@@ -872,6 +1038,12 @@ async function main() {
     if (agents[agentId]) {
       agents[agentId].capProgress = cap;
       agents[agentId].capContributingTransactions = capTransactionsByAgent[agentId] || [];
+    }
+  }
+  for (const [agentId, epiqueCap] of Object.entries(epiqueCapByAgent)) {
+    if (agents[agentId]) {
+      agents[agentId].epiqueCapProgress = epiqueCap;
+      agents[agentId].epiqueCapContributingTransactions = epiqueCapTransactionsByAgent[agentId] || [];
     }
   }
   for (const [agentId, showings] of Object.entries(showingsByAgent)) {
@@ -926,6 +1098,7 @@ async function main() {
   console.log(`Total Closed Volume: $${(teamStats.totalClosedVolume || 0).toLocaleString()}`);
   console.log(`Total Pending Volume: $${(teamStats.totalPendingVolume || 0).toLocaleString()}`);
   console.log(`Total Cap Contributions: $${(teamStats.totalCapContributions || 0).toLocaleString()}`);
+  console.log(`Total Epique Cap Contributions: $${(teamStats.totalEpiqueCapContributions || 0).toLocaleString()}`);
   console.log(`Total Showings (30D): ${teamStats.totalShowings}`);
   console.log(`Total Active Listings: ${teamStats.totalActiveListings}`);
   console.log(`Total Completed CMAs: ${teamStats.totalCmasCompleted}`);

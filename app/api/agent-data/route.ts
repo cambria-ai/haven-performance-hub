@@ -12,7 +12,7 @@ import * as path from 'path';
 export async function GET(request: NextRequest) {
   try {
     const auth = getAuthFromRequest(request);
-    
+
     if (!auth) {
       return NextResponse.json(
         { error: 'Authentication required' },
@@ -63,6 +63,41 @@ export async function GET(request: NextRequest) {
         isOwn: entry.agentId === targetAgentId,
       }));
 
+      // Build closed transactions by source for admin view (full details)
+      const closedBySource: Record<string, any> = {};
+      if (agentData.closedTransactionsDetail && Array.isArray(agentData.closedTransactionsDetail)) {
+        for (const txn of agentData.closedTransactionsDetail) {
+          const source = txn.leadSource || 'Unknown';
+          if (!closedBySource[source]) {
+            closedBySource[source] = {
+              source,
+              count: 0,
+              volume: 0,
+              gci: 0,
+              agentIncome: 0,
+              havenIncome: 0,
+              transactions: [],
+            };
+          }
+          closedBySource[source].count++;
+          closedBySource[source].volume += txn.purchasePrice || 0;
+          closedBySource[source].gci += txn.incomeBreakdown?.havenIncome || 0;
+          closedBySource[source].agentIncome += txn.incomeBreakdown?.agentIncome || 0;
+          closedBySource[source].havenIncome += txn.incomeBreakdown?.havenIncome || 0;
+          closedBySource[source].transactions.push({
+            transactionId: txn.transactionId,
+            address: txn.address,
+            closedDate: txn.closedDate,
+            purchasePrice: txn.purchasePrice || 0,
+            havenIncome: txn.incomeBreakdown?.havenIncome || 0,
+            agentIncome: txn.incomeBreakdown?.agentIncome || 0,
+            commissionPercent: txn.commissionPercent || null,
+            leadSource: source,
+          });
+        }
+      }
+      const closedTransactionsBySource = Object.values(closedBySource).sort((a: any, b: any) => b.volume - a.volume);
+
       return NextResponse.json({
         agent: agentDataWithRank,
         leaderboard,
@@ -70,6 +105,7 @@ export async function GET(request: NextRequest) {
         isAdmin: true,
         snapshotDate: snapshot?.metadata.createdAt || null,
         timeWindowStats: agentTimeWindowStats,
+        closedTransactionsBySource,
       });
     }
 
@@ -81,10 +117,10 @@ export async function GET(request: NextRequest) {
     }
 
     const scopedData = getScopedSnapshotData(snapshot, auth);
-    
+
     if (!scopedData.snapshot && scopedData.error) {
       return NextResponse.json(
-        { 
+        {
           error: scopedData.error,
           agent: null,
           leaderboard: scopedData.leaderboard,
@@ -92,10 +128,21 @@ export async function GET(request: NextRequest) {
         { status: 404 }
       );
     }
-    
+
     // Extract agent data
     const agentData = scopedData.snapshot?.agents[auth.agentId] || null;
-    
+
+    if (!agentData) {
+      return NextResponse.json(
+        {
+          error: 'Agent data not found',
+          agent: null,
+          leaderboard: scopedData.leaderboard,
+        },
+        { status: 404 }
+      );
+    }
+
     // Add rank to agent data from leaderboard
     const leaderboard = (scopedData.leaderboard || []).map((entry: any) => ({
       ...entry,
@@ -103,7 +150,7 @@ export async function GET(request: NextRequest) {
     }));
     const leaderboardEntry = leaderboard.find((l: any) => l.agentId === auth.agentId);
     const agentDataWithRank = leaderboardEntry ? { ...agentData, rank: leaderboardEntry.rank } : agentData;
-    
+
     // Load time-window stats for this agent
     let agentTimeWindowStats: any = null;
     try {
@@ -115,7 +162,76 @@ export async function GET(request: NextRequest) {
     } catch {
       // Time-window stats not available
     }
-    
+
+    // Build pending transactions by source for agent view (privacy-respecting)
+    const pendingBySource: Record<string, any> = {};
+    if (agentData && agentData.pendingTransactionsDetail && Array.isArray(agentData.pendingTransactionsDetail)) {
+      for (const txn of agentData.pendingTransactionsDetail) {
+        const source = txn.leadSource || 'Unknown';
+        if (!pendingBySource[source]) {
+          pendingBySource[source] = {
+            source,
+            count: 0,
+            volume: 0,
+            havenIncome: 0,
+            agentIncome: 0,
+            transactions: [],
+          };
+        }
+        pendingBySource[source].count++;
+        pendingBySource[source].volume += txn.purchasePrice || 0;
+        pendingBySource[source].havenIncome += txn.incomeBreakdown?.havenIncome || 0;
+        pendingBySource[source].agentIncome += txn.expectedAgentIncome || 0;
+        // For agents, include minimal transaction details (no agent names for privacy)
+        pendingBySource[source].transactions.push({
+          transactionId: txn.transactionId,
+          address: txn.address,
+          contractDate: txn.contractDate,
+          expectedClosingDate: txn.expectedClosingDate,
+          purchasePrice: txn.purchasePrice || 0,
+          havenIncome: txn.incomeBreakdown?.havenIncome || 0,
+          expectedAgentIncome: txn.expectedAgentIncome || 0,
+          commissionPercent: txn.commissionPercent || null,
+        });
+      }
+    }
+    const pendingTransactionsBySource = Object.values(pendingBySource).sort((a: any, b: any) => b.volume - a.volume);
+
+    // Build closed transactions by source for agent view (privacy-respecting)
+    const closedBySource: Record<string, any> = {};
+    if (agentData && agentData.closedTransactionsDetail && Array.isArray(agentData.closedTransactionsDetail)) {
+      for (const txn of agentData.closedTransactionsDetail) {
+        const source = txn.leadSource || 'Unknown';
+        if (!closedBySource[source]) {
+          closedBySource[source] = {
+            source,
+            count: 0,
+            volume: 0,
+            gci: 0,
+            agentIncome: 0,
+            havenIncome: 0,
+            transactions: [],
+          };
+        }
+        closedBySource[source].count++;
+        closedBySource[source].volume += txn.purchasePrice || 0;
+        closedBySource[source].gci += txn.incomeBreakdown?.havenIncome || 0;
+        closedBySource[source].agentIncome += txn.incomeBreakdown?.agentIncome || 0;
+        closedBySource[source].havenIncome += txn.incomeBreakdown?.havenIncome || 0;
+        // For agents, include minimal transaction details (no agent names for privacy)
+        closedBySource[source].transactions.push({
+          transactionId: txn.transactionId,
+          address: txn.address,
+          closedDate: txn.closedDate,
+          purchasePrice: txn.purchasePrice || 0,
+          havenIncome: txn.incomeBreakdown?.havenIncome || 0,
+          agentIncome: txn.incomeBreakdown?.agentIncome || 0,
+          commissionPercent: txn.commissionPercent || null,
+        });
+      }
+    }
+    const closedTransactionsBySource = Object.values(closedBySource).sort((a: any, b: any) => b.volume - a.volume);
+
     return NextResponse.json({
       agent: agentDataWithRank,
       leaderboard,
@@ -123,10 +239,12 @@ export async function GET(request: NextRequest) {
       isAdmin: scopedData.isAdmin,
       snapshotDate: scopedData.snapshot?.metadata.createdAt || null,
       timeWindowStats: agentTimeWindowStats,
+      pendingTransactionsBySource,
+      closedTransactionsBySource,
     });
   } catch (error) {
     console.error('Agent data error:', error);
-    return NextResponse.json({ 
+    return NextResponse.json({
       error: 'Failed to load agent data',
       agent: null,
       leaderboard: [],

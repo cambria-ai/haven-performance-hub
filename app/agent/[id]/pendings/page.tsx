@@ -11,11 +11,16 @@ interface PendingTransaction {
   expectedClosingDate?: string;
   purchasePrice?: number;
   expectedAgentIncome: number;
+  epiqueIncome?: number;
+  referralFee?: number;
+  commissionPercent?: string | null;
   sourceIncomeField: string;
   incomeBreakdown: {
     agentIncome: number;
     personalSphere: number;
     havenIncome: number;
+    epiqueIncome?: number;
+    referralFee?: number;
   };
   leadSource?: string;
   isSphere?: boolean;
@@ -24,11 +29,21 @@ interface PendingTransaction {
   transactionFee?: number;
 }
 
+interface PendingBySource {
+  source: string;
+  count: number;
+  volume: number;
+  havenIncome: number;
+  agentIncome: number;
+  transactions: any[];
+}
+
 interface AgentData {
   id: string;
   name: string;
   pendingTransactions: number;
   pendingTransactionsDetail: PendingTransaction[];
+  pendingTransactionsBySource?: PendingBySource[];
 }
 
 export default function AgentPendingsPage() {
@@ -197,6 +212,46 @@ export default function AgentPendingsPage() {
           </div>
         </div>
 
+        {/* Source Breakdown */}
+        {agentData?.pendingTransactionsBySource && agentData.pendingTransactionsBySource.length > 0 && (
+          <div className="mb-8">
+            <h2 className="mb-4 text-xl font-semibold text-slate-950">Pending Transactions by Source</h2>
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {agentData.pendingTransactionsBySource.map((sourceData) => (
+                <div
+                  key={sourceData.source}
+                  className="group flex flex-col items-start gap-3 rounded-2xl border border-slate-200/60 bg-white/60 p-5 transition hover:border-indigo-200 hover:bg-white/80 hover:shadow-lg"
+                >
+                  <div className="flex w-full items-center justify-between">
+                    <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700">
+                      {sourceData.source}
+                    </span>
+                    <span className="text-xs font-medium text-slate-500">
+                      {sourceData.count} transaction{sourceData.count !== 1 ? 's' : ''}
+                    </span>
+                  </div>
+                  <div className="w-full space-y-2">
+                    <div className="flex items-baseline justify-between">
+                      <span className="text-xs font-medium uppercase tracking-wider text-slate-500">Volume</span>
+                      <span className="text-lg font-bold text-slate-950">{formatCurrency(sourceData.volume)}</span>
+                    </div>
+                    <div className="flex items-baseline justify-between">
+                      <span className="text-xs font-medium uppercase tracking-wider text-slate-500">Haven Income</span>
+                      <span className="text-base font-semibold text-emerald-600">{formatCurrency(sourceData.havenIncome)}</span>
+                    </div>
+                    {sourceData.agentIncome > 0 && (
+                      <div className="flex items-baseline justify-between">
+                        <span className="text-xs font-medium uppercase tracking-wider text-slate-500">Agent Income</span>
+                        <span className="text-base font-semibold text-indigo-600">{formatCurrency(sourceData.agentIncome)}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Transaction List */}
         <div className="space-y-4">
           {agentData.pendingTransactionsDetail.map((txn, idx) => (
@@ -256,6 +311,15 @@ export default function AgentPendingsPage() {
                     </div>
                   )}
 
+                  {txn.incomeBreakdown?.epiqueIncome && txn.incomeBreakdown.epiqueIncome > 0 && (
+                    <div className="flex justify-between items-center">
+                      <span className="text-slate-600">Epique Income</span>
+                      <span className="font-semibold text-indigo-700">
+                        {formatCurrency(txn.incomeBreakdown.epiqueIncome)}
+                      </span>
+                    </div>
+                  )}
+
                   {isAdminView && txn.boTax !== undefined && txn.boTax > 0 && (
                     <div className="flex justify-between items-center">
                       <span className="text-slate-600">B&O State Tax</span>
@@ -302,6 +366,12 @@ export default function AgentPendingsPage() {
                     {txn.isSphere ? 'Personal Sphere' : txn.isZillow ? 'Zillow' : 'Other'}
                   </p>
                 </div>
+                {txn.commissionPercent && (
+                  <div>
+                    <p className="text-slate-500 mb-1">Commission</p>
+                    <p className="font-medium text-slate-900">{txn.commissionPercent}%</p>
+                  </div>
+                )}
               </div>
             </div>
           ))}
