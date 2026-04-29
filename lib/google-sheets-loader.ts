@@ -53,6 +53,14 @@ export interface LoadResult {
   warnings: string[];
   errors: string[];
   sourcesLoaded: string[];
+  auditInfo?: {
+    weeklyActivity?: {
+      tabExists: boolean;
+      rowsLoaded: number;
+      agentsMatched: number;
+      agentsUnmatched: string[];
+    };
+  };
 }
 
 // Core source sheet
@@ -70,6 +78,7 @@ export const TAB_GIDS: Record<string, number> = {
   'CMAS_2026': 1932605207,
   'Sorting 2': 2043111127,
   'Sorting 3': 1948698996,
+  'Weekly Activity by Agent': -1, // GID unknown - will use sheet name
 };
 
 // Explicitly excluded per business rules
@@ -543,6 +552,147 @@ async function loadListings(roster: Map<string, string>): Promise<Record<string,
 }
 
 /**
+ * Load weekly activity data from "Weekly Activity by Agent" tab.
+ * Expected columns: Week Starting, Agent, Total Showings, New Listings Taken, CMAs Completed, Offers Written, Offers Accepted
+ *
+ * Returns activity aggregated by agent (most recent week only for current snapshot).
+ * If tab doesn't exist or is empty, returns empty object - UI will show "not tracked yet".
+ */
+async function loadWeeklyActivity(roster: Map<string, string>): Promise<{
+  activityByAgent: Record<string, {
+    weeklyShowings?: number;
+    weeklyOffersWritten?: number;
+    weeklyOffersAccepted?: number;
+    weeklyListingsTaken?: number;
+    weeklyCmasCompleted?: number;
+  }>;
+  auditInfo: {
+    tabExists: boolean;
+    rowsLoaded: number;
+    agentsMatched: number;
+    agentsUnmatched: string[];
+  };
+}> {
+  const auditInfo: {
+    tabExists: boolean;
+    rowsLoaded: number;
+    agentsMatched: number;
+    agentsUnmatched: string[];
+  } = {
+    tabExists: true,
+    rowsLoaded: 0,
+    agentsMatched: 0,
+    agentsUnmatched: [],
+  };
+
+  try {
+    const csv = await fetchTabCSV('Weekly Activity by Agent');
+    if (!csv || csv.trim().length === 0) {
+      auditInfo.tabExists = false;
+      return { activityByAgent: {}, auditInfo };
+    }
+
+    const { rows, headers } = parseCSV(csv);
+    const activityByAgent: Record<string, {
+      weeklyShowings?: number;
+      weeklyOffersWritten?: number;
+      weeklyOffersAccepted?: number;
+      weeklyListingsTaken?: number;
+      weeklyCmasCompleted?: number;
+    }> = {};
+
+    const rosterMatchKeys = new Map<string, string>();
+    for (const [agentId, agentName] of roster.entries()) {
+      const matchKey = getAgentMatchKey(agentName);
+      rosterMatchKeys.set(matchKey, agentId);
+    }
+
+    const getFieldValue = (row: string[], keys: string[]): string | null => {
+      for (let idx = 0; idx < headers.length; idx++) {
+        const header = headers[idx].trim().toUpperCase();
+        for (const key of keys) {
+          if (header === key.toUpperCase() && row[idx]) {
+            return row[idx];
+          }
+        }
+      }
+      return null;
+    };
+
+    // Find the most recent week's data for each agent
+    const latestWeekByAgent = new Map<string, string>();
+
+    for (const row of rows) {
+      const weekStarting = getFieldValue(row, ['Week Starting', 'Week Starting Date', 'Week']);
+      const agentName = getFieldValue(row, ['Agent', 'Agent Name', 'Name']) || row[0];
+
+      if (!agentName || !isValidAgentName(agentName)) continue;
+
+      const agentId = normalizeAgentId(agentName);
+      const matchKey = getAgentMatchKey(agentName);
+
+      let rosterAgentId = roster.has(agentId) ? agentId : null;
+      if (!rosterAgentId && rosterMatchKeys.has(matchKey)) {
+        rosterAgentId = rosterMatchKeys.get(matchKey)!;
+      }
+      if (!rosterAgentId) {
+        auditInfo.agentsUnmatched.push(agentName);
+        continue;
+      }
+
+      // Track latest week for this agent
+      const existingWeek = latestWeekByAgent.get(rosterAgentId);
+      if (!existingWeek || (weekStarting && weekStarting > existingWeek)) {
+        latestWeekByAgent.set(rosterAgentId, weekStarting || '');
+      }
+    }
+
+    // Second pass: load data for latest week only
+    for (const row of rows) {
+      const weekStarting = getFieldValue(row, ['Week Starting', 'Week Starting Date', 'Week']) || '';
+      const agentName = getFieldValue(row, ['Agent', 'Agent Name', 'Name']) || row[0];
+
+      if (!agentName || !isValidAgentName(agentName)) continue;
+
+      const agentId = normalizeAgentId(agentName);
+      const matchKey = getAgentMatchKey(agentName);
+
+      let rosterAgentId = roster.has(agentId) ? agentId : null;
+      if (!rosterAgentId && rosterMatchKeys.has(matchKey)) {
+        rosterAgentId = rosterMatchKeys.get(matchKey)!;
+      }
+      if (!rosterAgentId) continue;
+
+      // Skip if not the latest week for this agent
+      if (latestWeekByAgent.get(rosterAgentId) !== weekStarting) continue;
+
+      auditInfo.rowsLoaded++;
+      auditInfo.agentsMatched++;
+
+      const totalShowings = parseInt(getFieldValue(row, ['Total Showings', 'Showings']) || '0', 10);
+      const newListingstaken = parseInt(getFieldValue(row, ['New Listings Taken', 'Listings Taken', 'New Listings']) || '0', 10);
+      const cmasCompleted = parseInt(getFieldValue(row, ['CMAs Completed', 'CMAs', 'CMA Completed']) || '0', 10);
+      const offersWritten = parseInt(getFieldValue(row, ['Offers Written', 'Offers']) || '0', 10);
+      const offersAccepted = parseInt(getFieldValue(row, ['Offers Accepted', 'Accepted Offers']) || '0', 10);
+
+      activityByAgent[rosterAgentId] = {
+        weeklyShowings: totalShowings > 0 ? totalShowings : undefined,
+        weeklyOffersWritten: offersWritten > 0 ? offersWritten : undefined,
+        weeklyOffersAccepted: offersAccepted > 0 ? offersAccepted : undefined,
+        weeklyListingsTaken: newListingstaken > 0 ? newListingstaken : undefined,
+        weeklyCmasCompleted: cmasCompleted > 0 ? cmasCompleted : undefined,
+      };
+    }
+
+    return { activityByAgent, auditInfo };
+  } catch (err) {
+    // Tab doesn't exist or fetch failed
+    auditInfo.tabExists = false;
+    return { activityByAgent: {}, auditInfo };
+  }
+}
+
+/**
  * Load completed CMAs per agent
  */
 async function loadCmas(roster: Map<string, string>): Promise<Record<string, number>> {
@@ -610,6 +760,8 @@ export async function loadFromGoogleSheets(): Promise<LoadResult> {
 
     const listingsByAgent = await loadListings(roster);
     const cmasByAgent = await loadCmas(roster);
+    const weeklyActivityResult = await loadWeeklyActivity(roster);
+    const { activityByAgent, auditInfo: weeklyActivityAudit } = weeklyActivityResult;
 
     const agents: Record<string, AgentSnapshot> = {};
     for (const [agentId, agentName] of roster.entries()) {
@@ -663,6 +815,15 @@ export async function loadFromGoogleSheets(): Promise<LoadResult> {
       if (agents[agentId]) agents[agentId].cmasCompleted = count;
     }
 
+    // Wire weekly activity data (Phase 1)
+    for (const [agentId, activity] of Object.entries(activityByAgent)) {
+      if (agents[agentId]) {
+        if (activity.weeklyShowings != null) agents[agentId].weeklyShowings = activity.weeklyShowings;
+        if (activity.weeklyOffersWritten != null) agents[agentId].weeklyOffersWritten = activity.weeklyOffersWritten;
+        if (activity.weeklyOffersAccepted != null) agents[agentId].weeklyOffersAccepted = activity.weeklyOffersAccepted;
+      }
+    }
+
     const leaderboard = buildLeaderboard(agents);
     const teamStats = calculateTeamStats(agents);
     const timeWindowStats = buildTimeWindowStats(allTransactions, agents);
@@ -677,12 +838,12 @@ export async function loadFromGoogleSheets(): Promise<LoadResult> {
       transactionCount: allTransactions.length,
       weekStart,
       weekEnd,
-      notes: `Loaded from Haven Transactions 2026. Roster-based filtering active. Excluded tabs: ${EXCLUDED_TABS.join(', ')}. CLOSED from Master Closed 2026 (${closed.length} txns). PENDING from MASTER HAVEN PNDS (${pendings.length} txns). Dedupe: normalizedAddress+agentMatchKey+price+closingDate.`,
+      notes: `Loaded from Haven Transactions 2026. Roster-based filtering active. Excluded tabs: ${EXCLUDED_TABS.join(', ')}. CLOSED from Master Closed 2026 (${closed.length} txns). PENDING from MASTER HAVEN PNDS (${pendings.length} txns). Dedupe: normalizedAddress+agentMatchKey+price+closingDate. Weekly Activity tab: ${weeklyActivityAudit.tabExists ? `${weeklyActivityAudit.rowsLoaded} rows, ${weeklyActivityAudit.agentsMatched} agents matched` : 'not found'}.`,
     };
 
     const snapshot: WeeklySnapshot = { metadata, agents, leaderboard, teamStats };
 
-    return { snapshot, timeWindowStats, warnings, errors, sourcesLoaded };
+    return { snapshot, timeWindowStats, warnings, errors, sourcesLoaded, auditInfo: { weeklyActivity: weeklyActivityAudit } };
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
     errors.push(`Failed to load from Google Sheets: ${msg}`);

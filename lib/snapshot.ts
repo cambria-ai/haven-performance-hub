@@ -90,6 +90,18 @@ export interface AgentSnapshot {
   referralTransactions?: ReferralTransaction[];
   pendingTransactionsDetail?: PendingTransactionDetail[];
   closedTransactionsDetail?: ClosedTransactionDetail[];
+  // Gap Analysis Phase 0 - Optional fields (backward compatible)
+  // Weekly activity metrics (from future Weekly Activity tab)
+  weeklyShowings?: number;
+  weeklyOffersWritten?: number;
+  weeklyOffersAccepted?: number;
+  // Source normalization (preserves raw source, adds category)
+  leadSourcesByCategory?: {
+    zillow: number;
+    sphere: number;
+    companyGenerated: number;
+    other: number;
+  };
 }
 
 export interface CapContribution {
@@ -205,6 +217,13 @@ export interface TransactionRecord {
   agentIncome?: number;
   epiqueIncome?: number;
   havenIncome?: number;
+  // Gap Analysis Phase 0 - Optional fields (backward compatible)
+  // Source normalization category
+  sourceCategory?: 'Zillow' | 'Sphere' | 'Company Generated' | 'Other';
+  // Weekly activity metrics (from future Weekly Activity tab)
+  showingsCount?: number;
+  offersWritten?: number;
+  offersAccepted?: number;
 }
 
 export interface LeaderboardEntry {

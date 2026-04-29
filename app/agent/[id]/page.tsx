@@ -25,8 +25,10 @@ import {
   X,
   CheckCircle2,
   Activity,
+  BarChart2,
 } from 'lucide-react';
 import { getEpiqueCap, getHavenCap, agentPaysHavenCap } from '../../../lib/cap-rules';
+import GapAnalysisTab from '@/components/gap-analysis-tab';
 
 interface AgentData {
   agent: any;
@@ -48,7 +50,7 @@ export default function AgentDashboard() {
   const [showLeadForm, setShowLeadForm] = useState(false);
   const [showCapDrilldown, setShowCapDrilldown] = useState(false);
   const [showEpiqueCapDrilldown, setShowEpiqueCapDrilldown] = useState(false);
-  const [activeTab, setActiveTab] = useState<'overview' | 'weekly' | 'results'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'weekly' | 'gap' | 'results'>('overview');
   const [newLead, setNewLead] = useState({ type: 'sphere', name: '', source: '', notes: '' });
 
   useEffect(() => {
@@ -226,6 +228,16 @@ export default function AgentDashboard() {
               }`}
             >
               Weekly Activity
+            </button>
+            <button
+              onClick={() => setActiveTab('gap')}
+              className={`rounded-2xl px-5 py-3 text-sm font-semibold transition ${
+                activeTab === 'gap'
+                  ? 'bg-slate-950 text-white'
+                  : 'bg-white text-slate-600 hover:bg-slate-50'
+              }`}
+            >
+              Gap Analysis
             </button>
             <button
               onClick={() => setActiveTab('results')}
@@ -475,6 +487,11 @@ export default function AgentDashboard() {
                     </div>
                   )}
                 </section>
+              </>
+            ) : activeTab === 'gap' ? (
+              <>
+                {/* Gap Analysis Tab Content */}
+                <GapAnalysisTab agentData={agentData} />
               </>
             ) : activeTab === 'results' ? (
               <>
